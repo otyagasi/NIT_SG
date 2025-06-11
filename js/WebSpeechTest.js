@@ -1,5 +1,6 @@
  const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
+        const retryButton = document.getElementById('retryButton');
         const resultTextElement = document.getElementById('resultText');
         const hiraganaTextElement = document.getElementById('hiraganaText');
         const statusElement = document.getElementById('status');
@@ -12,22 +13,74 @@
 
         // --- kuromoji.js と ひらがな変換関連 ---
         function initializeKuromoji() {
+            const startTime = Date.now();
             kuromojiStatusElement.textContent = '形態素解析器を初期化中... (数秒かかることがあります)';
             console.log("Initializing kuromoji.js tokenizer...");
+            
+            // CDN接続チェック
+            console.log("Checking kuromoji.js library availability...");
+            if (typeof kuromoji === 'undefined') {
+                console.error("kuromoji.js library is not loaded!");
+                kuromojiStatusElement.textContent = 'kuromoji.jsライブラリが読み込まれていません。CDN接続を確認してください。';
+                startButton.disabled = false;
+                retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
+                return;
+            }
+            
+            // タイムアウト設定 (30秒)
+            const timeout = setTimeout(() => {
+                console.error("Kuromoji initialization timeout after 30 seconds");
+                kuromojiStatusElement.textContent = '形態素解析器の初期化がタイムアウトしました。CDN接続またはネットワークの問題が考えられます。';
+                startButton.disabled = false;
+                retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
+            }, 30000);
+            
+            // 進捗表示用タイマー
+            const progressInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                kuromojiStatusElement.textContent = `形態素解析器を初期化中... (${elapsed}秒経過)`;
+            }, 1000);
+            
             // 辞書ファイルのパスを指定 (CDNから取得)
-            kuromoji.builder({ dicPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/" })
-                .build((err, tokenizer) => {
-                    if (err) {
-                        console.error("Kuromoji initialization error:", err);
-                        kuromojiStatusElement.textContent = '形態素解析器の初期化に失敗しました。ひらがな変換は利用できません。';
-                        startButton.disabled = false; // 認識自体はできるようにする
-                        return;
-                    }
-                    kuromojiTokenizer = tokenizer;
-                    kuromojiStatusElement.textContent = '形態素解析器の準備ができました。';
-                    startButton.disabled = false; // 準備完了後、開始ボタンを有効化
-                    console.log("Kuromoji tokenizer initialized.");
-                });
+            const dicPath = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/";
+            console.log("Dictionary path:", dicPath);
+            
+            try {
+                kuromoji.builder({ dicPath: dicPath })
+                    .build((err, tokenizer) => {
+                        clearTimeout(timeout);
+                        clearInterval(progressInterval);
+                        
+                        const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                        
+                        if (err) {
+                            console.error("Kuromoji initialization error:", err);
+                            console.error("Error details:", {
+                                message: err.message,
+                                stack: err.stack,
+                                dicPath: dicPath,
+                                elapsedTime: elapsedTime
+                            });
+                            kuromojiStatusElement.textContent = `形態素解析器の初期化に失敗しました (${elapsedTime}秒後): ${err.message || 'ネットワークエラーの可能性があります'}`;
+                            startButton.disabled = false;
+                            retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
+                            return;
+                        }
+                        
+                        kuromojiTokenizer = tokenizer;
+                        kuromojiStatusElement.textContent = `形態素解析器の準備ができました (${elapsedTime}秒で完了)`;
+                        startButton.disabled = false;
+                        retryButton.style.display = 'none'; // 成功時は再試行ボタンを非表示
+                        console.log(`Kuromoji tokenizer initialized successfully in ${elapsedTime} seconds`);
+                    });
+            } catch (buildError) {
+                clearTimeout(timeout);
+                clearInterval(progressInterval);
+                console.error("Error creating kuromoji builder:", buildError);
+                kuromojiStatusElement.textContent = 'kuromoji.builderの作成に失敗しました: ' + buildError.message;
+                startButton.disabled = false;
+                retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
+            }
         }
 
         function katakanaToHiragana(katakana) {
@@ -172,5 +225,90 @@
             alert('お使いのブラウザは Web Speech API に対応していません。');
         }
 
+        // CDN接続テスト関数
+        function testCDNConnectivity() {
+            return new Promise((resolve, reject) => {
+                const testUrl = 'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/package.json';
+                fetch(testUrl, { 
+                    method: 'HEAD',
+                    cache: 'no-cache',
+                    mode: 'cors'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('CDN connectivity test successful');
+                        resolve(true);
+                    } else {
+                        console.warn('CDN connectivity test failed:', response.status, response.statusText);
+                        reject(new Error(`CDN接続テスト失敗: ${response.status} ${response.statusText}`));
+                    }
+                })
+                .catch(error => {
+                    console.error('CDN connectivity test error:', error);
+                    reject(error);
+                });
+            });
+        }
+
+        // デバッグ情報をログ出力
+        function logEnvironmentInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                languages: navigator.languages,
+                location: window.location.href,
+                protocol: window.location.protocol,
+                isSecureContext: window.isSecureContext,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                timestamp: new Date().toISOString(),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+            
+            console.log('=== 環境情報 ===');
+            console.table(info);
+            console.log('=== kuromoji.js 確認 ===');
+            console.log('kuromoji available:', typeof kuromoji !== 'undefined');
+            console.log('kuromoji version:', typeof kuromoji !== 'undefined' && kuromoji.version ? kuromoji.version : 'unknown');
+        }
+
+        // 強化されたkuromoji初期化関数
+        async function initializeKuromojiWithConnectivityCheck() {
+            console.log('Starting kuromoji initialization with connectivity check...');
+            
+            // 環境情報をログ出力
+            logEnvironmentInfo();
+            
+            kuromojiStatusElement.textContent = 'CDN接続を確認中...';
+            
+            try {
+                // CDN接続テスト
+                await testCDNConnectivity();
+                kuromojiStatusElement.textContent = 'CDN接続確認完了。形態素解析器を初期化中...';
+                
+                // 少し待ってからkuromoji初期化
+                setTimeout(initializeKuromoji, 500);
+                
+            } catch (connectivityError) {
+                console.error('CDN connectivity failed:', connectivityError);
+                kuromojiStatusElement.textContent = `CDN接続エラー: ${connectivityError.message}. ひらがな変換は無効になります。`;
+                
+                // CDN接続に失敗した場合は音声認識のみ利用可能にする
+                setTimeout(() => {
+                    kuromojiStatusElement.textContent += ' (音声認識は利用可能です)';
+                    startButton.disabled = false;
+                    retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
+                }, 2000);
+            }
+        }
+
+        // 再試行ボタンのイベントリスナー
+        retryButton.addEventListener('click', () => {
+            console.log('Manual retry button clicked');
+            retryButton.style.display = 'none';
+            kuromojiTokenizer = null; // リセット
+            initializeKuromojiWithConnectivityCheck();
+        });
+
         // ページ読み込み時に kuromoji.js を初期化
-        window.addEventListener('load', initializeKuromoji);
+        window.addEventListener('load', initializeKuromojiWithConnectivityCheck);
