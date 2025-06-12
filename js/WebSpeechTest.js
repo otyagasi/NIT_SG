@@ -13,21 +13,6 @@
 
         // --- kuromoji.js と ひらがな変換関連 ---
         function initializeKuromoji() {
-            kuroshiro.init(
-                {
-                  dicPath: '/dict',
-                },
-                function(err) {
-                  if (err) {
-                    console.log(err)
-                   } else {
-                    new Vue({
-                      render: h => h(App),
-                    }).$mount('#app')
-                  }
-                }
-            )
-            kuroshiro.init()
             const startTime = Date.now();
             kuromojiStatusElement.textContent = '形態素解析器を初期化中... (数秒かかることがあります)';
             console.log("Initializing kuromoji.js tokenizer...");
