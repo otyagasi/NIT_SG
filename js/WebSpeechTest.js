@@ -42,7 +42,7 @@
             }, 1000);
             
             // 辞書ファイルのパスを指定
-            const dicPath = "./dict/";
+            const dicPath = window.location.origin + "/NIT_SG/dict/";
             console.log("Dictionary path:", dicPath);
             console.log("Current URL:", window.location.href);
             console.log("Base URL:", window.location.origin);
@@ -55,6 +55,10 @@
                         throw new Error(`辞書ファイルの読み込みに失敗: ${response.status} ${response.statusText}`);
                     }
                     console.log("辞書ファイルの読み込みに成功しました");
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    console.log("辞書ファイルのサイズ:", buffer.byteLength);
                 })
                 .catch(error => {
                     console.error("辞書ファイルの読み込みエラー:", error);
@@ -62,7 +66,10 @@
                 });
             
             try {
-                kuromoji.builder({ dicPath: dicPath })
+                kuromoji.builder({ 
+                    dicPath: dicPath,
+                    debug: true  // デバッグモードを有効化
+                })
                     .build((err, tokenizer) => {
                         clearTimeout(timeout);
                         clearInterval(progressInterval);
