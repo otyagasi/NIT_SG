@@ -41,9 +41,25 @@
                 kuromojiStatusElement.textContent = `形態素解析器を初期化中... (${elapsed}秒経過)`;
             }, 1000);
             
-            // 辞書ファイルのパスを指定 (ローカルから取得)
-            const dicPath = "../dict/";
+            // 辞書ファイルのパスを指定
+            const dicPath = "./dict/";
             console.log("Dictionary path:", dicPath);
+            console.log("Current URL:", window.location.href);
+            console.log("Base URL:", window.location.origin);
+            console.log("Pathname:", window.location.pathname);
+            
+            // 辞書ファイルの存在確認
+            fetch(dicPath + "base.dat.gz")
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`辞書ファイルの読み込みに失敗: ${response.status} ${response.statusText}`);
+                    }
+                    console.log("辞書ファイルの読み込みに成功しました");
+                })
+                .catch(error => {
+                    console.error("辞書ファイルの読み込みエラー:", error);
+                    kuromojiStatusElement.textContent = `辞書ファイルの読み込みに失敗しました: ${error.message}`;
+                });
             
             try {
                 kuromoji.builder({ dicPath: dicPath })
@@ -59,11 +75,12 @@
                                 message: err.message,
                                 stack: err.stack,
                                 dicPath: dicPath,
-                                elapsedTime: elapsedTime
+                                elapsedTime: elapsedTime,
+                                location: window.location.href
                             });
                             kuromojiStatusElement.textContent = `形態素解析器の初期化に失敗しました (${elapsedTime}秒後): ${err.message || 'ネットワークエラーの可能性があります'}`;
                             startButton.disabled = false;
-                            retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
+                            retryButton.style.display = 'inline-block';
                             return;
                         }
                         

@@ -1,0 +1,11 @@
+# 辞書ファイルへのアクセスを許可
+<FilesMatch "\.(dat\.gz)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# ディレクトリのアクセスを許可
+<Directory "dict">
+    Options -Indexes
+    Allow from all
+</Directory> 
