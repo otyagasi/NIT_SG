@@ -42,7 +42,7 @@
             }, 1000);
             
             // 辞書ファイルのパスを指定
-            const dicPath = "/NIT_SG/dict/";
+            const dicPath = window.location.origin + "/NIT_SG/dict/";
             console.log("Dictionary path:", dicPath);
             console.log("Current URL:", window.location.href);
             console.log("Base URL:", window.location.origin);
@@ -68,7 +68,8 @@
             try {
                 kuromoji.builder({ 
                     dicPath: dicPath,
-                    debug: true  // デバッグモードを有効化
+                    debug: true,  // デバッグモードを有効化
+                    gzip: true    // gzip圧縮を有効化
                 })
                     .build((err, tokenizer) => {
                         clearTimeout(timeout);
