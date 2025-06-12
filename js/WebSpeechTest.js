@@ -42,7 +42,7 @@
             }, 1000);
             
             // 辞書ファイルのパスを指定
-            const dicPath = window.location.origin + "/NIT_SG/dict/";
+            const dicPath = "/NIT_SG/dict/";
             console.log("Dictionary path:", dicPath);
             console.log("Current URL:", window.location.href);
             console.log("Base URL:", window.location.origin);
