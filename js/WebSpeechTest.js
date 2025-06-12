@@ -41,8 +41,8 @@
                 kuromojiStatusElement.textContent = `形態素解析器を初期化中... (${elapsed}秒経過)`;
             }, 1000);
             
-            // 辞書ファイルのパスを指定 (CDNから取得)
-            const dicPath = "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/";
+            // 辞書ファイルのパスを指定 (ローカルから取得)
+            const dicPath = "./dict/";
             console.log("Dictionary path:", dicPath);
             
             try {
