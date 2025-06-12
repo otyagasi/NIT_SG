@@ -42,7 +42,7 @@
             }, 1000);
             
             // 辞書ファイルのパスを指定 (ローカルから取得)
-            const dicPath = "./dict/";
+            const dicPath = "../dict/";
             console.log("Dictionary path:", dicPath);
             
             try {
