@@ -1,9 +1,0 @@
-# .gzファイルの自動解凍を無効化
-<FilesMatch "\.dat\.gz$">
-    SetHandler application/octet-stream
-    ForceType application/octet-stream
-    RemoveHandler .gz
-</FilesMatch>
-
-# MIMEタイプの設定
-AddType application/octet-stream .dat.gz 
