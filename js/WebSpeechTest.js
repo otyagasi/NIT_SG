@@ -42,7 +42,7 @@
             }, 1000);
             
             // 辞書ファイルのパスを指定
-            const dicPath = "/NIT_SG/dict/";
+            const dicPath = "./dict/";
             console.log("Dictionary path:", dicPath);
             console.log("Current URL:", window.location.href);
             console.log("Base URL:", window.location.origin);
@@ -62,7 +62,9 @@
                 })
                 .catch(error => {
                     console.error("辞書ファイルの読み込みエラー:", error);
-                    kuromojiStatusElement.textContent = `辞書ファイルの読み込みに失敗しました: ${error.message}`;
+                    kuromojiStatusElement.textContent = `辞書ファイルの読み込みに失敗しました: ${error.message} (音声認識は利用可能です)`;
+                    // 辞書ファイルの読み込みに失敗しても音声認識は有効にする
+                    startButton.disabled = false;
                 });
             
             try {
@@ -86,7 +88,7 @@
                                 elapsedTime: elapsedTime,
                                 location: window.location.href
                             });
-                            kuromojiStatusElement.textContent = `形態素解析器の初期化に失敗しました (${elapsedTime}秒後): ${err.message || 'ネットワークエラーの可能性があります'}`;
+                            kuromojiStatusElement.textContent = `形態素解析器の初期化に失敗しました (${elapsedTime}秒後): ${err.message || 'ネットワークエラーの可能性があります'} (音声認識は利用可能です)`;
                             startButton.disabled = false;
                             retryButton.style.display = 'inline-block';
                             return;
@@ -102,7 +104,7 @@
                 clearTimeout(timeout);
                 clearInterval(progressInterval);
                 console.error("Error creating kuromoji builder:", buildError);
-                kuromojiStatusElement.textContent = 'kuromoji.builderの作成に失敗しました: ' + buildError.message;
+                kuromojiStatusElement.textContent = 'kuromoji.builderの作成に失敗しました: ' + buildError.message + ' (音声認識は利用可能です)';
                 startButton.disabled = false;
                 retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
             }
@@ -223,7 +225,7 @@
             };
 
             startButton.addEventListener('click', () => {
-                if (!recognizing && kuromojiTokenizer) { // kuromojiの準備も確認
+                if (!recognizing) { // kuromojiの準備チェックを削除
                     try {
                         recognition.start();
                     } catch (e) {
@@ -231,8 +233,6 @@
                         statusElement.textContent = "ステータス: 認識開始エラー。";
                         alert("音声認識を開始できませんでした。");
                     }
-                } else if (!kuromojiTokenizer) {
-                    alert("形態素解析器がまだ準備中です。少々お待ちください。");
                 }
             });
 
