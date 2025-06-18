@@ -31,6 +31,13 @@
 └── test/              # テスト用（kuromoji無効版）
 ```
 
+
+## 処理フロー
+![6656565-1](https://github.com/user-attachments/assets/49fac104-e658-44c6-a52c-0db5e0cc4c47)
+
+
+
+
 ## デプロイについて
 
 **重要**: デプロイはGitから行ってください。
