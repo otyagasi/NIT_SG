@@ -49,7 +49,7 @@
             console.log("Pathname:", window.location.pathname);
             
             // 辞書ファイルの存在確認
-            fetch(dicPath + "base.dat.gz")
+            fetch(dicPath + "base.dat")
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`辞書ファイルの読み込みに失敗: ${response.status} ${response.statusText}`);
