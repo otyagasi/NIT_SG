@@ -13,6 +13,7 @@
         <div class="controls">
             <button id="startButton" disabled>音声認識を開始</button> <!-- 初期は無効化 -->
             <button id="stopButton" disabled>音声認識を停止</button>
+            <button id="retryButton" style="display:none;">形態素解析器を再初期化</button>
         </div>
 
         <h2>認識結果 (原文):</h2>
@@ -25,7 +26,7 @@
         <p id="kuromojiStatus">形態素解析器を準備中...</p>
     </div>
 
-    <!-- kuromoji.js の読み込み (CDN) -->
+    
     <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script>
     <script src="./js/WebSpeechTest.js"></script>
 </body>
