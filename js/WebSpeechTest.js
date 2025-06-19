@@ -49,7 +49,7 @@
             console.log("Pathname:", window.location.pathname);
             
             // 辞書ファイルの存在確認
-            fetch(dicPath + "base.dat.gz")
+            fetch(dicPath + "base.dat")
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`辞書ファイルの読み込みに失敗: ${response.status} ${response.statusText}`);
@@ -71,7 +71,7 @@
                 kuromoji.builder({ 
                     dicPath: dicPath,
                     debug: true,  // デバッグモードを有効化
-                    gzip: true    // gzip圧縮を有効化
+                    gzip: false    // gzip圧縮を無効化
                 })
                     .build((err, tokenizer) => {
                         clearTimeout(timeout);
