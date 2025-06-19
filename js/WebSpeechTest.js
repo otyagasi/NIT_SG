@@ -71,7 +71,7 @@
                 kuromoji.builder({ 
                     dicPath: dicPath,
                     debug: true,  // デバッグモードを有効化
-                    gzip: true    // gzip圧縮を有効化
+                    gzip: false    // gzip圧縮を無効化
                 })
                     .build((err, tokenizer) => {
                         clearTimeout(timeout);
