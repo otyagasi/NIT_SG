@@ -63,3 +63,75 @@ body {
         .interim {
             color: gray;
         }
+        
+        /* プログレスバー関連スタイル */
+        #progressContainer {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .progress-label {
+            font-size: 14px;
+            color: #495057;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, .2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, .2) 50%,
+                rgba(255, 255, 255, .2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 30px 30px;
+            animation: progress-animation 1s linear infinite;
+        }
+        
+        @keyframes progress-animation {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 30px 0;
+            }
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: bold;
+        }

@@ -5,11 +5,30 @@
         const hiraganaTextElement = document.getElementById('hiraganaText');
         const statusElement = document.getElementById('status');
         const kuromojiStatusElement = document.getElementById('kuromojiStatus');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
 
         let recognition;
         let recognizing = false;
         let finalTranscript = '';
         let kuromojiTokenizer = null;
+
+        // プログレスバー更新関数
+        function updateProgress(percent) {
+            progressBar.style.width = percent + '%';
+            progressText.textContent = Math.round(percent) + '%';
+        }
+        
+        // プログレスバー表示/非表示制御
+        function showProgress() {
+            progressContainer.style.display = 'block';
+            updateProgress(0);
+        }
+        
+        function hideProgress() {
+            progressContainer.style.display = 'none';
+        }
 
         // --- kuromoji.js と ひらがな変換関連 ---
         function initializeKuromoji() {
@@ -17,11 +36,15 @@
             kuromojiStatusElement.textContent = '形態素解析器を初期化中... (数秒かかることがあります)';
             console.log("Initializing kuromoji.js tokenizer...");
             
+            // プログレスバーを表示
+            showProgress();
+            
             // CDN接続チェック
             console.log("Checking kuromoji.js library availability...");
             if (typeof kuromoji === 'undefined') {
                 console.error("kuromoji.js library is not loaded!");
                 kuromojiStatusElement.textContent = 'kuromoji.jsライブラリが読み込まれていません。CDN接続を確認してください。';
+                hideProgress();
                 startButton.disabled = false;
                 retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
                 return;
@@ -31,15 +54,21 @@
             const timeout = setTimeout(() => {
                 console.error("Kuromoji initialization timeout after 30 seconds");
                 kuromojiStatusElement.textContent = '形態素解析器の初期化がタイムアウトしました。CDN接続またはネットワークの問題が考えられます。';
+                hideProgress();
                 startButton.disabled = false;
                 retryButton.style.display = 'inline-block'; // 再試行ボタンを表示
             }, 30000);
             
             // 進捗表示用タイマー
+            let progressPercent = 0;
             const progressInterval = setInterval(() => {
                 const elapsed = Math.floor((Date.now() - startTime) / 1000);
                 kuromojiStatusElement.textContent = `形態素解析器を初期化中... (${elapsed}秒経過)`;
-            }, 1000);
+                
+                // 疑似的な進捗更新（実際の読み込み進捗は取得できないため）
+                progressPercent = Math.min(progressPercent + Math.random() * 5, 85);
+                updateProgress(progressPercent);
+            }, 500);
             
             // 辞書ファイルのパスを指定
             const dicPath = "./dict/";
@@ -89,10 +118,17 @@
                                 location: window.location.href
                             });
                             kuromojiStatusElement.textContent = `形態素解析器の初期化に失敗しました (${elapsedTime}秒後): ${err.message || 'ネットワークエラーの可能性があります'} (音声認識は利用可能です)`;
+                            hideProgress();
                             startButton.disabled = false;
                             retryButton.style.display = 'inline-block';
                             return;
                         }
+                        
+                        // 成功時は100%まで進捗を更新
+                        updateProgress(100);
+                        setTimeout(() => {
+                            hideProgress();
+                        }, 500);
                         
                         kuromojiTokenizer = tokenizer;
                         kuromojiStatusElement.textContent = `形態素解析器の準備ができました (${elapsedTime}秒で完了)`;
