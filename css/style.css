@@ -22,6 +22,11 @@ body {
             margin-bottom: 20px;
             text-align: center;
         }
+        .controls label {
+            font-size: 15px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
         button {
             background-color: #3498db;
             color: white;
@@ -134,4 +139,13 @@ body {
             font-size: 12px;
             color: #6c757d;
             font-weight: bold;
+        }
+
+        #speakButton, #speakAllButton, #speakNewButton {
+            background-color: #27ae60;
+            margin-top: 10px;   
+        }
+
+        #speakButton:hover, #speakAllButton:hover, #speakNewButton:hover {
+            background-color: #219150;
         }

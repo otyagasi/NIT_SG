@@ -1,4 +1,4 @@
- const startButton = document.getElementById('startButton');
+const startButton = document.getElementById('startButton');
         const stopButton = document.getElementById('stopButton');
         const retryButton = document.getElementById('retryButton');
         const resultTextElement = document.getElementById('resultText');
@@ -8,11 +8,19 @@
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
+        const speakButton = document.getElementById('speakButton');
+        const speakAllButton = document.getElementById('speakAllButton');
+        const speakNewButton = document.getElementById('speakNewButton');
+        const speakModeOriginal = document.getElementById('speakModeOriginal');
+        const speakModeHiragana = document.getElementById('speakModeHiragana');
 
         let recognition;
         let recognizing = false;
         let finalTranscript = '';
         let kuromojiTokenizer = null;
+        let resumeAfterSpeech = false;
+        let lastSpokenHiragana = ''; // 前回読み上げたひらがな
+        let lastSpokenOriginal = ''; // 前回読み上げたオリジナルテキスト
 
         // プログレスバー更新関数
         function updateProgress(percent) {
@@ -189,9 +197,12 @@
                 statusElement.textContent = 'ステータス: 音声認識中... マイクに向かって話してください。';
                 startButton.disabled = true;
                 stopButton.disabled = false;
-                finalTranscript = '';
-                resultTextElement.innerHTML = '';
-                hiraganaTextElement.textContent = '';
+                if (!resumeAfterSpeech) { // ←ここを追加
+                    finalTranscript = '';
+                    resultTextElement.innerHTML = '';
+                    hiraganaTextElement.textContent = '';
+                }
+                resumeAfterSpeech = false; // ←再開時は次回リセットされるように
                 console.log('Speech recognition started.');
             };
 
@@ -373,3 +384,79 @@
 
         // ページ読み込み時に kuromoji.js を初期化
         window.addEventListener('load', initializeKuromojiWithConnectivityCheck);
+
+        // ひらがな読み上げ機能
+
+        function speakText(text, callback) {
+            if (!text) {
+                alert('読み上げるテキストがありません。');
+                return;
+            }
+            const wasRecognizing = recognizing;
+            if (recognizing && recognition) {
+                recognition.stop();
+            }
+            const utter = new window.SpeechSynthesisUtterance(text);
+            utter.lang = 'ja-JP';
+            utter.rate = 1.0;
+            utter.pitch = 1.0;
+            utter.onend = () => {
+                if (wasRecognizing && recognition) {
+                    resumeAfterSpeech = true;
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error("音声認識の再開に失敗:", e);
+                    }
+                }
+                if (callback) callback();
+            };
+            window.speechSynthesis.speak(utter);
+        }
+
+        // 読み上げ対象を取得する関数
+        function getSpeakTargetText() {
+            if (speakModeOriginal && speakModeOriginal.checked) {
+                return resultTextElement.textContent.trim();
+            } else {
+                return hiraganaTextElement.textContent.trim();
+            }
+        }
+
+        // 「最初から読む」ボタン
+        if (speakAllButton) {
+            speakAllButton.addEventListener('click', () => {
+                const text = getSpeakTargetText();
+                speakText(text, () => {
+                    lastSpokenHiragana = hiraganaTextElement.textContent.trim();
+                    lastSpokenOriginal = resultTextElement.textContent.trim();
+                });
+            });
+        }
+
+        // 「新しく入力された部分だけ読む」ボタン
+        if (speakNewButton) {
+            speakNewButton.addEventListener('click', () => {
+                let text, lastSpoken, newPart;
+                if (speakModeOriginal && speakModeOriginal.checked) {
+                    text = resultTextElement.textContent.trim();
+                    lastSpoken = lastSpokenOriginal;
+                } else {
+                    text = hiraganaTextElement.textContent.trim();
+                    lastSpoken = lastSpokenHiragana;
+                }
+                if (text.startsWith(lastSpoken)) {
+                    newPart = text.slice(lastSpoken.length);
+                } else {
+                    newPart = text; // 先頭が一致しない場合は全文
+                }
+                speakText(newPart, () => {
+                    if (speakModeOriginal && speakModeOriginal.checked) {
+                        lastSpokenOriginal = text;
+                    } else {
+                        lastSpokenHiragana = text;
+                    }
+                });
+            });
+        }
+
