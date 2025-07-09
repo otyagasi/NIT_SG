@@ -319,17 +319,6 @@ const startButton = document.getElementById('startButton');
 
             startButton.addEventListener('click', () => {
                 if (!recognizing) {
-                    const text = resultTextElement.value.trim();
-                    if (text) {
-                        recognitionHistory.push({
-                            text: text,
-                            date: new Date().toLocaleString('ja-JP', { hour12: false })
-                        });
-                        renderHistory();
-                    }
-                    resultTextElement.value = '';
-                    hiraganaTextElement.value = '';
-                    finalTranscript = '';
                     try {
                         recognition.start();
                     } catch (e) {
@@ -356,14 +345,6 @@ const startButton = document.getElementById('startButton');
 
         if (clearButton) {
             clearButton.addEventListener('click', () => {
-                const text = resultTextElement.value.trim();
-                if (text) {
-                    recognitionHistory.push({
-                        text: text,
-                        date: new Date().toLocaleString('ja-JP', { hour12: false })
-                    });
-                    renderHistory();
-                }
                 resultTextElement.value = '';
                 hiraganaTextElement.value = '';
                 finalTranscript = '';
