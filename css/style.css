@@ -1,151 +1,360 @@
+
+:root {
+    --color-text: #333;
+    --color-background: #fff;
+    --color-link: #005fcc;
+    --color-link-hover: #004bb5;
+    --color-focus: #005fcc;
+    --color-focus-visible: #ffcc00;
+    --font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --spacing-unit: 1rem;
+  }
+  html, body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, figure, blockquote, table, th, td {
+    margin: 0;
+    padding: 0;
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    font-size: 16px; /* ベースフォントサイズ */
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%; /* モバイルでのフォントサイズ調整を無効化 */
+    scroll-behavior: smooth; /* スムーズスクロールをデフォルトに */
+  }
+  body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--color-text, #333);
+    background-color: var(--color-background, #fff);
+    min-height: 100vh; /* 全画面の高さを確保 */
+    text-rendering: optimizeSpeed; /* パフォーマンスを最適化 */
+  }
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block; /* デフォルトのインライン表示をブロックに変更 */
+    max-width: 100%; /* 幅を親要素に合わせる */
+    height: auto; /* 縦横比を維持 */
+  }
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit; /* フォントを親要素に継承 */
+    color: inherit;
+    background: none;
+    border: none;
+    outline: none; /* デフォルトのスタイルを初期化 */
+  }
+  a {
+    text-decoration: none;
+    color: inherit; /* リンクの色を継承 */
+    cursor: pointer;
+  }
+  nav ul,
+  nav ol {
+    list-style: none; /* リストのスタイルを初期化 */
+  }
+  table {
+    border-collapse: collapse; /* セルの隙間を除去 */
+    width: 100%; /* テーブルの幅を親要素に合わせる */
+  }
+  button {
+    cursor: pointer;
+  }
+  textarea {
+    resize: none; /* デフォルトのリサイズを無効化 */
+  }
+  :focus {
+    outline: 2px solid var(--color-focus, #005fcc); /* フォーカス時の視覚的なアクセント */
+    outline-offset: 2px;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-focus-visible, #ffcc00); /* 視覚的なフォーカス表示 */
+    outline-offset: 3px;
+  }
+  ::placeholder {
+    color: #aaa; /* プレースホルダーの色を調整 */
+    opacity: 1; /* 透明度を確保 */
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    a {
+      color: #90caf9; /* ダークモード時のリンク色 */
+    }
+    ::placeholder {
+      color: #666;
+    }
+  }
 body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-            color: #333;
-            line-height: 1.6;
-        }
-        .container {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 700px;
-            margin: 30px auto;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .controls {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .controls label {
-            font-size: 15px;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        button:disabled {
-            background-color: #bdc3c7;
-            cursor: not-allowed;
-        }
-        .result-area {
-            border: 1px solid #ddd;
-            padding: 15px;
-            min-height: 100px; /* 少し高さを調整 */
-            margin-top: 10px;
-            margin-bottom: 20px; /* 次のエリアとの間隔 */
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            font-size: 1.1em;
-            white-space: pre-wrap;
-        }
-        #status, #kuromojiStatus {
-            margin-top: 15px;
-            font-style: italic;
-            color: #7f8c8d;
-            text-align: center;
-        }
-        .interim {
-            color: gray;
-        }
-        
-        /* プログレスバー関連スタイル */
-        #progressContainer {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .progress-label {
-            font-size: 14px;
-            color: #495057;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background-color: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 8px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
-            width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 10px;
-            position: relative;
-        }
-        
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            background-image: linear-gradient(
-                -45deg,
-                rgba(255, 255, 255, .2) 25%,
-                transparent 25%,
-                transparent 50%,
-                rgba(255, 255, 255, .2) 50%,
-                rgba(255, 255, 255, .2) 75%,
-                transparent 75%,
-                transparent
-            );
-            background-size: 30px 30px;
-            animation: progress-animation 1s linear infinite;
-        }
-        
-        @keyframes progress-animation {
-            0% {
-                background-position: 0 0;
-            }
-            100% {
-                background-position: 30px 0;
-            }
-        }
-        
-        .progress-text {
-            text-align: center;
-            font-size: 12px;
-            color: #6c757d;
-            font-weight: bold;
-        }
+    font-family: 'Segoe UI', 'Meiryo', 'ヒラギノ角ゴ ProN', 'Hiragino Kaku Gothic ProN', 'Arial', sans-serif;
+    background: #f6f8fa;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    background: #fff;
+    max-width: 1100px;
+    margin: 40px auto 0 auto;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    padding: 0 0 32px 0;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+.header {
+    padding: 16px 0 16px 0;
+    background: #2C3E50;
+    border-radius: 16px 16px 0 0;
+}
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 16px 0 0 0;
+    letter-spacing: 0.02em;
+}
+h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 8px 0 8px 0;
+    letter-spacing: 0.02em;
+}
+.tab-nav {
+    display: flex;
+    border-bottom: 1.5px solid #e5e7eb;
+    background: #f6f8fa;
+    border-radius: 16px 16px 0 0;
+    overflow: hidden;
+    margin: 0 0 0 0;
+}
+.tab-btn {
+    flex: 1;
+    background: #f6f8fa;
+    color: #888;
+    border: none;
+    font-size: 17px;
+    font-weight: 500;
+    padding: 16px 0 12px 0;
+    cursor: pointer;
+    outline: none;
+    transition: color 0.2s, background 0.2s;
+    border-bottom: 2.5px solid transparent;
+}
+.tab-btn.active {
+    color: #52A7E1;
+    background: #fff;
+    border-bottom: 2.5px solid #52A7E1;
+    font-weight: 700;
+    z-index: 2;
+}
+.tab-btn:not(.active):hover {
+    background: #e5e7eb;
+}
+#main-tab-content, #history-tab-content {
+    padding: 0 32px;
+}
+.main-tab-content-header {
+    align-items: center;
+    margin-bottom: 24px;
+    margin-top: 24px;
+    padding:10px;
+    background: #D1ECF1;
+    border-radius:8px;
+}
+.main-tab-content-header-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: #0C5460;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-weight: 600;
+}
+.controls {
+    margin: 32px 0 24px 0;
+    text-align: center;
+}
+.controls button {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 28px;
+    margin: 0 8px 12px 0;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.01em;
+}
+.controls button:disabled {
+    background: #b6c3e6;
+    color: #fff;
+    cursor: not-allowed;
+}
+.controls button:hover:not(:disabled) {
+    background: #1746a2;
+}
+.controls label {
+    font-size: 15px;
+    margin-right: 12px;
+    vertical-align: middle;
+    color: #333;
+}
+.controls input[type="radio"] {
+    accent-color: #2563eb;
+    width: 18px;
+    height: 18px;
+    margin-right: 4px;
+}
+.result-area {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+    min-height: 80px;
+    padding: 18px 16px;
+    font-size: 17px;
+    color: #222;
+    margin-bottom: 18px;
+    margin-top: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    white-space: pre-wrap;
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    align-items: stretch;
+}
+.result-area-container {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+}
+.result-area-container:not(:last-child) {
+    margin-right: 0;
+}
 
-        #speakButton, #speakAllButton, #speakNewButton {
-            background-color: #27ae60;
-            margin-top: 10px;   
-        }
+/* テキストエリアを親の高さに合わせる */
+.result-area-container textarea.result-area {
+    flex: 1 1 0;
+    height: 100%;
+    min-height: 120px;
+}
 
-        #speakButton:hover, #speakAllButton:hover, #speakNewButton:hover {
-            background-color: #219150;
-        }
+/* レスポンシブ対応: 画面幅が700px以下なら縦並び */
+@media (max-width: 700px) {
+    .result-area {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .result-area-container {
+        margin-right: 0;
+    }
+}
+#status, #kuromojiStatus {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #888;
+    text-align: center;
+    font-style: normal;
+}
+#progressContainer {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+    background: none;
+    border: none;
+}
+.progress-label {
+    font-size: 13px;
+    color: #2563eb;
+    margin-bottom: 6px;
+    text-align: center;
+}
+.progress-bar {
+    width: 100%;
+    height: 16px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    box-shadow: none;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 8px;
+    position: relative;
+}
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(-45deg, rgba(255,255,255,.18) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.18) 50%, rgba(255,255,255,.18) 75%, transparent 75%, transparent);
+    background-size: 24px 24px;
+    animation: progress-animation 1s linear infinite;
+}
+@keyframes progress-animation {
+    0% { background-position: 0 0; }
+    100% { background-position: 24px 0; }
+}
+.progress-text {
+    text-align: center;
+    font-size: 12px;
+    color: #2563eb;
+    font-weight: bold;
+}
+/* 履歴タブ用 */
+#history-tab-content {
+    min-height: 200px;
+    padding: 32px 32px 0 32px;
+}
+.history-message {
+    text-align: center;
+    color: #b0b0b0;
+    font-size: 18px;
+    margin-top: 60px;
+    letter-spacing: 0.01em;
+}
+#history-list {
+    margin: 0 auto;
+    max-width: 520px;
+}
+.history-item {
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 18px 20px 18px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    font-size: 16px;
+    color: #222;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.history-item .history-date {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+    margin-top: 2px;
+}

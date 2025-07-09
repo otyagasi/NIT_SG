@@ -8,47 +8,79 @@
 </head>
 <body>
     <div class="container">
-        <h1>リアルタイム Speech to Text (ひらがな変換付き)</h1>
-
-        <div class="controls">
-            <button id="startButton" disabled>音声認識を開始</button>
-            <button id="stopButton" disabled>音声認識を停止</button>
-            <button id="retryButton" style="display:none;">形態素解析器を再初期化</button>
-            <br>
-            <!-- 読み上げ対象選択ラジオボタン -->
-            <label style="margin-right:10px;">
-                <input type="radio" name="speakMode" id="speakModeOriginal" value="original">
-                原文で読み上げ
-            </label>
-            <label>
-                <input type="radio" name="speakMode" id="speakModeHiragana" value="hiragana" checked>
-                ひらがなで読み上げ
-            </label>
-            <br>
-            <button id="speakAllButton" style="margin-top:12px;">最初から読み上げる</button>
-            <button id="speakNewButton" style="margin-top:12px;">追加部分だけ読み上げる</button>
+        <div class="header">
+            <h1>Speech to Text</h1>
+            <h2>音声をテキストに変換</h2>
         </div>
 
-        <h2>認識結果 (原文):</h2>
-        <div id="resultText" class="result-area">ここに認識されたテキストが表示されます...</div>
+        <!-- タブナビゲーション -->
+        <div class="tab-nav">
+            <button class="tab-btn active" id="tab-main">音声認識</button>
+            <button class="tab-btn" id="tab-history">履歴</button>
+        </div>
 
-        <h2>認識結果 (ひらがな):</h2>
-        <div id="hiraganaText" class="result-area">ここにひらがなで表示されます...</div>
-
-        <p id="status">ステータス: アイドル</p>
-        <p id="kuromojiStatus">形態素解析器を準備中...</p>
-        
-        <!-- 辞書読み込み進捗バー -->
-        <div id="progressContainer" style="display:none;">
-            <div class="progress-label">辞書ファイル読み込み中...</div>
-            <div class="progress-bar">
-                <div id="progressBar" class="progress-fill"></div>
+        <!-- メインタブ内容 -->
+        <div id="main-tab-content">
+            
+            <!-- 辞書読み込み進捗バー -->
+            <div class="main-tab-content-header">
+                <div id="mainTabContentHeadertText" class="main-tab-content-header-text">
+                    <p>準備完了-開始ボタンを押して音声認識を開始してください。</p>
+                </div>
+                <div id="progressContainer" style="display:none;">
+                    <div class="progress-label">辞書ファイル読み込み中...</div>
+                    <div class="progress-bar">
+                        <div id="progressBar" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText" class="progress-text">0%</div>
+                </div>
             </div>
-            <div id="progressText" class="progress-text">0%</div>
+            
+
+            <div class="controls">
+                <button id="startButton" disabled>音声認識を開始</button>
+                <button id="stopButton" disabled>音声認識を停止</button>
+                <button id="clearButton" disabled>クリア</button>
+                <button id="saveTxt" disabled>TXT保存</button>
+                <button id="retryButton" style="display:none;">形態素解析器を再初期化</button>
+                <br>
+                <!-- 読み上げ対象選択ラジオボタン -->
+                <!--
+                <label style="margin-right:10px;">
+                    <input type="radio" name="speakMode" id="speakModeOriginal" value="original">
+                    原文で読み上げ
+                </label>
+                <label>
+                    <input type="radio" name="speakMode" id="speakModeHiragana" value="hiragana" checked>
+                    ひらがなで読み上げ
+                </label>
+            -->
+                <br>
+                <button id="speakAllButton" style="margin-top:12px;">最初から読み上げる</button>
+                <button id="speakNewButton" style="margin-top:12px;">追加部分だけ読み上げる</button>
+                <button id="multiPeople" disabled>複数人対応</button>
+            </div>
+
+            <div class="result-area">
+                <div class="result-area-container">
+                    <p class="result-area-header">認識結果 (原文):</p>
+                    <textarea id="resultText" class="result-area">ここに認識されたテキストが表示されます...</textarea>
+                </div>
+                <div class="result-area-container">
+                    <p class="result-area-header">認識結果 (ひらがな):</p>
+                    <textarea id="hiraganaText" class="result-area">ここにひらがなで表示されます...</textarea>
+                </div>
+            </div>
+            <p id="status">ステータス: アイドル</p>
+            <p id="kuromojiStatus">形態素解析器を準備中...</p>
+        </div>
+
+        <!-- 履歴タブ内容 -->
+        <div id="history-tab-content" style="display:none;">
+            <div id="history-empty" class="history-message">履歴がありません</div>
+            <div id="history-list" style="display:none;"></div>
         </div>
     </div>
-
-    
     <script src="./js/kuromoji.js"></script>
     <script src="./js/WebSpeechTest.js"></script>
 </body>
