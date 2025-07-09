@@ -14,6 +14,7 @@ const startButton = document.getElementById('startButton');
         const speakModeOriginal = document.getElementById('speakModeOriginal');
         const speakModeHiragana = document.getElementById('speakModeHiragana');
         const mainTabContentHeadertText = document.getElementById('mainTabContentHeadertText');
+        const clearButton = document.getElementById('clearButton');
         // 音声認識関連
         let recognition;
         let recognizing = false;
@@ -272,7 +273,7 @@ const startButton = document.getElementById('startButton');
                         interimTranscript += transcriptPart;
                     }
                 }
-                resultTextElement.innerHTML = finalTranscript + '<span class="interim">' + interimTranscript + '</span>';
+                resultTextElement.innerHTML = finalTranscript + (interimTranscript ? '<span class="interim">' + interimTranscript + '</span>' : '');
                 if (finalTranscript && kuromojiTokenizer) {
                     const hiraganaResult = convertToHiragana(finalTranscript);
                     hiraganaTextElement.textContent = hiraganaResult;
@@ -317,7 +318,18 @@ const startButton = document.getElementById('startButton');
             };
 
             startButton.addEventListener('click', () => {
-                if (!recognizing) { // kuromojiの準備チェックを削除
+                if (!recognizing) {
+                    const text = resultTextElement.value.trim();
+                    if (text) {
+                        recognitionHistory.push({
+                            text: text,
+                            date: new Date().toLocaleString('ja-JP', { hour12: false })
+                        });
+                        renderHistory();
+                    }
+                    resultTextElement.value = '';
+                    hiraganaTextElement.value = '';
+                    finalTranscript = '';
                     try {
                         recognition.start();
                     } catch (e) {
@@ -340,6 +352,22 @@ const startButton = document.getElementById('startButton');
             startButton.disabled = true;
             stopButton.disabled = true;
             alert('お使いのブラウザは Web Speech API に対応していません。');
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                const text = resultTextElement.value.trim();
+                if (text) {
+                    recognitionHistory.push({
+                        text: text,
+                        date: new Date().toLocaleString('ja-JP', { hour12: false })
+                    });
+                    renderHistory();
+                }
+                resultTextElement.value = '';
+                hiraganaTextElement.value = '';
+                finalTranscript = '';
+            });
         }
 
         // CDN接続テスト関数
