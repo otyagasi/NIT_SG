@@ -13,7 +13,9 @@ const startButton = document.getElementById('startButton');
         const speakNewButton = document.getElementById('speakNewButton');
         const speakModeOriginal = document.getElementById('speakModeOriginal');
         const speakModeHiragana = document.getElementById('speakModeHiragana');
-
+        const mainTabContentHeadertText = document.getElementById('mainTabContentHeadertText');
+        const clearButton = document.getElementById('clearButton');
+        // 音声認識関連
         let recognition;
         let recognizing = false;
         let finalTranscript = '';
@@ -21,6 +23,51 @@ const startButton = document.getElementById('startButton');
         let resumeAfterSpeech = false;
         let lastSpokenHiragana = ''; // 前回読み上げたひらがな
         let lastSpokenOriginal = ''; // 前回読み上げたオリジナルテキスト
+
+        // === タブ切替・履歴管理 ===
+        const tabMainBtn = document.getElementById('tab-main');
+        const tabHistoryBtn = document.getElementById('tab-history');
+        const mainTabContent = document.getElementById('main-tab-content');
+        const historyTabContent = document.getElementById('history-tab-content');
+        const historyEmpty = document.getElementById('history-empty');
+        const historyList = document.getElementById('history-list');
+
+        let recognitionHistory = [];
+
+        function switchTab(tab) {
+            if (tab === 'main') {
+                tabMainBtn.classList.add('active');
+                tabHistoryBtn.classList.remove('active');
+                mainTabContent.style.display = '';
+                historyTabContent.style.display = 'none';
+            } else {
+                tabMainBtn.classList.remove('active');
+                tabHistoryBtn.classList.add('active');
+                mainTabContent.style.display = 'none';
+                historyTabContent.style.display = '';
+                renderHistory();
+            }
+        }
+
+        tabMainBtn.addEventListener('click', () => switchTab('main'));
+        tabHistoryBtn.addEventListener('click', () => switchTab('history'));
+
+        function renderHistory() {
+            if (recognitionHistory.length === 0) {
+                historyEmpty.style.display = '';
+                historyList.style.display = 'none';
+                historyList.innerHTML = '';
+            } else {
+                historyEmpty.style.display = 'none';
+                historyList.style.display = '';
+                historyList.innerHTML = recognitionHistory.map(item =>
+                    `<div class="history-item">
+                        <div>${item.text}</div>
+                        <div class="history-date">${item.date}</div>
+                    </div>`
+                ).join('');
+            }
+        }
 
         // プログレスバー更新関数
         function updateProgress(percent) {
@@ -30,12 +77,14 @@ const startButton = document.getElementById('startButton');
         
         // プログレスバー表示/非表示制御
         function showProgress() {
+            mainTabContentHeadertText.style.display = 'none';
             progressContainer.style.display = 'block';
             updateProgress(0);
         }
         
         function hideProgress() {
             progressContainer.style.display = 'none';
+            mainTabContentHeadertText.style.display = 'block';
         }
 
         // --- kuromoji.js と ひらがな変換関連 ---
@@ -208,40 +257,37 @@ const startButton = document.getElementById('startButton');
 
             recognition.onresult = (event) => {
                 let interimTranscript = '';
-                // finalTranscript はこのセッションの開始から現在までの確定した全テキスト
-                // speechRecognitionインスタンスが保持するものではなく、ここで構築する
                 let currentFullFinalTranscript = '';
-
                 for (let i = 0; i < event.results.length; ++i) {
                     if (event.results[i].isFinal) {
                         currentFullFinalTranscript += event.results[i][0].transcript;
                     }
                 }
-                // 上記だと、古い確定結果が連続して何度も追加されてしまう。
-                // 正しくは、onstartでfinalTranscriptを初期化し、
-                // isFinalの度にそこに追記していく。
-
-                // 修正: finalTranscriptはグローバル変数で、イベントごとに追記・更新する
                 let newFinalPortion = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
                     const transcriptPart = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
-                        finalTranscript += transcriptPart; // グローバルなfinalTranscriptに追記
-                        newFinalPortion += transcriptPart; // 今回のイベントで確定した部分
+                        finalTranscript += transcriptPart;
+                        newFinalPortion += transcriptPart;
                     } else {
                         interimTranscript += transcriptPart;
                     }
                 }
-
-                resultTextElement.innerHTML = finalTranscript + '<span class="interim">' + interimTranscript + '</span>';
-
-                if (finalTranscript && kuromojiTokenizer) { // finalTranscript全体を毎回変換
+                resultTextElement.innerHTML = finalTranscript + (interimTranscript ? '<span class="interim">' + interimTranscript + '</span>' : '');
+                if (finalTranscript && kuromojiTokenizer) {
                     const hiraganaResult = convertToHiragana(finalTranscript);
                     hiraganaTextElement.textContent = hiraganaResult;
                 } else if (finalTranscript && !kuromojiTokenizer) {
                     hiraganaTextElement.textContent = finalTranscript + ' (かな変換待機中...)';
                 } else if (!finalTranscript && interimTranscript === '') {
                     hiraganaTextElement.textContent = '';
+                }
+                // --- 履歴保存 ---
+                if (newFinalPortion.trim()) {
+                    recognitionHistory.push({
+                        text: newFinalPortion.trim(),
+                        date: new Date().toLocaleString('ja-JP', { hour12: false })
+                    });
                 }
             };
 
@@ -272,7 +318,7 @@ const startButton = document.getElementById('startButton');
             };
 
             startButton.addEventListener('click', () => {
-                if (!recognizing) { // kuromojiの準備チェックを削除
+                if (!recognizing) {
                     try {
                         recognition.start();
                     } catch (e) {
@@ -295,6 +341,14 @@ const startButton = document.getElementById('startButton');
             startButton.disabled = true;
             stopButton.disabled = true;
             alert('お使いのブラウザは Web Speech API に対応していません。');
+        }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                resultTextElement.value = '';
+                hiraganaTextElement.value = '';
+                finalTranscript = '';
+            });
         }
 
         // CDN接続テスト関数
