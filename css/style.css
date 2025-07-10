@@ -1,4 +1,3 @@
-
 :root {
     --color-text: #333;
     --color-background: #fff;
@@ -373,4 +372,9 @@ h2 {
     color: #888;
     text-align: right;
     margin-top: 2px;
+}
+#voiceSelect {
+    color: #222;         /* 文字色を濃く */
+    font-weight: bold;   /* 太字にする（任意） */
+    background: #fff;    /* 背景を白に（任意） */
 }
