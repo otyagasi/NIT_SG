@@ -1,5 +1,10 @@
 {
   "dependencies": {
-    "kuromoji": "^0.1.2"
+    "kuromoji": "^0.1.2",
+    "vibelogger": "^0.1.0"
+  },
+  "scripts": {
+    "start": "python3 -m http.server 3000",
+    "serve": "python3 -m http.server 3000"
   }
 }
