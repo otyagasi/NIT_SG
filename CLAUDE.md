@@ -50,11 +50,13 @@ This is a Japanese speech-to-text web application that uses the Web Speech API f
 - Open `index.html` directly in browser for main version
 - Open `test/index.html` for kuromoji-disabled testing
 - Use `AddSlider/index.html` for experimental features
+- No build process required - direct file opening in browser
 
-### Debugging
-- Main version: Check kuromoji initialization status and dictionary loading
-- Test version: Simplified debugging without morphological analysis overhead
-- Browser console shows detailed kuromoji initialization progress and error messages
+### Debugging Web Speech API
+- Check browser console for kuromoji initialization progress and errors
+- Verify microphone permissions are granted
+- Test in HTTPS environment for production-like behavior
+- Use test version (`/test/`) to isolate Web Speech API issues from kuromoji problems
 
 ## Deployment
 
@@ -68,3 +70,19 @@ Deploy via Git - do not upload directly to Sakura server using WinSCP as noted i
 - Speech recognition requires HTTPS in production for microphone access
 - Browser compatibility requires Web Speech API support (primarily Chrome/Chromium-based browsers)
 - Kuromoji initialization includes 30-second timeout and progress indicators
+
+## Browser Requirements & Limitations
+
+- **Primary Support**: Chrome/Chromium-based browsers (Web Speech API limitation)
+- **Microphone Access**: Required for speech recognition functionality
+- **HTTPS Requirement**: Production deployments must use HTTPS for microphone access
+- **Language**: Configured for Japanese (`ja-JP`) speech recognition
+
+### ロギング ###
+
+- ライブラリ: vibelogger
+- 使い方: https://github.com/fladdict/vibe-logger
+- vibeloggerはコーディングエージェント用に高度な構造化データを出力するロガーです。
+- ログにはvibeloggerを可能な限り利用し、ログからAIが自律的に何が起きてるかを把握できるようにする
+- vibeloggerにはステップ、プロセス、コンテキスト情報、TODOなど様々な情報を構造化して記録できます。
+- デバッグ時には./logsの出力を参照する
