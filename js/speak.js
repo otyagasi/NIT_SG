@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-
+    // 停止ボタンのイベントリスナーを追加
     if (speakStopButton) {
         speakStopButton.addEventListener('click', function() {
             window.speechSynthesis.cancel();
