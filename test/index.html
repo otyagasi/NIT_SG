@@ -15,18 +15,43 @@
             <button id="stopButton" disabled>音声認識を停止</button>
         </div>
 
+        <!-- プログレスバー（非表示） -->
+        <div id="progressContainer" style="display:none;">
+            <div id="progressBar"></div>
+            <div id="progressText">0%</div>
+        </div>
+        
+        <!-- ヘッダーテキスト -->
+        <div id="mainTabContentHeaderText">
+            <p>テストバージョン - 音声認識のみ</p>
+        </div>
+
         <h2>認識結果 (原文):</h2>
         <div id="resultText" class="result-area">ここに認識されたテキストが表示されます...</div>
 
-        <!-- <h2>認識結果 (ひらがな):</h2>
-        <div id="hiraganaText" class="result-area">ここにひらがなで表示されます...</div> -->
+        <h2>認識結果 (ひらがな):</h2>
+        <div id="hiraganaText" class="result-area">ここにひらがなで表示されます...</div>
 
         <p id="status">ステータス: アイドル</p>
         <p id="kuromojiStatus">形態素解析器を準備中...</p>
+        
+        <!-- タブ・履歴管理（非表示） -->
+        <div id="tab-main" style="display:none;"></div>
+        <div id="tab-history" style="display:none;"></div>
+        <div id="main-tab-content"></div>
+        <div id="history-tab-content" style="display:none;">
+            <div id="history-empty"></div>
+            <div id="history-list"></div>
+        </div>
     </div>
 
     <!-- kuromoji.js の読み込み (CDN) -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script> -->
-    <script src="./js/WebSpeechTest.js"></script>
+    <script src="./js/debugLogger.js"></script>
+    <script src="./js/debugUI.js"></script>
+    <script src="./js/domElements.js"></script>
+    <script src="./js/speechRecognition.js"></script>
+    <script src="./js/uiManager.js"></script>
+    <script src="./js/testMain.js"></script>
 </body>
 </html>
