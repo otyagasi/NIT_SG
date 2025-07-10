@@ -174,6 +174,67 @@ class WebSpeechApp {
         if (speakNewButton) {
             speakNewButton.addEventListener('click', () => this.handleSpeakNew());
         }
+        
+        // 履歴タブ操作
+        const historyClear = this.domElements.get('historyClear');
+        const historySearch = this.domElements.get('historySearch');
+        const historyExport = this.domElements.get('historyExport');
+        const historyImport = this.domElements.get('historyImport');
+        
+        if (historyClear) {
+            historyClear.addEventListener('click', () => {
+                if (confirm('履歴をすべて削除しますか？')) {
+                    this.tabManager.clearHistory();
+                }
+            });
+        }
+        if (historySearch) {
+            historySearch.addEventListener('input', (e) => {
+                const query = e.target.value;
+                const results = this.tabManager.searchHistory(query);
+                this.tabManager.renderHistory(results);
+            });
+        }
+        if (historyExport) {
+            historyExport.addEventListener('click', () => {
+                const data = this.tabManager.exportHistory('json');
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'history.json';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            });
+        }
+        if (historyImport) {
+            historyImport.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    try {
+                        const text = evt.target.result;
+                        const ok = this.tabManager.importHistory(text, 'json');
+                        if (ok) {
+                            alert('履歴をインポートしました');
+                            this.tabManager.renderHistory();
+                        } else {
+                            alert('インポートに失敗しました');
+                        }
+                    } catch (err) {
+                        alert('インポートエラー: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+                // ファイル選択状態をリセット
+                e.target.value = '';
+            });
+        }
     }
 
     handleStartRecognition() {

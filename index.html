@@ -77,6 +77,14 @@
 
         <!-- 履歴タブ内容 -->
         <div id="history-tab-content" style="display:none;">
+            <div class="history-controls">
+                <input type="text" id="history-search" placeholder="履歴検索..." style="width:180px; margin-right:8px;">
+                <button id="history-clear" class="history-btn">履歴クリア</button>
+                <button id="history-export" class="history-btn">エクスポート</button>
+                <label class="history-import-label">
+                  インポート<input type="file" id="history-import" accept="application/json" style="display:none;">
+                </label>
+            </div>
             <div id="history-empty" class="history-message">履歴がありません</div>
             <div id="history-list" style="display:none;"></div>
         </div>

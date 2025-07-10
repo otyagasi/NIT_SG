@@ -374,3 +374,37 @@ h2 {
     text-align: right;
     margin-top: 2px;
 }
+.history-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    justify-content: flex-end;
+}
+.history-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    padding: 6px 16px;
+    margin-right: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.history-btn:hover {
+    background: #1746a2;
+}
+.history-import-label {
+    background: #60a5fa;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 14px;
+    padding: 6px 16px;
+    cursor: pointer;
+    margin-right: 4px;
+    display: inline-block;
+}
+.history-import-label input[type="file"] {
+    display: none;
+}

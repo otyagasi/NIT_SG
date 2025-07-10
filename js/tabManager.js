@@ -63,7 +63,7 @@ class TabManager {
         console.log(`Switched to ${tab} tab`);
     }
 
-    renderHistory() {
+    renderHistory(historyItems = null) {
         const historyEmpty = this.elements.get('historyEmpty');
         const historyList = this.elements.get('historyList');
 
@@ -72,22 +72,22 @@ class TabManager {
             return;
         }
 
-        if (this.recognitionHistory.length === 0) {
+        const items = historyItems || this.recognitionHistory;
+
+        if (items.length === 0) {
             historyEmpty.style.display = '';
             historyList.style.display = 'none';
             historyList.innerHTML = '';
         } else {
             historyEmpty.style.display = 'none';
             historyList.style.display = '';
-            
-            const historyHtml = this.recognitionHistory.map(item => {
+            const historyHtml = items.map(item => {
                 const date = typeof item.date === 'string' ? item.date : item.date.toLocaleString('ja-JP', { hour12: false });
                 return `<div class="history-item">
                     <div class="history-text">${this.escapeHtml(item.text)}</div>
                     <div class="history-date">${date}</div>
                 </div>`;
             }).join('');
-            
             historyList.innerHTML = historyHtml;
         }
     }

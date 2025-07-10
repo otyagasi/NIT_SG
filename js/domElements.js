@@ -45,6 +45,11 @@ class DOMElements {
         this.elements.historyTabContent = document.getElementById('history-tab-content');
         this.elements.historyEmpty = document.getElementById('history-empty');
         this.elements.historyList = document.getElementById('history-list');
+        this.elements.historySearch = document.getElementById('history-search');
+        this.elements.historyClear = document.getElementById('history-clear');
+        this.elements.historyExport = document.getElementById('history-export');
+        this.elements.historyImport = document.getElementById('history-import');
+        this.elements.historyImportLabel = document.querySelector('.history-import-label');
 
         // その他のUI要素
         this.elements.mainTabContentHeaderText = document.getElementById('mainTabContentHeaderText');
@@ -129,6 +134,11 @@ class DOMElements {
             'historyTabContent': 'history-tab-content',
             'historyEmpty': 'history-empty',
             'historyList': 'history-list',
+            'historySearch': 'history-search',
+            'historyClear': 'history-clear',
+            'historyExport': 'history-export',
+            'historyImport': 'history-import',
+            'historyImportLabel': 'history-import-label',
             'mainTabContentHeaderText': 'mainTabContentHeaderText'
         };
         
