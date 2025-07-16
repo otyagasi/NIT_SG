@@ -56,9 +56,11 @@ class SpeechRecognitionManager {
                 this.onStatusCallback('ステータス: 音声認識中... マイクに向かって話してください。');
             }
             
-            if (!this.resumeAfterSpeech) {
-                this.finalTranscript = '';
-            }
+            // リセット機能を完全に削除 - finalTranscriptは常に保持
+            this.logger.debug('SpeechRecognition', 'finalTranscriptを保持', {
+                currentLength: this.finalTranscript.length
+            });
+            
             this.resumeAfterSpeech = false;
             
             if (this.onStateChangeCallback) {
@@ -166,6 +168,8 @@ class SpeechRecognitionManager {
             return false;
         }
     }
+
+    // startWithoutResetメソッドを削除 - 通常のstartメソッドを使用
 
     stop() {
         if (!this.recognition) {

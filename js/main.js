@@ -251,6 +251,7 @@ class WebSpeechApp {
     }
 
     handleStartRecognition() {
+        // リセット機能を完全に削除 - 常に継続モードで開始
         if (!this.speechRecognition.start()) {
             this.uiManager.showError('音声認識を開始できませんでした。');
         }
