@@ -209,9 +209,6 @@ h2 {
 .controls button:hover:not(:disabled) {
     background: #1746a2;
 }
-.controls .green button{
-    background: #10B981;
-}
 .controls label {
     font-size: 15px;
     margin-right: 12px;
@@ -223,6 +220,29 @@ h2 {
     width: 18px;
     height: 18px;
     margin-right: 4px;
+}
+
+.controls button.green {
+    background: #10B981;
+    color: #fff;
+    border: none;
+    border-radius: 32px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 28px;
+    margin: 0 8px 12px 0;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.01em;
+}
+.controls button.green:disabled {
+    background: #b6c3e6;
+    color: #fff;
+    cursor: not-allowed;
+}
+.controls button.green:hover:not(:disabled) {
+    background: #0E9F6E;
 }
 .result-area-content {
     min-height: 80px;
@@ -337,44 +357,4 @@ h2 {
     color: #2563eb;
     font-weight: bold;
 }
-/* 履歴タブ用 */
-#history-tab-content {
-    min-height: 200px;
-    padding: 32px 32px 0 32px;
-}
-.history-message {
-    text-align: center;
-    color: #b0b0b0;
-    font-size: 18px;
-    margin-top: 60px;
-    letter-spacing: 0.01em;
-}
-#history-list {
-    margin: 0 auto;
-    max-width: 520px;
-}
-.history-item {
-    background: #f9fafb;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 18px 20px 18px 20px;
-    margin-bottom: 18px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-    font-size: 16px;
-    color: #222;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.history-item .history-date {
-    font-size: 12px;
-    color: #888;
-    text-align: right;
-    margin-top: 2px;
-}
-#voiceSelect {
-    color: #222;         /* 文字色を濃く */
-    font-weight: bold;   /* 太字にする（任意） */
-    background: #fff;    /* 背景を白に（任意） */
-}
+/* 履歴のCSSは css/history.css に移動 */

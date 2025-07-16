@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>リアルタイム Speech to Text (ひらがな変換付き)</title>
     <link href="./css/style.css" rel="stylesheet" type="text/css">
+    <link href="./css/history.css" rel="stylesheet" type="text/css">
 </head>
 <body>
     <div class="container">
@@ -41,6 +42,7 @@
                 <button id="startButton" disabled>音声認識を開始</button>
                 <button id="stopButton" disabled>音声認識を停止</button>
                 <button id="clearButton" disabled>クリア</button>
+                <button id="saveHistoryButton" class="green" disabled>履歴に保存</button>
                 <button id="saveTxt" class="green">TXT保存</button>
                 <button id="retryButton" style="display:none;">形態素解析器を再初期化</button>
                 <br>
@@ -81,6 +83,15 @@
 
         <!-- 履歴タブ内容 -->
         <div id="history-tab-content" style="display:none;">
+            <div class="history-controls">
+                <input type="text" id="history-search" placeholder="履歴検索..." style="width:180px; margin-right:8px;">
+                <button id="history-clear" class="history-btn">履歴クリア</button>
+                <button id="history-export" class="history-btn">エクスポート</button>
+                <label class="history-import-label">
+                  インポート<input type="file" id="history-import" accept="application/json" style="display:none;">
+                </label>
+            </div>
+            <div id="history-stats" class="history-stats"></div>
             <div id="history-empty" class="history-message">履歴がありません</div>
             <div id="history-list" style="display:none;"></div>
         </div>
