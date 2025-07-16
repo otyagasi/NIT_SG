@@ -9,80 +9,158 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - ユーザーへの出力・応答は日本語で行う
 - この設定は必ず記録し、今後のClaude Codeインスタンスで継続すること
 
-## Project Overview
+## プロジェクト概要
 
-This is a Japanese speech-to-text web application that uses the Web Speech API for real-time voice recognition and kuromoji.js for converting recognized text to hiragana. The application is written in Japanese and supports continuous speech recognition with live transcription display.
+日本語音声認識Webアプリケーションです。Web Speech APIによるリアルタイム音声認識、kuromoji.jsによるひらがな変換、音声合成機能を搭載し、包括的なデバッグツールを備えています。連続音声認識とライブ文字起こし表示をサポートします。
 
-## Architecture
+## アーキテクチャ
 
-- **Frontend-only application**: Pure HTML/CSS/JavaScript with no build process
-- **Main version** (`/`): Full-featured version with kuromoji.js integration for hiragana conversion
-- **Test version** (`/test/`): Simplified version with kuromoji functionality disabled for testing
-- **AddSlider version** (`/AddSlider/`): Experimental version with additional UI controls
+### デュアルアーキテクチャ設計
 
-### Key Components
+プロジェクトは2つのアーキテクチャアプローチを維持しています：
 
-- `index.html`: Main HTML structure with UI elements for speech recognition controls
-- `js/WebSpeechTest.js`: Core JavaScript handling Web Speech API and kuromoji integration
-- `js/kuromoji.js`: Local copy of kuromoji.js library for morphological analysis
-- `css/style.css`: Styling for the speech recognition interface
-- `dict/`: Dictionary files for kuromoji.js (both compressed .gz and extracted versions)
-- `test/`: Duplicate structure with modified functionality for testing
-- `AddSlider/`: Experimental version with UI enhancements
+**1. モダンモジュラーアーキテクチャ（メイン版 `/`）**
+- クラスベース設計による関心の分離
+- `js/main.js`: コアアプリケーションクラス（WebSpeechApp）
+- 専門モジュール：
+  - `speechRecognition.js`: 音声認識管理
+  - `kuromojiManager.js`: 形態素解析管理
+  - `textToSpeech.js`: 音声合成管理
+  - `uiManager.js`: UI状態管理
+  - `tabManager.js`: タブと履歴管理
+  - `domElements.js`: DOM要素アクセス管理
 
-### Speech Recognition Flow
+**2. レガシー単一ファイルアーキテクチャ（テスト/AddSlider版）**
+- `js/WebSpeechTest.js`: 全機能を1つのファイルに統合
+- `/test/` と `/AddSlider/` ディレクトリで使用
 
-1. Initialize kuromoji.js tokenizer on page load (main version only)
-2. Web Speech API setup with Japanese language (`ja-JP`)
-3. Real-time transcription with interim and final results
-4. Hiragana conversion using kuromoji.js morphological analysis (main version)
-5. Display both original text and hiragana conversion
+### バージョン比較
 
-### Version Differences
+| 機能 | メイン版 (`/`) | テスト版 (`/test/`) | AddSlider版 (`/AddSlider/`) |
+|------|---------------|-------------------|------------------------|
+| アーキテクチャ | モジュラー（新） | モジュラー（簡素版） | レガシー（単一ファイル） |
+| kuromoji.js | 完全統合 | 無効化（スタブ） | 無効化（スタブ） |
+| デバッグ機能 | 完全装備 | 基本のみ | なし |
+| 音声合成 | 完全 | なし | 実験的 |
 
-- **Main version**: Full kuromoji.js integration with local dictionary files
-- **Test version**: All kuromoji functionality commented out, sets `kuromojiTokenizer = true` as stub
-- **AddSlider version**: Similar to test version structure with additional experimental features
+### 主要コンポーネント
 
-## Common Development Tasks
+**コアファイル:**
+- `index.html`: 音声認識コントロール用のメインHTML構造
+- `js/main.js`: アプリケーションエントリーポイントとメインコントローラー（モジュラー版）
+- `js/WebSpeechTest.js`: レガシー単一ファイル実装（test/AddSlider版）
+- `js/kuromoji.js`: 形態素解析用kurmojiライブラリのローカルコピー
+- `css/style.css`: 音声認識インターフェースのスタイリング
+- `dict/`: kuromoji.js用辞書ファイル（圧縮.gzと展開版の両方）
 
-### Testing Locally
-- Open `index.html` directly in browser for main version
-- Open `test/index.html` for kuromoji-disabled testing
-- Use `AddSlider/index.html` for experimental features
-- No build process required - direct file opening in browser
+**デバッグ・ログシステム:**
+- `js/debugLogger.js`: メインデバッグログ機能
+- `js/vibeLogger.js`: AIコードエージェント用構造化ログ
+- `js/debugUI.js`: リアルタイムデバッグインターフェース
+- `logs/`: デバッグログ出力ディレクトリ（JSON/CSV/TXT形式）
 
-### Debugging Web Speech API
-- Check browser console for kuromoji initialization progress and errors
-- Verify microphone permissions are granted
-- Test in HTTPS environment for production-like behavior
-- Use test version (`/test/`) to isolate Web Speech API issues from kuromoji problems
+### 音声認識フロー
 
-## Deployment
+1. kuromoji.jsトークナイザーをページロード時に初期化（メイン版のみ）
+2. 日本語（`ja-JP`）でWeb Speech APIセットアップ
+3. 暫定・最終結果によるリアルタイム文字起こし
+4. kuromoji.js形態素解析によるひらがな変換（メイン版）
+5. 元のテキストとひらがな変換の両方を表示
+6. 認識テキストのオプション音声合成
 
-Deploy via Git - do not upload directly to Sakura server using WinSCP as noted in README.md (Japanese: "デプロイはGITからやってください。さくらサーバの方に直接Winscpでアップロードしないでください").
+## 開発コマンド
 
-## Development Notes
+### ローカル開発
+```bash
+# ローカル開発サーバーを開始
+npm run serve
 
-- No build tools or package managers required (package.json only defines kuromoji dependency)
-- Dictionary files are included both compressed (dict.gz/) and extracted (dict/) for flexibility
-- Test version at `/test/` has kuromoji functionality commented out for debugging
-- Speech recognition requires HTTPS in production for microphone access
-- Browser compatibility requires Web Speech API support (primarily Chrome/Chromium-based browsers)
-- Kuromoji initialization includes 30-second timeout and progress indicators
+# テスト用の異なるバージョンを開く
+# メイン版: http://localhost:8000/
+# テスト版: http://localhost:8000/test/
+# AddSlider版: http://localhost:8000/AddSlider/
+```
 
-## Browser Requirements & Limitations
+### デバッグ
+```bash
+# URLパラメータでデバッグモードを有効化
+?debug=DEBUG&debugUI=true
 
-- **Primary Support**: Chrome/Chromium-based browsers (Web Speech API limitation)
-- **Microphone Access**: Required for speech recognition functionality
-- **HTTPS Requirement**: Production deployments must use HTTPS for microphone access
-- **Language**: Configured for Japanese (`ja-JP`) speech recognition
+# デバッグキーボードショートカット
+# Ctrl+D: デバッグパネル切り替え
+# ./logs/ ディレクトリでログを確認
+```
 
-### ロギング ###
+## 開発タスク
 
-- ライブラリ: vibelogger
-- 使い方: https://github.com/fladdict/vibe-logger
-- vibeloggerはコーディングエージェント用に高度な構造化データを出力するロガーです。
-- ログにはvibeloggerを可能な限り利用し、ログからAIが自律的に何が起きてるかを把握できるようにする
-- vibeloggerにはステップ、プロセス、コンテキスト情報、TODOなど様々な情報を構造化して記録できます。
-- デバッグ時には./logsの出力を参照する
+### 開発ワークフロー
+1. **テスト版から開始** (`/test/`): kurmojiなしでWeb Speech API機能を分離
+2. **メイン版で開発** (`/`): kuromoji統合での完全機能開発
+3. **AddSliderで実験** (`/AddSlider/`): 新機能のプロトタイプ
+
+### デバッグ戦略
+- **ログレベル**: 開発時はDEBUG、本番前はINFO
+- **モジュール監視**: クラス間の初期化と相互作用を追跡
+- **パフォーマンス監視**: 重い処理（kuromoji初期化約30秒）を監視
+- **リアルタイムデバッグUI**: Ctrl+Dでデバッグパネルにアクセス
+- **vibelogger統合**: AI可読デバッグ用構造化ログ
+
+### ローカルテスト
+- ローカル開発サーバーには `npm run serve` を使用
+- ブラウザでの直接ファイル開きもサポート（ビルドプロセス不要）
+- 本番環境ライクな動作にはHTTPS環境でマイク許可をテスト
+- kuromoji問題からWeb Speech API問題を分離するには、テスト版（`/test/`）を使用
+
+## デプロイメント
+
+**本番デプロイメント:**
+- Git → GitHub Actions → さくらサーバー（自動）経由でデプロイ
+- **重要**: WinSCPでさくらサーバーに直接アップロードは禁止
+- GitHubリポジトリを通じた自動デプロイ
+
+## 技術的な注意事項
+
+### 依存関係とビルド
+- **ビルドプロセス不要**: 純粋なフロントエンドアプリケーション
+- `package.json`で依存関係を定義: kuromoji ^0.1.2, vibelogger ^0.1.0
+- 辞書ファイルは圧縮（`dict.gz/`）と展開（`dict/`）両形式で含まれる
+
+### パフォーマンス考慮事項
+- kuromoji初期化: タイムアウトと進捗インジケーター付きで約30秒
+- 音声合成: 認識テキストからのリアルタイム生成
+- デバッグログ: パフォーマンス影響を最小化する設定可能レベル
+
+### 既知の問題
+- `index.html`にGitマージコンフリクトマーカーが残存（クリーンアップ要）
+- アーキテクチャ移行: レガシーとモジュラー版が共存
+
+## ブラウザ要件と制限
+
+- **主要サポート**: Chrome/Chromiumベースブラウザ（Web Speech API制限）
+- **マイクアクセス**: 音声認識機能に必要
+- **HTTPS要件**: マイクアクセスには本番デプロイでHTTPS必須
+- **言語**: 日本語（`ja-JP`）音声認識用に設定
+
+## 高度なデバッグとログ
+
+### vibelogger統合
+- **ライブラリ**: vibelogger (https://github.com/fladdict/vibe-logger)
+- **目的**: AIコードエージェント用高度構造化ログ
+- **機能**: ステップ、プロセス、コンテキスト情報、TODOを構造化形式で
+- **AI自律性**: AIがアプリケーション状態を自律的に理解するよう設計されたログ
+- **出力場所**: `./logs/` ディレクトリ（JSON/CSV/TXT形式）
+
+### デバッグ機能
+- **5レベルログ**: ERROR, WARN, INFO, DEBUG, TRACE
+- **リアルタイムUI**: パフォーマンス監視付きデバッグパネル
+- **エクスポートオプション**: ログ分析用の複数形式サポート
+- **URLパラメータ**: 開発用 `?debug=DEBUG&debugUI=true`
+- **キーボードショートカット**: Ctrl+Dでデバッグパネル切り替え
+- **モジュール分離**: 各コンポーネントクラス用個別ログ
+
+### 開発推奨事項
+1. **vibeloggerを広範囲に使用** - 全ての重要な操作に
+2. **パフォーマンス監視** - kuromoji初期化と音声処理中
+3. **`./logs/` 出力を確認** - 問題デバッグ時
+4. **デバッグUIを有効化** - 開発中のリアルタイム監視用
+5. **ログを構造化** - アプリケーションフローのAI理解を可能に
