@@ -48,6 +48,7 @@ class DOMElements {
         this.elements.historySearch = document.getElementById('history-search');
         this.elements.historyClear = document.getElementById('history-clear');
         this.elements.historyExport = document.getElementById('history-export');
+        this.elements.historyStats = document.getElementById('history-stats');
         this.elements.historyImport = document.getElementById('history-import');
         this.elements.historyImportLabel = document.querySelector('.history-import-label');
 

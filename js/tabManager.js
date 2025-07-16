@@ -6,9 +6,15 @@ class TabManager {
         this.elements = null;
         this.onTabSwitchCallback = null;
         this.localStorageKey = 'webSpeechApp_history';
+        this.metadataKey = 'webSpeechApp_history_metadata';
+        
+        // 履歴設定
+        this.maxHistoryItems = 500; // 最大保存数を100から500に増加
+        this.retentionDays = 90; // 90日間保存
         
         // LocalStorageから履歴を読み込み
         this.loadHistoryFromStorage();
+        this.cleanupExpiredHistory();
         
         // 履歴アイテムのボタンコールバック
         this.onHistoryOutputCallback = null;
@@ -82,6 +88,9 @@ class TabManager {
 
         const items = historyItems || this.recognitionHistory;
 
+        // 統計情報を更新
+        this.updateHistoryStats();
+
         if (items.length === 0) {
             historyEmpty.style.display = '';
             historyList.style.display = 'none';
@@ -111,8 +120,9 @@ class TabManager {
                     <div class="history-meta">
                         <div class="history-date">${date}</div>
                         <div class="history-buttons">
-                            <button class="history-output-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" data-hiragana="${this.escapeHtml(item.hiragana || '')}">出力</button>
-                            <button class="history-delete-btn" data-index="${originalIndex}">削除</button>
+                            <button class="history-output-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" data-hiragana="${this.escapeHtml(item.hiragana || '')}" title="音声認識エリアに出力">📝 エリアに出力</button>
+                            <button class="history-txt-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" data-hiragana="${this.escapeHtml(item.hiragana || '')}" title="TXTファイルとして保存">📄 TXT保存</button>
+                            <button class="history-delete-btn" data-index="${originalIndex}">🗑️ 削除</button>
                         </div>
                     </div>
                 </div>`;
@@ -122,6 +132,37 @@ class TabManager {
             // ボタンのイベントリスナーを追加
             this.setupHistoryItemButtons();
         }
+    }
+
+    // 統計情報を更新
+    updateHistoryStats() {
+        const historyStats = this.elements.get('historyStats');
+        if (!historyStats) return;
+
+        const stats = this.getHistoryStats();
+        
+        historyStats.innerHTML = `
+            <div class="history-stats-content">
+                <div class="history-stats-item">
+                    <span class="history-stats-label">保存数:</span>
+                    <span class="history-stats-value">${stats.totalItems} / ${stats.maxItems}</span>
+                </div>
+                <div class="history-stats-item">
+                    <span class="history-stats-label">保存期間:</span>
+                    <span class="history-stats-value">${stats.retentionDays}日間</span>
+                </div>
+                <div class="history-stats-item">
+                    <span class="history-stats-label">使用容量:</span>
+                    <span class="history-stats-value">${stats.storageSizeFormatted}</span>
+                </div>
+                ${stats.oldestDate ? `
+                <div class="history-stats-item">
+                    <span class="history-stats-label">最古の記録:</span>
+                    <span class="history-stats-value">${stats.oldestDate.toLocaleDateString('ja-JP')}</span>
+                </div>
+                ` : ''}
+            </div>
+        `;
     }
 
     // 履歴にテキストを追加（後方互換性のため）
@@ -143,8 +184,8 @@ class TabManager {
 
         this.recognitionHistory.push(historyItem);
 
-        // 履歴の上限を設定（例：100件）
-        if (this.recognitionHistory.length > 100) {
+        // 履歴の上限を設定
+        if (this.recognitionHistory.length > this.maxHistoryItems) {
             this.recognitionHistory.shift();
         }
 
@@ -283,13 +324,40 @@ class TabManager {
             newestDate = new Date(Math.max(...timestamps));
         }
 
+        // LocalStorageのサイズを計算
+        const historyDataSize = this.getStorageSize();
+        
         return {
             totalItems,
+            maxItems: this.maxHistoryItems,
+            retentionDays: this.retentionDays,
             totalCharacters,
             averageLength: Math.round(averageLength * 100) / 100,
             oldestDate,
-            newestDate
+            newestDate,
+            storageSize: historyDataSize,
+            storageSizeFormatted: this.formatBytes(historyDataSize)
         };
+    }
+
+    // LocalStorageのサイズを取得
+    getStorageSize() {
+        try {
+            const historyData = localStorage.getItem(this.localStorageKey);
+            return historyData ? new Blob([historyData]).size : 0;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    // バイトサイズをフォーマット
+    formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
     // HTMLエスケープ
@@ -353,6 +421,15 @@ class TabManager {
         try {
             const historyData = JSON.stringify(this.recognitionHistory);
             localStorage.setItem(this.localStorageKey, historyData);
+            
+            // メタデータも保存
+            const metadata = {
+                lastSaved: Date.now(),
+                retentionDays: this.retentionDays,
+                maxItems: this.maxHistoryItems,
+                version: '1.0'
+            };
+            localStorage.setItem(this.metadataKey, JSON.stringify(metadata));
         } catch (error) {
             console.error('Error saving history to localStorage:', error);
         }
@@ -372,6 +449,23 @@ class TabManager {
         } catch (error) {
             console.error('Error loading history from localStorage:', error);
             this.recognitionHistory = [];
+        }
+    }
+
+    // 期限切れの履歴を削除
+    cleanupExpiredHistory() {
+        const now = Date.now();
+        const cutoffTime = now - (this.retentionDays * 24 * 60 * 60 * 1000);
+        
+        const originalLength = this.recognitionHistory.length;
+        this.recognitionHistory = this.recognitionHistory.filter(item => {
+            return item.timestamp > cutoffTime;
+        });
+        
+        const removedCount = originalLength - this.recognitionHistory.length;
+        if (removedCount > 0) {
+            console.log(`Removed ${removedCount} expired history items`);
+            this.saveHistoryToStorage();
         }
     }
 }
