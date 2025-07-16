@@ -19,6 +19,7 @@ class DOMElements {
         this.elements.stopButton = document.getElementById('stopButton');
         this.elements.retryButton = document.getElementById('retryButton');
         this.elements.clearButton = document.getElementById('clearButton');
+        this.elements.saveHistoryButton = document.getElementById('saveHistoryButton');
 
         // 結果表示エリア
         this.elements.resultTextElement = document.getElementById('resultText');

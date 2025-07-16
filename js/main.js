@@ -159,6 +159,7 @@ class WebSpeechApp {
         const stopButton = this.domElements.get('stopButton');
         const retryButton = this.domElements.get('retryButton');
         const clearButton = this.domElements.get('clearButton');
+        const saveHistoryButton = this.domElements.get('saveHistoryButton');
         
         if (startButton) {
             startButton.addEventListener('click', () => this.handleStartRecognition());
@@ -174,6 +175,10 @@ class WebSpeechApp {
         
         if (clearButton) {
             clearButton.addEventListener('click', () => this.handleClearResults());
+        }
+        
+        if (saveHistoryButton) {
+            saveHistoryButton.addEventListener('click', () => this.handleSaveToHistory());
         }
         
         // 読み上げボタン
@@ -272,17 +277,33 @@ class WebSpeechApp {
     }
 
     handleClearResults() {
-        // クリア前に現在のテキストとひらがなを履歴に保存
-        const currentText = this.domElements.get('resultTextElement').textContent.trim();
-        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
-        
-        if (currentText && currentText !== 'ここに認識されたテキストが表示されます...') {
-            this.tabManager.addToHistoryWithHiragana(currentText, currentHiragana);
-        }
-        
+        // クリア機能は履歴保存なしでテキストのみクリア
         this.speechRecognition.clearResults();
         this.uiManager.clearResults();
         this.textToSpeech.clearHistory();
+    }
+
+    handleSaveToHistory() {
+        // 現在のテキストとひらがなを履歴に保存
+        const currentText = this.domElements.get('resultTextElement').textContent.trim();
+        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
+        
+        // プレースホルダーテキストは保存しない
+        const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
+        const cleanCurrentHiragana = currentHiragana === 'ここにひらがなで表示されます...' ? '' : currentHiragana;
+        
+        if (cleanCurrentText) {
+            this.tabManager.addToHistoryWithHiragana(cleanCurrentText, cleanCurrentHiragana);
+            console.log('Text saved to history manually:', {
+                original: cleanCurrentText,
+                hiragana: cleanCurrentHiragana
+            });
+            
+            // 保存完了の通知
+            this.uiManager.showStatus('ステータス: 履歴に保存しました', 'success');
+        } else {
+            this.uiManager.showStatus('ステータス: 保存するテキストがありません', 'info');
+        }
     }
 
     handleSpeakAll() {
@@ -397,6 +418,32 @@ class WebSpeechApp {
             historyStats: this.tabManager?.getHistoryStats() || {}
         };
     }
+
+    // ページリロード時に現在のテキストを履歴に保存
+    saveCurrentTextToHistoryOnReload() {
+        // ページがunloadされる前に現在のテキストを履歴に保存
+        window.addEventListener('beforeunload', () => {
+            const resultTextElement = this.domElements.get('resultTextElement');
+            const hiraganaTextElement = this.domElements.get('hiraganaTextElement');
+            
+            if (resultTextElement && hiraganaTextElement) {
+                const originalText = resultTextElement.textContent || resultTextElement.innerText || '';
+                const hiraganaText = hiraganaTextElement.textContent || hiraganaTextElement.innerText || '';
+                
+                // プレースホルダーテキストは保存しない
+                const cleanOriginalText = originalText === 'ここに認識されたテキストが表示されます...' ? '' : originalText;
+                const cleanHiraganaText = hiraganaText === 'ここにひらがなで表示されます...' ? '' : hiraganaText;
+                
+                if (cleanOriginalText.trim()) {
+                    this.tabManager.addToHistoryWithHiragana(cleanOriginalText.trim(), cleanHiraganaText.trim());
+                    console.log('Text saved to history on page unload:', {
+                        original: cleanOriginalText.trim(),
+                        hiragana: cleanHiraganaText.trim()
+                    });
+                }
+            }
+        });
+    }
 }
 
 // グローバル変数として初期化
@@ -413,7 +460,8 @@ window.addEventListener('load', async () => {
         // デバッグ情報をコンソールに出力
         console.log('WebSpeechApp Debug Info:', webSpeechApp.getDebugInfo());
         
-        // ページリロード時の履歴保存機能を削除（クリアボタンでのみ履歴に追加）
+        // ページリロード時に現在のテキストを履歴に保存
+        webSpeechApp.saveCurrentTextToHistoryOnReload();
         
     } catch (error) {
         console.error('Failed to initialize application:', error);
