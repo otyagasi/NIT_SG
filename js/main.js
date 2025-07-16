@@ -309,17 +309,15 @@ class WebSpeechApp {
     handleSpeakAll() {
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
         const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
-        const mode = this.uiManager.getSpeakMode();
         
-        this.textToSpeech.speakAll(originalText, hiraganaText, mode);
+        this.textToSpeech.speakAll(originalText, hiraganaText, 'original');
     }
 
     handleSpeakNew() {
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
         const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
-        const mode = this.uiManager.getSpeakMode();
         
-        this.textToSpeech.speakNew(originalText, hiraganaText, mode);
+        this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
     }
 
     handleHistoryOutput(text, hiragana, index) {

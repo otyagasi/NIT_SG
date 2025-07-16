@@ -57,8 +57,8 @@ class TextToSpeechManager {
         return true;
     }
 
-    speakAll(originalText, hiraganaText, mode = 'hiragana') {
-        const textToSpeak = mode === 'original' ? originalText : hiraganaText;
+    speakAll(originalText, hiraganaText, mode = 'original') {
+        const textToSpeak = originalText;
         
         return this.speakText(textToSpeak, {
             callback: () => {
@@ -68,16 +68,11 @@ class TextToSpeechManager {
         });
     }
 
-    speakNew(originalText, hiraganaText, mode = 'hiragana') {
+    speakNew(originalText, hiraganaText, mode = 'original') {
         let textToSpeak, lastSpoken, newPart;
 
-        if (mode === 'original') {
-            textToSpeak = originalText;
-            lastSpoken = this.lastSpokenOriginal;
-        } else {
-            textToSpeak = hiraganaText;
-            lastSpoken = this.lastSpokenHiragana;
-        }
+        textToSpeak = originalText;
+        lastSpoken = this.lastSpokenOriginal;
 
         // 新しい部分を抽出
         if (textToSpeak.startsWith(lastSpoken)) {
@@ -93,11 +88,7 @@ class TextToSpeechManager {
 
         return this.speakText(newPart, {
             callback: () => {
-                if (mode === 'original') {
-                    this.lastSpokenOriginal = textToSpeak;
-                } else {
-                    this.lastSpokenHiragana = textToSpeak;
-                }
+                this.lastSpokenOriginal = textToSpeak;
             }
         });
     }
