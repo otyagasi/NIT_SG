@@ -9,6 +9,10 @@ class TabManager {
         
         // LocalStorageから履歴を読み込み
         this.loadHistoryFromStorage();
+        
+        // 履歴アイテムのボタンコールバック
+        this.onHistoryOutputCallback = null;
+        this.onHistoryDeleteCallback = null;
     }
 
     // DOM要素を設定
@@ -87,23 +91,52 @@ class TabManager {
             historyList.style.display = '';
             // 新しいものを上に表示するために配列を逆順にする
             const sortedItems = [...items].reverse();
-            const historyHtml = sortedItems.map(item => {
+            const historyHtml = sortedItems.map((item, index) => {
                 const date = typeof item.date === 'string' ? item.date : item.date.toLocaleString('ja-JP', { hour12: false });
-                return `<div class="history-item">
-                    <div class="history-text">${this.escapeHtml(item.text)}</div>
-                    <div class="history-date">${date}</div>
+                const originalIndex = items.length - 1 - index; // 元の配列でのインデックス
+                
+                return `<div class="history-item" data-index="${originalIndex}">
+                    <div class="history-content">
+                        <div class="history-text-section">
+                            <div class="history-text-label">原文:</div>
+                            <div class="history-text">${this.escapeHtml(item.text)}</div>
+                        </div>
+                        ${item.hiragana ? `
+                        <div class="history-text-section">
+                            <div class="history-text-label">ひらがな:</div>
+                            <div class="history-hiragana">${this.escapeHtml(item.hiragana)}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="history-meta">
+                        <div class="history-date">${date}</div>
+                        <div class="history-buttons">
+                            <button class="history-output-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" data-hiragana="${this.escapeHtml(item.hiragana || '')}">出力</button>
+                            <button class="history-delete-btn" data-index="${originalIndex}">削除</button>
+                        </div>
+                    </div>
                 </div>`;
             }).join('');
             historyList.innerHTML = historyHtml;
+            
+            // ボタンのイベントリスナーを追加
+            this.setupHistoryItemButtons();
         }
     }
 
-    // 履歴にテキストを追加
+    // 履歴にテキストを追加（後方互換性のため）
     addToHistory(text) {
+        if (!text || !text.trim()) return;
+        this.addToHistoryWithHiragana(text.trim(), '');
+    }
+
+    // 履歴にテキストとひらがなを追加
+    addToHistoryWithHiragana(text, hiragana = '') {
         if (!text || !text.trim()) return;
 
         const historyItem = {
             text: text.trim(),
+            hiragana: hiragana ? hiragana.trim() : '',
             date: new Date().toLocaleString('ja-JP', { hour12: false }),
             timestamp: Date.now()
         };
@@ -156,6 +189,10 @@ class TabManager {
     removeHistoryItem(index) {
         if (index >= 0 && index < this.recognitionHistory.length) {
             const removed = this.recognitionHistory.splice(index, 1);
+            
+            // LocalStorageに保存
+            this.saveHistoryToStorage();
+            
             if (this.currentTab === 'history') {
                 this.renderHistory();
             }
@@ -265,6 +302,50 @@ class TabManager {
     // コールバック設定
     setOnTabSwitchCallback(callback) {
         this.onTabSwitchCallback = callback;
+    }
+
+    // 履歴アイテムボタンのコールバック設定
+    setOnHistoryOutputCallback(callback) {
+        this.onHistoryOutputCallback = callback;
+    }
+
+    setOnHistoryDeleteCallback(callback) {
+        this.onHistoryDeleteCallback = callback;
+    }
+
+    // 履歴アイテムボタンのイベントリスナー設定
+    setupHistoryItemButtons() {
+        const historyList = this.elements.get('historyList');
+        if (!historyList) return;
+
+        // 出力ボタンのイベントリスナー
+        const outputButtons = historyList.querySelectorAll('.history-output-btn');
+        outputButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                const text = e.target.dataset.text;
+                const hiragana = e.target.dataset.hiragana;
+                
+                if (this.onHistoryOutputCallback) {
+                    this.onHistoryOutputCallback(text, hiragana, index);
+                }
+            });
+        });
+
+        // 削除ボタンのイベントリスナー
+        const deleteButtons = historyList.querySelectorAll('.history-delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                
+                if (confirm('この履歴項目を削除しますか？')) {
+                    const deletedItem = this.removeHistoryItem(index);
+                    if (this.onHistoryDeleteCallback && deletedItem) {
+                        this.onHistoryDeleteCallback(deletedItem, index);
+                    }
+                }
+            });
+        });
     }
 
     // LocalStorageに履歴を保存

@@ -42,6 +42,7 @@ class WebSpeechApp {
             this.logger.debug('WebSpeechApp', 'タブ管理初期化開始');
             this.tabManager = new TabManager();
             this.tabManager.setElements(this.domElements);
+            this.setupTabManagerCallbacks();
             this.logger.debug('WebSpeechApp', 'タブ管理初期化完了');
             
             // 音声合成の初期化
@@ -137,6 +138,18 @@ class WebSpeechApp {
                     this.speechRecognition.resumeAfterSpeechSynthesis();
                 }, 500);
             }
+        });
+    }
+
+    setupTabManagerCallbacks() {
+        // 履歴出力ボタンのコールバック
+        this.tabManager.setOnHistoryOutputCallback((text, hiragana, index) => {
+            this.handleHistoryOutput(text, hiragana, index);
+        });
+        
+        // 履歴削除ボタンのコールバック
+        this.tabManager.setOnHistoryDeleteCallback((deletedItem, index) => {
+            this.handleHistoryDelete(deletedItem, index);
         });
     }
 
@@ -258,10 +271,12 @@ class WebSpeechApp {
     }
 
     handleClearResults() {
-        // クリア前に現在のテキストを履歴に保存
+        // クリア前に現在のテキストとひらがなを履歴に保存
         const currentText = this.domElements.get('resultTextElement').textContent.trim();
+        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
+        
         if (currentText && currentText !== 'ここに認識されたテキストが表示されます...') {
-            this.tabManager.addToHistory(currentText);
+            this.tabManager.addToHistoryWithHiragana(currentText, currentHiragana);
         }
         
         this.speechRecognition.clearResults();
@@ -283,6 +298,26 @@ class WebSpeechApp {
         const mode = this.uiManager.getSpeakMode();
         
         this.textToSpeech.speakNew(originalText, hiraganaText, mode);
+    }
+
+    handleHistoryOutput(text, hiragana, index) {
+        // 履歴のテキストをメインエリアに出力
+        this.uiManager.displayResult(text);
+        if (hiragana) {
+            this.uiManager.displayHiragana(hiragana);
+        } else {
+            this.uiManager.displayHiragana('');
+        }
+        
+        // メインタブに切り替え
+        this.tabManager.switchTab('main');
+        
+        console.log('History item output:', { text, hiragana, index });
+    }
+
+    handleHistoryDelete(deletedItem, index) {
+        console.log('History item deleted:', { deletedItem, index });
+        // 必要に応じて追加の処理を実装
     }
 
     handleSpeechRecognitionResult(result) {
