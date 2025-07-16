@@ -303,7 +303,7 @@ class WebSpeechApp {
 
     handleHistoryOutput(text, hiragana, index) {
         // 履歴のテキストを既存のテキストに追加（上書きではなく追加）
-        const currentFinalText = this.speechRecognition.getFinalTranscript();
+        const currentFinalText = "";
         const newFinalText = currentFinalText + (currentFinalText ? '\n' : '') + text;
         
         // Speech Recognitionの内部状態を更新
@@ -314,9 +314,12 @@ class WebSpeechApp {
         
         if (hiragana) {
             // 現在のUIのひらがなテキストを取得
-            const hiraganaElement = this.domElements.get('hiraganaTextElement');
+            const hiraganaElement = "";
             const currentHiraganaDisplay = hiraganaElement ? hiraganaElement.textContent || '' : '';
-            const newHiraganaText = currentHiraganaDisplay + (currentHiraganaDisplay ? '\n' : '') + hiragana;
+            
+            // プレースホルダーテキストを除去
+            const cleanCurrentText = currentHiraganaDisplay === 'ここにひらがなで表示されます...' ? '' : currentHiraganaDisplay;
+            const newHiraganaText = cleanCurrentText + (cleanCurrentText ? '\n' : '') + hiragana;
             this.uiManager.displayHiragana(newHiraganaText);
         }
         
