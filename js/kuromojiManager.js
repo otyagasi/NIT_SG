@@ -9,6 +9,7 @@ class KuromojiManager {
         this.onInitializedCallback = null;
         this.onErrorCallback = null;
         this.logger = window.debugLogger;
+        this.lastHiraganaText = ''; // 最後に変換されたひらがなテキストを保存
         
         this.dicPath = "./dict/";
         this.timeout = 30000; // 30秒タイムアウト
@@ -237,6 +238,9 @@ class KuromojiManager {
                 }
             });
             
+            // 変換結果を保存
+            this.lastHiraganaText = hiragana;
+            
             return hiragana;
         } catch (error) {
             console.error("Error during hiragana conversion:", error);
@@ -294,6 +298,16 @@ class KuromojiManager {
 
     setOnErrorCallback(callback) {
         this.onErrorCallback = callback;
+    }
+
+    // 最後のひらがなテキストを取得
+    getLastHiraganaText() {
+        return this.lastHiraganaText;
+    }
+
+    // ひらがなテキストを設定
+    setLastHiraganaText(text) {
+        this.lastHiraganaText = text;
     }
 }
 

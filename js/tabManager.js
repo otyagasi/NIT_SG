@@ -10,7 +10,7 @@ class TabManager {
         
         // 履歴設定
         this.maxHistoryItems = 500; // 最大保存数を100から500に増加
-        this.retentionDays = 90; // 90日間保存
+        this.retentionDays = -1; // 無期限保存（-1で無効化）
         
         // LocalStorageから履歴を読み込み
         this.loadHistoryFromStorage();
@@ -189,19 +189,9 @@ class TabManager {
                     <span class="history-stats-value">${stats.totalItems} / ${stats.maxItems}</span>
                 </div>
                 <div class="history-stats-item">
-                    <span class="history-stats-label">保存期間:</span>
-                    <span class="history-stats-value">${stats.retentionDays}日間</span>
-                </div>
-                <div class="history-stats-item">
                     <span class="history-stats-label">使用容量:</span>
                     <span class="history-stats-value">${stats.storageSizeFormatted}</span>
                 </div>
-                ${stats.oldestDate ? `
-                <div class="history-stats-item">
-                    <span class="history-stats-label">最古の記録:</span>
-                    <span class="history-stats-value">${stats.oldestDate.toLocaleDateString('ja-JP')}</span>
-                </div>
-                ` : ''}
             </div>
         `;
     }
@@ -511,6 +501,11 @@ class TabManager {
 
     // 期限切れの履歴を削除
     cleanupExpiredHistory() {
+        // 保存期間が-1の場合は無期限保存のため何もしない
+        if (this.retentionDays === -1) {
+            return;
+        }
+        
         const now = Date.now();
         const cutoffTime = now - (this.retentionDays * 24 * 60 * 60 * 1000);
         

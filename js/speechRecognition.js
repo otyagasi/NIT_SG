@@ -194,6 +194,16 @@ class SpeechRecognitionManager {
         this.finalTranscript = '';
     }
 
+    // finalTranscriptを取得
+    getFinalTranscript() {
+        return this.finalTranscript;
+    }
+
+    // finalTranscriptを設定
+    setFinalTranscript(text) {
+        this.finalTranscript = text;
+    }
+
     // 状態確認
     isRecognizing() {
         return this.recognizing;

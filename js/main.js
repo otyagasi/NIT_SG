@@ -302,18 +302,28 @@ class WebSpeechApp {
     }
 
     handleHistoryOutput(text, hiragana, index) {
-        // 履歴のテキストをメインエリアに出力
-        this.uiManager.displayResult(text);
+        // 履歴のテキストを既存のテキストに追加（上書きではなく追加）
+        const currentFinalText = this.speechRecognition.getFinalTranscript();
+        const newFinalText = currentFinalText + (currentFinalText ? '\n' : '') + text;
+        
+        // Speech Recognitionの内部状態を更新
+        this.speechRecognition.setFinalTranscript(newFinalText);
+        
+        // UIに表示
+        this.uiManager.displayResult(newFinalText);
+        
         if (hiragana) {
-            this.uiManager.displayHiragana(hiragana);
-        } else {
-            this.uiManager.displayHiragana('');
+            // 現在のUIのひらがなテキストを取得
+            const hiraganaElement = this.domElements.get('hiraganaTextElement');
+            const currentHiraganaDisplay = hiraganaElement ? hiraganaElement.textContent || '' : '';
+            const newHiraganaText = currentHiraganaDisplay + (currentHiraganaDisplay ? '\n' : '') + hiragana;
+            this.uiManager.displayHiragana(newHiraganaText);
         }
         
         // メインタブに切り替え
         this.tabManager.switchTab('main');
         
-        console.log('History item output:', { text, hiragana, index });
+        console.log('History item output (appended):', { text, hiragana, index, newFinalText });
     }
 
     handleHistoryDelete(deletedItem, index) {
