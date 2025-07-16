@@ -18,7 +18,48 @@ class TabManager {
         
         // 履歴アイテムのボタンコールバック
         this.onHistoryOutputCallback = null;
+        this.onHistoryTxtCallback = null;
         this.onHistoryDeleteCallback = null;
+    }
+
+    // TXTファイルをダウンロード
+    downloadTxt(text, hiragana, index) {
+        // 指定された形式でテキストを作成
+        let txtContent = '';
+        
+        if (text) {
+            txtContent += '原文\n';
+            txtContent += text + '\n';
+        }
+        
+        if (hiragana) {
+            txtContent += 'ひらがな\n';
+            txtContent += hiragana + '\n';
+        }
+        
+        // ファイル名を生成（日時とインデックスベース）
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 19).replace(/[T:]/g, '-');
+        const fileName = `speech-history-${dateStr}-${index + 1}.txt`;
+        
+        // ダウンロード処理
+        const blob = new Blob([txtContent], { type: 'text/plain; charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        
+        document.body.appendChild(a);
+        a.click();
+        
+        // クリーンアップ
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+        
+        console.log('TXT file downloaded:', fileName);
     }
 
     // DOM要素を設定
@@ -377,6 +418,10 @@ class TabManager {
         this.onHistoryOutputCallback = callback;
     }
 
+    setOnHistoryTxtCallback(callback) {
+        this.onHistoryTxtCallback = callback;
+    }
+
     setOnHistoryDeleteCallback(callback) {
         this.onHistoryDeleteCallback = callback;
     }
@@ -397,6 +442,18 @@ class TabManager {
                 if (this.onHistoryOutputCallback) {
                     this.onHistoryOutputCallback(text, hiragana, index);
                 }
+            });
+        });
+
+        // TXT出力ボタンのイベントリスナー
+        const txtButtons = historyList.querySelectorAll('.history-txt-btn');
+        txtButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                const text = e.target.dataset.text;
+                const hiragana = e.target.dataset.hiragana;
+                
+                this.downloadTxt(text, hiragana, index);
             });
         });
 

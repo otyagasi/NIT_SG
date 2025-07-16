@@ -1,6 +1,6 @@
 /* 履歴タブ用CSS */
 #history-tab-content {
-    min-height: 200px;
+    min-height: 500px;
     padding: 32px 32px 0 32px;
 }
 
@@ -14,34 +14,39 @@
 
 #history-list {
     margin: 0 auto;
-    max-width: 520px;
+    max-width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
 }
 
 .history-item {
     background: #f9fafb;
     border: 1.5px solid #e5e7eb;
     border-radius: 8px;
-    padding: 18px 20px 18px 20px;
-    margin-bottom: 18px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.03);
     font-size: 16px;
     color: #222;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+    min-height: 120px;
 }
 
 .history-content {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
+    flex: 1;
 }
 
 .history-text-section {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .history-text-label {
@@ -53,33 +58,35 @@
 }
 
 .history-text {
-    font-size: 16px;
+    font-size: 17px;
     color: #222;
     line-height: 1.6;
     word-wrap: break-word;
     background: #fff;
-    padding: 8px 12px;
-    border-radius: 4px;
+    padding: 12px 16px;
+    border-radius: 6px;
     border: 1px solid #e5e7eb;
+    min-height: 24px;
 }
 
 .history-hiragana {
-    font-size: 16px;
+    font-size: 17px;
     color: #444;
     line-height: 1.6;
     word-wrap: break-word;
     background: #f0f8ff;
-    padding: 8px 12px;
-    border-radius: 4px;
+    padding: 12px 16px;
+    border-radius: 6px;
     border: 1px solid #d1ecf1;
+    min-height: 24px;
 }
 
 .history-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 8px;
-    padding-top: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid #e5e7eb;
 }
 
@@ -90,18 +97,22 @@
 
 .history-buttons {
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
-.history-output-btn, .history-delete-btn {
-    padding: 6px 12px;
+.history-output-btn, .history-txt-btn, .history-delete-btn {
+    padding: 8px 12px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .history-output-btn {
@@ -111,6 +122,15 @@
 
 .history-output-btn:hover {
     background: #1746a2;
+}
+
+.history-txt-btn {
+    background: #10B981;
+    color: #fff;
+}
+
+.history-txt-btn:hover {
+    background: #0E9F6E;
 }
 
 .history-delete-btn {
@@ -183,38 +203,38 @@
 }
 
 .history-stats {
-    margin-bottom: 20px;
-    padding: 12px 16px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
     background: #f8f9fa;
     border: 1px solid #e9ecef;
-    border-radius: 6px;
-    font-size: 13px;
+    border-radius: 8px;
+    font-size: 14px;
 }
 
 .history-stats-content {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 20px;
 }
 
 .history-stats-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 80px;
+    min-width: 90px;
 }
 
 .history-stats-label {
     color: #6c757d;
-    font-size: 11px;
-    margin-bottom: 2px;
+    font-size: 12px;
+    margin-bottom: 4px;
     text-align: center;
 }
 
 .history-stats-value {
     color: #495057;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
     text-align: center;
 }
 
@@ -222,6 +242,7 @@
 @media (max-width: 700px) {
     #history-tab-content {
         padding: 24px 16px 0 16px;
+        min-height: 400px;
     }
     
     .history-controls {
@@ -236,17 +257,24 @@
     
     #history-list {
         max-width: 100%;
+        max-height: 300px;
     }
     
     .history-item {
-        padding: 16px;
+        padding: 20px;
         margin-bottom: 16px;
+        min-height: 100px;
+    }
+    
+    .history-text, .history-hiragana {
+        font-size: 16px;
+        padding: 10px 12px;
     }
     
     .history-meta {
         flex-direction: column;
         align-items: stretch;
-        gap: 8px;
+        gap: 10px;
     }
     
     .history-date {
@@ -255,11 +283,19 @@
     
     .history-buttons {
         justify-content: center;
+        gap: 6px;
     }
     
-    .history-output-btn, .history-delete-btn {
+    .history-output-btn, .history-txt-btn, .history-delete-btn {
         flex: 1;
-        text-align: center;
+        justify-content: center;
+        min-width: 80px;
+        font-size: 11px;
+    }
+    
+    .history-stats {
+        padding: 12px 16px;
+        margin-bottom: 16px;
     }
     
     .history-stats-content {
