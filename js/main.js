@@ -139,6 +139,15 @@ class WebSpeechApp {
                 }, 500);
             }
         });
+        
+        // 音声選択機能の初期化（遅延実行）
+        setTimeout(() => {
+            this.textToSpeech.initializeVoices();
+            const voiceSelect = this.domElements.get('voiceSelect');
+            if (voiceSelect) {
+                this.textToSpeech.initializeVoiceSelect(voiceSelect);
+            }
+        }, 500);
     }
 
     setupTabManagerCallbacks() {
@@ -309,17 +318,15 @@ class WebSpeechApp {
     handleSpeakAll() {
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
         const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
-        const mode = this.uiManager.getSpeakMode();
         
-        this.textToSpeech.speakAll(originalText, hiraganaText, mode);
+        this.textToSpeech.speakAll(originalText, hiraganaText, 'original');
     }
 
     handleSpeakNew() {
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
         const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
-        const mode = this.uiManager.getSpeakMode();
         
-        this.textToSpeech.speakNew(originalText, hiraganaText, mode);
+        this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
     }
 
     handleHistoryOutput(text, hiragana, index) {

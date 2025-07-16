@@ -38,6 +38,7 @@ class DOMElements {
         this.elements.speakNewButton = document.getElementById('speakNewButton');
         this.elements.speakModeOriginal = document.getElementById('speakModeOriginal');
         this.elements.speakModeHiragana = document.getElementById('speakModeHiragana');
+        this.elements.voiceSelect = document.getElementById('voiceSelect');
 
         // タブ・履歴管理
         this.elements.tabMainBtn = document.getElementById('tab-main');
@@ -130,6 +131,7 @@ class DOMElements {
             'speakNewButton': 'speakNewButton',
             'speakModeOriginal': 'speakModeOriginal',
             'speakModeHiragana': 'speakModeHiragana',
+            'voiceSelect': 'voiceSelect',
             'tabMainBtn': 'tab-main',
             'tabHistoryBtn': 'tab-history',
             'mainTabContent': 'main-tab-content',
