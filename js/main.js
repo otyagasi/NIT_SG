@@ -419,9 +419,9 @@ class WebSpeechApp {
         };
     }
 
-    // ページリロード時に現在のテキストを履歴に保存
+    // ページリロード時に認識結果を保持（履歴保存なし）
     saveCurrentTextToHistoryOnReload() {
-        // ページがunloadされる前に現在のテキストを履歴に保存
+        // ページがunloadされる前に認識結果のみ保存
         window.addEventListener('beforeunload', () => {
             const resultTextElement = this.domElements.get('resultTextElement');
             const hiraganaTextElement = this.domElements.get('hiraganaTextElement');
@@ -434,15 +434,62 @@ class WebSpeechApp {
                 const cleanOriginalText = originalText === 'ここに認識されたテキストが表示されます...' ? '' : originalText;
                 const cleanHiraganaText = hiraganaText === 'ここにひらがなで表示されます...' ? '' : hiraganaText;
                 
-                if (cleanOriginalText.trim()) {
-                    this.tabManager.addToHistoryWithHiragana(cleanOriginalText.trim(), cleanHiraganaText.trim());
-                    console.log('Text saved to history on page unload:', {
-                        original: cleanOriginalText.trim(),
-                        hiragana: cleanHiraganaText.trim()
-                    });
-                }
+                // 認識結果をLocalStorageに保存（リロード時復元用のみ、履歴保存なし）
+                this.saveCurrentTextForReload(cleanOriginalText, cleanHiraganaText);
             }
         });
+    }
+
+    // リロード用の現在テキストを保存
+    saveCurrentTextForReload(originalText, hiraganaText) {
+        try {
+            const textData = {
+                original: originalText,
+                hiragana: hiraganaText,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('webSpeechApp_currentText', JSON.stringify(textData));
+            console.log('Current text saved for reload:', textData);
+        } catch (error) {
+            console.error('Error saving current text for reload:', error);
+        }
+    }
+
+    // リロード時にテキストを復元
+    restoreTextOnReload() {
+        try {
+            const savedTextData = localStorage.getItem('webSpeechApp_currentText');
+            if (savedTextData) {
+                const textData = JSON.parse(savedTextData);
+                
+                // 24時間以内のデータのみ復元
+                const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000);
+                if (textData.timestamp > oneDayAgo && textData.original.trim()) {
+                    // UIに復元
+                    this.uiManager.displayResult(textData.original);
+                    if (textData.hiragana) {
+                        this.uiManager.displayHiragana(textData.hiragana);
+                    }
+                    
+                    // Speech Recognitionの内部状態も復元
+                    this.speechRecognition.setFinalTranscript(textData.original);
+                    
+                    // kuromojiManagerの状態も復元
+                    if (textData.hiragana) {
+                        this.kuromojiManager.setLastHiraganaText(textData.hiragana);
+                    }
+                    
+                    console.log('Text restored on reload:', textData);
+                } else {
+                    // 古いデータを削除
+                    localStorage.removeItem('webSpeechApp_currentText');
+                }
+            }
+        } catch (error) {
+            console.error('Error restoring text on reload:', error);
+            // エラーが発生した場合はデータを削除
+            localStorage.removeItem('webSpeechApp_currentText');
+        }
     }
 }
 
@@ -462,6 +509,9 @@ window.addEventListener('load', async () => {
         
         // ページリロード時に現在のテキストを履歴に保存
         webSpeechApp.saveCurrentTextToHistoryOnReload();
+        
+        // リロード時にテキストを復元
+        webSpeechApp.restoreTextOnReload();
         
     } catch (error) {
         console.error('Failed to initialize application:', error);

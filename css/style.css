@@ -236,12 +236,12 @@ h2 {
     transition: background 0.2s;
     letter-spacing: 0.01em;
 }
-.controls button:disabled {
+.controls button.green:disabled {
     background: #b6c3e6;
     color: #fff;
     cursor: not-allowed;
 }
-.controls button:hover:not(:disabled) {
+.controls button.green:hover:not(:disabled) {
     background: #0E9F6E;
 }
 .result-area-content {
