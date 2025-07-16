@@ -139,6 +139,15 @@ class WebSpeechApp {
                 }, 500);
             }
         });
+        
+        // 音声選択機能の初期化（遅延実行）
+        setTimeout(() => {
+            this.textToSpeech.initializeVoices();
+            const voiceSelect = this.domElements.get('voiceSelect');
+            if (voiceSelect) {
+                this.textToSpeech.initializeVoiceSelect(voiceSelect);
+            }
+        }, 500);
     }
 
     setupTabManagerCallbacks() {

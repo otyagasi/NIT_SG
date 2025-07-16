@@ -357,4 +357,33 @@ h2 {
     color: #2563eb;
     font-weight: bold;
 }
+
+/* 音声選択プルダウンのスタイル */
+#voiceSelect {
+    background-color: #ffffff;
+    border: 1px solid #dfdfdf;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 14px;
+    color: #333 !important;
+    min-width: 150px;
+    cursor: pointer;
+}
+
+#voiceSelect:hover {
+    border-color: #52A7E1;
+}
+
+#voiceSelect:focus {
+    border-color: #52A7E1;
+    box-shadow: 0 0 0 2px rgba(82, 167, 225, 0.2);
+    outline: none;
+}
+
+#voiceSelect option {
+    color: #333 !important;
+    background-color: #ffffff;
+    padding: 3px 5px;
+}
+
 /* 履歴のCSSは css/history.css に移動 */
