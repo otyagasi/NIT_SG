@@ -209,9 +209,6 @@ h2 {
 .controls button:hover:not(:disabled) {
     background: #1746a2;
 }
-.controls .green button{
-    background: #10B981;
-}
 .controls label {
     font-size: 15px;
     margin-right: 12px;
@@ -223,6 +220,29 @@ h2 {
     width: 18px;
     height: 18px;
     margin-right: 4px;
+}
+
+.controls button.green {
+    background: #10B981;
+    color: #fff;
+    border: none;
+    border-radius: 32px;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px 28px;
+    margin: 0 8px 12px 0;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.08);
+    cursor: pointer;
+    transition: background 0.2s;
+    letter-spacing: 0.01em;
+}
+.controls button:disabled {
+    background: #b6c3e6;
+    color: #fff;
+    cursor: not-allowed;
+}
+.controls button:hover:not(:disabled) {
+    background: #0E9F6E;
 }
 .result-area-content {
     min-height: 80px;
