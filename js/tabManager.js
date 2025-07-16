@@ -5,6 +5,10 @@ class TabManager {
         this.recognitionHistory = [];
         this.elements = null;
         this.onTabSwitchCallback = null;
+        this.localStorageKey = 'webSpeechApp_history';
+        
+        // LocalStorageから履歴を読み込み
+        this.loadHistoryFromStorage();
     }
 
     // DOM要素を設定
@@ -81,7 +85,9 @@ class TabManager {
         } else {
             historyEmpty.style.display = 'none';
             historyList.style.display = '';
-            const historyHtml = items.map(item => {
+            // 新しいものを上に表示するために配列を逆順にする
+            const sortedItems = [...items].reverse();
+            const historyHtml = sortedItems.map(item => {
                 const date = typeof item.date === 'string' ? item.date : item.date.toLocaleString('ja-JP', { hour12: false });
                 return `<div class="history-item">
                     <div class="history-text">${this.escapeHtml(item.text)}</div>
@@ -109,6 +115,9 @@ class TabManager {
             this.recognitionHistory.shift();
         }
 
+        // LocalStorageに保存
+        this.saveHistoryToStorage();
+
         // 現在履歴タブが表示されている場合は再描画
         if (this.currentTab === 'history') {
             this.renderHistory();
@@ -131,6 +140,7 @@ class TabManager {
     // 履歴をクリア
     clearHistory() {
         this.recognitionHistory = [];
+        this.saveHistoryToStorage();
         if (this.currentTab === 'history') {
             this.renderHistory();
         }
@@ -202,6 +212,7 @@ class TabManager {
 
             if (Array.isArray(importedHistory)) {
                 this.recognitionHistory = importedHistory;
+                this.saveHistoryToStorage();
                 if (this.currentTab === 'history') {
                     this.renderHistory();
                 }
@@ -254,6 +265,33 @@ class TabManager {
     // コールバック設定
     setOnTabSwitchCallback(callback) {
         this.onTabSwitchCallback = callback;
+    }
+
+    // LocalStorageに履歴を保存
+    saveHistoryToStorage() {
+        try {
+            const historyData = JSON.stringify(this.recognitionHistory);
+            localStorage.setItem(this.localStorageKey, historyData);
+        } catch (error) {
+            console.error('Error saving history to localStorage:', error);
+        }
+    }
+
+    // LocalStorageから履歴を読み込み
+    loadHistoryFromStorage() {
+        try {
+            const historyData = localStorage.getItem(this.localStorageKey);
+            if (historyData) {
+                const parsedHistory = JSON.parse(historyData);
+                if (Array.isArray(parsedHistory)) {
+                    this.recognitionHistory = parsedHistory;
+                    console.log('History loaded from localStorage:', this.recognitionHistory.length, 'items');
+                }
+            }
+        } catch (error) {
+            console.error('Error loading history from localStorage:', error);
+            this.recognitionHistory = [];
+        }
     }
 }
 

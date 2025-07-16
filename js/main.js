@@ -258,6 +258,12 @@ class WebSpeechApp {
     }
 
     handleClearResults() {
+        // クリア前に現在のテキストを履歴に保存
+        const currentText = this.domElements.get('resultTextElement').textContent.trim();
+        if (currentText && currentText !== 'ここに認識されたテキストが表示されます...') {
+            this.tabManager.addToHistory(currentText);
+        }
+        
         this.speechRecognition.clearResults();
         this.uiManager.clearResults();
         this.textToSpeech.clearHistory();
@@ -295,10 +301,7 @@ class WebSpeechApp {
             this.uiManager.displayHiragana('');
         }
         
-        // 履歴への追加
-        if (newFinalPortion && newFinalPortion.trim()) {
-            this.tabManager.addToHistory(newFinalPortion.trim());
-        }
+        // 履歴への追加機能を削除（クリアボタンでのみ履歴に追加）
     }
 
     handleSpeechRecognitionStateChange(state) {
@@ -360,6 +363,8 @@ window.addEventListener('load', async () => {
         
         // デバッグ情報をコンソールに出力
         console.log('WebSpeechApp Debug Info:', webSpeechApp.getDebugInfo());
+        
+        // ページリロード時の履歴保存機能を削除（クリアボタンでのみ履歴に追加）
         
     } catch (error) {
         console.error('Failed to initialize application:', error);

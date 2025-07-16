@@ -1,0 +1,133 @@
+/* 履歴タブ用CSS */
+#history-tab-content {
+    min-height: 200px;
+    padding: 32px 32px 0 32px;
+}
+
+.history-message {
+    text-align: center;
+    color: #b0b0b0;
+    font-size: 18px;
+    margin-top: 60px;
+    letter-spacing: 0.01em;
+}
+
+#history-list {
+    margin: 0 auto;
+    max-width: 520px;
+}
+
+.history-item {
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 18px 20px 18px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    font-size: 16px;
+    color: #222;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.history-item .history-date {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+    margin-top: 2px;
+}
+
+.history-text {
+    font-size: 16px;
+    color: #222;
+    line-height: 1.6;
+    word-wrap: break-word;
+}
+
+.history-controls {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.history-controls input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: border-color 0.2s;
+}
+
+.history-controls input[type="text"]:focus {
+    border-color: #52A7E1;
+    outline: none;
+    background: #fff;
+}
+
+.history-btn {
+    background: #52A7E1;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.history-btn:hover {
+    background: #1746a2;
+}
+
+.history-import-label {
+    background: #10B981;
+    color: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.history-import-label:hover {
+    background: #0E9F6E;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 700px) {
+    #history-tab-content {
+        padding: 24px 16px 0 16px;
+    }
+    
+    .history-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .history-controls input[type="text"] {
+        min-width: auto;
+    }
+    
+    #history-list {
+        max-width: 100%;
+    }
+    
+    .history-item {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+}

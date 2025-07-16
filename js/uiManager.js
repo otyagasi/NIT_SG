@@ -142,7 +142,8 @@ class UIManager {
     setRecognitionStartState() {
         this.setMultipleButtonStates({
             'startButton': false,
-            'stopButton': true
+            'stopButton': true,
+            'clearButton': true
         });
         
         this.showStatus('ステータス: 音声認識中... マイクに向かって話してください。', 'active');
@@ -152,7 +153,8 @@ class UIManager {
     setRecognitionStopState(kuromojiReady = true) {
         this.setMultipleButtonStates({
             'startButton': kuromojiReady,
-            'stopButton': false
+            'stopButton': false,
+            'clearButton': true
         });
         
         this.showStatus('ステータス: 音声認識終了', 'info');
@@ -161,6 +163,7 @@ class UIManager {
     // kuromoji初期化時のUI状態
     setKuromojiInitializingState() {
         this.setButtonState('startButton', false);
+        this.setButtonState('clearButton', true);
         this.showRetryButton(false);
         this.showProgress();
     }
@@ -168,6 +171,7 @@ class UIManager {
     // kuromoji初期化完了時のUI状態
     setKuromojiReadyState() {
         this.setButtonState('startButton', true);
+        this.setButtonState('clearButton', true);
         this.showRetryButton(false);
         this.hideProgress();
     }
@@ -175,6 +179,7 @@ class UIManager {
     // kuromoji初期化失敗時のUI状態
     setKuromojiErrorState() {
         this.setButtonState('startButton', true);
+        this.setButtonState('clearButton', true);
         this.showRetryButton(true);
         this.hideProgress();
     }
