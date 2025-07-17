@@ -199,6 +199,7 @@ class WebSpeechApp {
         // 読み上げボタン
         const speakAllButton = this.domElements.get('speakAllButton');
         const speakNewButton = this.domElements.get('speakNewButton');
+        const speakStopButton = this.domElements.get('speakStopButton');
         
         if (speakAllButton) {
             speakAllButton.addEventListener('click', () => this.handleSpeakAll());
@@ -206,6 +207,10 @@ class WebSpeechApp {
         
         if (speakNewButton) {
             speakNewButton.addEventListener('click', () => this.handleSpeakNew());
+        }
+        
+        if (speakStopButton) {
+            speakStopButton.addEventListener('click', () => this.handleSpeakStop());
         }
         
         // 履歴タブ操作
@@ -386,6 +391,14 @@ class WebSpeechApp {
         const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
         
         this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
+    }
+
+    handleSpeakStop() {
+        if (this.textToSpeech.stop()) {
+            this.uiManager.showStatus('ステータス: 読み上げを停止しました', 'info');
+        } else {
+            this.uiManager.showStatus('ステータス: 停止する読み上げがありません', 'info');
+        }
     }
 
     handleHistoryOutput(text, hiragana, index) {

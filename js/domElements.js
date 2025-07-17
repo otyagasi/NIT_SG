@@ -37,6 +37,7 @@ class DOMElements {
         this.elements.speakButton = document.getElementById('speakButton');
         this.elements.speakAllButton = document.getElementById('speakAllButton');
         this.elements.speakNewButton = document.getElementById('speakNewButton');
+        this.elements.speakStopButton = document.getElementById('speakStopButton');
         this.elements.speakModeOriginal = document.getElementById('speakModeOriginal');
         this.elements.speakModeHiragana = document.getElementById('speakModeHiragana');
         this.elements.voiceSelect = document.getElementById('voiceSelect');
@@ -130,6 +131,7 @@ class DOMElements {
             'speakButton': 'speakButton',
             'speakAllButton': 'speakAllButton',
             'speakNewButton': 'speakNewButton',
+            'speakStopButton': 'speakStopButton',
             'speakModeOriginal': 'speakModeOriginal',
             'speakModeHiragana': 'speakModeHiragana',
             'voiceSelect': 'voiceSelect',
