@@ -20,6 +20,7 @@ class DOMElements {
         this.elements.retryButton = document.getElementById('retryButton');
         this.elements.clearButton = document.getElementById('clearButton');
         this.elements.saveHistoryButton = document.getElementById('saveHistoryButton');
+        this.elements.saveTxt = document.getElementById('saveTxt');
 
         // 結果表示エリア
         this.elements.resultTextElement = document.getElementById('resultText');

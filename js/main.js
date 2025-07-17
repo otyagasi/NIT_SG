@@ -190,6 +190,12 @@ class WebSpeechApp {
             saveHistoryButton.addEventListener('click', () => this.handleSaveToHistory());
         }
         
+        // TXT保存ボタン
+        const saveTxtButton = this.domElements.get('saveTxt');
+        if (saveTxtButton) {
+            saveTxtButton.addEventListener('click', () => this.handleSaveTxt());
+        }
+        
         // 読み上げボタン
         const speakAllButton = this.domElements.get('speakAllButton');
         const speakNewButton = this.domElements.get('speakNewButton');
@@ -313,6 +319,59 @@ class WebSpeechApp {
         } else {
             this.uiManager.showStatus('ステータス: 保存するテキストがありません', 'info');
         }
+    }
+
+    handleSaveTxt() {
+        // 現在のテキストとひらがなを取得
+        const currentText = this.domElements.get('resultTextElement').textContent.trim();
+        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
+        
+        // プレースホルダーテキストは保存しない
+        const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
+        const cleanCurrentHiragana = currentHiragana === 'ここにひらがなで表示されます...' ? '' : currentHiragana;
+        
+        if (!cleanCurrentText) {
+            this.uiManager.showStatus('ステータス: 保存するテキストがありません', 'info');
+            return;
+        }
+        
+        // TXTファイルの内容を作成
+        let txtContent = '';
+        
+        if (cleanCurrentText) {
+            txtContent += '原文\n';
+            txtContent += cleanCurrentText + '\n';
+        }
+        
+        if (cleanCurrentHiragana) {
+            txtContent += 'ひらがな\n';
+            txtContent += cleanCurrentHiragana + '\n';
+        }
+        
+        // ファイル名を生成（日時ベース）
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 19).replace(/[T:]/g, '-');
+        const fileName = `speech-text-${dateStr}.txt`;
+        
+        // ダウンロード処理
+        const blob = new Blob([txtContent], { type: 'text/plain; charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+        
+        document.body.appendChild(a);
+        a.click();
+        
+        // クリーンアップ
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+        
+        console.log('Speech text saved as TXT file:', fileName);
+        this.uiManager.showStatus('ステータス: TXTファイルを保存しました', 'success');
     }
 
     handleSpeakAll() {
