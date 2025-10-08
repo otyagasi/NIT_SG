@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/ciemem/www/NIT_SG/.pyenv/shims/python
 # -*- coding: utf-8 -*-
 
 import sys
