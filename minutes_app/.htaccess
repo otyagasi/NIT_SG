@@ -1,6 +1,5 @@
+Options +ExecCGI
+AddHandler cgi-script .cgi
 RewriteEngine On
-
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-RewriteRule ^(.*)$ index.cgi/$1 [L]
+RewriteRule ^(.*)$ run.cgi/$1 [L]

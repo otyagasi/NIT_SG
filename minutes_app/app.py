@@ -1,21 +1,14 @@
 from flask import Flask
 
-# Flaskアプリケーションのインスタンスを 'MinutesApp' という名前で作成
-MinutesApp = Flask(__name__)
+app = Flask(__name__)
 
-# --- アプリケーションのルートを定義 ---
+@app.route('/')
+def index():
+    return "<h1>flask server</h1>"
 
-# トップページ ('/') にアクセスされた場合に 'Welcome to MinutesApp!' と表示
-@MinutesApp.route('/')
-def home():
-    return "Welcome to MinutesApp!"
+@app.route('/hello')
+def hello():
+    return "Hello, World!"
 
-# 他のページやAPIも同様にMinutesAppを使って定義
-@MinutesApp.route('/about')
-def about():
-    return "This is the about page for MinutesApp."
-
-# 【重要】
-# 本番環境なので、以下の app.run() は絶対に記述しないでください
-# if __name__ == '__main__':
-#     MinutesApp.run()
+if __name__ == '__main__':
+    app.run(debug=True)
