@@ -1,18 +1,14 @@
 #!/home/ciemem/.pyenv/shims/python
 # -*- coding: utf-8 -*-
 
-import cgitb
-cgitb.enable()
+import sys
+import os
+
+user_home = os.path.expanduser('~')
+library_path = os.path.join(user_home, '.pyenv/versions/3.12.6/lib/python3.12/site-packages')
+sys.path.insert(0, library_path)
 
 from wsgiref.handlers import CGIHandler
 from app import app
-from sys import path
 
-class ProxyFix(object):
-  def __init__(self, app):
-      self.app = app
-  def __call__(self, environ, start_response):
-      return self.app(environ, start_response)
-if __name__ == '__main__':
-   app.wsgi_app = ProxyFix(app.wsgi_app)
-   CGIHandler().run(app)
+CGIHandler().run(app)
