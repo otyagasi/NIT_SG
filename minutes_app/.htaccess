@@ -1,0 +1,10 @@
+# Passengerを有効にする
+PassengerEnabled On
+
+# Pythonアプリケーションのルートディレクトリを指定
+# 【重要】このパスは必ず自分の環境に合わせてください
+PassengerAppRoot /home/【あなたのユーザ名】/www/【サイトのディレクトリ】/【flaskアプリのフォルダ】
+
+# 実行するPythonのパスを指定
+# 【重要】pyenvでインストールしたPythonのパスを指定してください
+PassengerPython /home/【あなたのユーザ名】/.pyenv/versions/3.11.5/bin/python
