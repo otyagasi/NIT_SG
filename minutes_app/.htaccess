@@ -1,4 +1,6 @@
-Options +ExecCGI
 RewriteEngine On
+
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ /NIT_SG/minutes_app/cgi-bin/run.cgi/$1 [L]
+RewriteCond %{REQUEST_FILENAME} !-d
+
+RewriteRule ^(.*)$ index.cgi/$1 [L]
