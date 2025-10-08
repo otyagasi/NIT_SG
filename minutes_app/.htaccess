@@ -1,5 +1,4 @@
-# .htaccess
 Options +ExecCGI
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ /NIT_SG/minutes_app/run.cgi/$1 [L]
+RewriteRule ^(.*)$ /NIT_SG/minutes_app/cgi-bin/run.cgi/$1 [L]
