@@ -3,8 +3,8 @@ PassengerEnabled On
 
 # Pythonアプリケーションのルートディレクトリを指定
 # 【重要】このパスは必ず自分の環境に合わせてください
-PassengerAppRoot /home/【あなたのユーザ名】/www/【サイトのディレクトリ】/【flaskアプリのフォルダ】
+PassengerAppRoot /home/ciemem/www/NIT_SG/minutes_app
 
 # 実行するPythonのパスを指定
 # 【重要】pyenvでインストールしたPythonのパスを指定してください
-PassengerPython /home/【あなたのユーザ名】/.pyenv/versions/3.11.5/bin/python
+PassengerPython /home/ciemem/www/NIT_SG/.pyenv/versions/3.12.6/bin/python
