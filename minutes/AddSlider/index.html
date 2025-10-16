@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リアルタイム Speech to Text (ひらがな変換付き)</title>
+    <link href="./css/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div class="container">
+        <h1>リアルタイム Speech to Text (ひらがな変換付き)</h1>
+
+        <div class="controls">
+            <button id="startButton" disabled>音声認識を開始</button> <!-- 初期は無効化 -->
+            <button id="stopButton" disabled>音声認識を停止</button>
+            <div class="Slider">
+                <br>
+                <label for="fontSizeSlider" style="margin-left:20px;">フォントサイズ: </label>
+                <input type="range" id="fontSizeSlider" min="12" max="72" value="17" style="vertical-align:middle;">
+                <span id="fontSizeValue">17</span>px
+            </div>    
+            
+    </div>
+
+        <h2>認識結果 (原文):</h2>
+        <div id="resultText" class="result-area">ここに認識されたテキストが表示されます...</div>
+
+        <!-- <h2>認識結果 (ひらがな):</h2>
+        <div id="hiraganaText" class="result-area">ここにひらがなで表示されます...</div> -->
+
+        <p id="status">ステータス: アイドル</p>
+        <p id="kuromojiStatus">形態素解析器を準備中...</p>
+    </div>
+
+    <!-- kuromoji.js の読み込み (CDN) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script> -->
+    <script src="./js/WebSpeechTest.js"></script>
+</body>
+</html>

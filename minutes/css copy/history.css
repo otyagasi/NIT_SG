@@ -1,0 +1,316 @@
+/* 履歴タブ用CSS */
+#history-tab-content {
+    min-height: 500px;
+    padding: 20px 32px 0 32px;
+}
+
+.history-message {
+    text-align: center;
+    color: #b0b0b0;
+    font-size: 18px;
+    margin-top: 60px;
+    letter-spacing: 0.01em;
+}
+
+#history-list {
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.history-item {
+    background: #f9fafb;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    font-size: 16px;
+    color: #222;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 120px;
+}
+
+.history-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+.history-text-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.history-text-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.history-text {
+    font-size: 17px;
+    color: #222;
+    line-height: 1.6;
+    word-wrap: break-word;
+    background: #fff;
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    min-height: 24px;
+}
+
+.history-hiragana {
+    font-size: 17px;
+    color: #444;
+    line-height: 1.6;
+    word-wrap: break-word;
+    background: #f0f8ff;
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: 1px solid #d1ecf1;
+    min-height: 24px;
+}
+
+.history-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.history-date {
+    font-size: 12px;
+    color: #888;
+}
+
+.history-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.history-output-btn, .history-txt-btn, .history-delete-btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.history-output-btn {
+    background: #52A7E1;
+    color: #fff;
+}
+
+.history-output-btn:hover {
+    background: #1746a2;
+}
+
+.history-txt-btn {
+    background: #10B981;
+    color: #fff;
+}
+
+.history-txt-btn:hover {
+    background: #0E9F6E;
+}
+
+.history-delete-btn {
+    background: #ef4444;
+    color: #fff;
+}
+
+.history-delete-btn:hover {
+    background: #dc2626;
+}
+
+.history-controls {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.history-controls input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: border-color 0.2s;
+}
+
+.history-controls input[type="text"]:focus {
+    border-color: #52A7E1;
+    outline: none;
+    background: #fff;
+}
+
+.history-btn {
+    background: #52A7E1;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.history-btn:hover {
+    background: #1746a2;
+}
+
+.history-import-label {
+    background: #10B981;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.history-import-label:hover {
+    background: #0E9F6E;
+}
+
+.history-stats {
+    margin-bottom: 20px;
+    padding: 8px 20px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.history-stats-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.history-stats-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+}
+
+.history-stats-label {
+    color: #6c757d;
+    font-size: 12px;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.history-stats-value {
+    color: #495057;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 700px) {
+    #history-tab-content {
+        padding: 24px 16px 0 16px;
+        min-height: 400px;
+    }
+    
+    .history-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .history-controls input[type="text"] {
+        min-width: auto;
+    }
+    
+    #history-list {
+        max-width: 100%;
+        max-height: 300px;
+    }
+    
+    .history-item {
+        padding: 20px;
+        margin-bottom: 16px;
+        min-height: 100px;
+    }
+    
+    .history-text, .history-hiragana {
+        font-size: 16px;
+        padding: 10px 12px;
+    }
+    
+    .history-meta {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .history-date {
+        text-align: center;
+    }
+    
+    .history-buttons {
+        justify-content: center;
+        gap: 6px;
+    }
+    
+    .history-output-btn, .history-txt-btn, .history-delete-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 100px;
+        font-size: 13px;
+        padding: 10px 16px;
+        font-weight: 600;
+    }
+    
+    .history-stats {
+        padding: 12px 16px;
+        margin-bottom: 16px;
+    }
+    
+    .history-stats-content {
+        justify-content: center;
+        gap: 12px;
+    }
+    
+    .history-stats-item {
+        min-width: 70px;
+    }
+}
