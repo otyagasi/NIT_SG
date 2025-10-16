@@ -122,7 +122,7 @@ class WebSpeechApp {
             this.uiManager.setKuromojiErrorState();
         });
     }
-
+    /*
     setupTextToSpeechCallbacks() {
         this.textToSpeech.setOnSpeechStartCallback(() => {
             // 音声認識が動作中の場合は一時停止
@@ -149,7 +149,7 @@ class WebSpeechApp {
             }
         }, 500);
     }
-
+    */
     setupTabManagerCallbacks() {
         // 履歴出力ボタンのコールバック
         this.tabManager.setOnHistoryOutputCallback((text, hiragana, index) => {
@@ -304,9 +304,8 @@ class WebSpeechApp {
     }
 
     handleSaveToHistory() {
-        // 現在のテキストとひらがなを履歴に保存
+        // 現在のテキストを履歴に保存
         const currentText = this.domElements.get('resultTextElement').textContent.trim();
-        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
         
         // プレースホルダーテキストは保存しない
         const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
@@ -327,9 +326,9 @@ class WebSpeechApp {
     }
 
     handleSaveTxt() {
-        // 現在のテキストとひらがなを取得
+        // 現在のテキストを取得
         const currentText = this.domElements.get('resultTextElement').textContent.trim();
-        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
+    
         
         // プレースホルダーテキストは保存しない
         const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
@@ -378,17 +377,17 @@ class WebSpeechApp {
         console.log('Speech text saved as TXT file:', fileName);
         this.uiManager.showStatus('ステータス: TXTファイルを保存しました', 'success');
     }
-
+    /*
     handleSpeakAll() {
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
+        
         
         this.textToSpeech.speakAll(originalText, hiraganaText, 'original');
     }
 
     handleSpeakNew() {
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
+        
         
         this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
     }
@@ -400,7 +399,7 @@ class WebSpeechApp {
             this.uiManager.showStatus('ステータス: 停止する読み上げがありません', 'info');
         }
     }
-
+    */
     handleHistoryOutput(text, hiragana, index) {
         // 履歴のテキストを既存のテキストに追加（上書きではなく追加）
         const currentFinalText = "";
@@ -503,11 +502,10 @@ class WebSpeechApp {
         // ページがunloadされる前に認識結果のみ保存
         window.addEventListener('beforeunload', () => {
             const resultTextElement = this.domElements.get('resultTextElement');
-            const hiraganaTextElement = this.domElements.get('hiraganaTextElement');
             
-            if (resultTextElement && hiraganaTextElement) {
+            if (resultTextElement) {
                 const originalText = resultTextElement.textContent || resultTextElement.innerText || '';
-                const hiraganaText = hiraganaTextElement.textContent || hiraganaTextElement.innerText || '';
+            
                 
                 // プレースホルダーテキストは保存しない
                 const cleanOriginalText = originalText === 'ここに認識されたテキストが表示されます...' ? '' : originalText;

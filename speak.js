@@ -1,5 +1,6 @@
 // 読み上げ機能専用スクリプト
 
+/*読み上げ削除
 window.lastSpokenHiragana = window.lastSpokenHiragana || '';
 window.lastSpokenOriginal = window.lastSpokenOriginal || '';
 
@@ -116,3 +117,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+*/
