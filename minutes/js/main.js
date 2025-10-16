@@ -7,11 +7,12 @@ class WebSpeechApp {
         this.textToSpeech = null;
         this.tabManager = null;
         this.uiManager = null;
+        this.geminiManager = null;
         this.logger = window.debugLogger;
         this.vibeLogger = window.vibeLogger;
-        
+
         this.isInitialized = false;
-        
+
         this.logger.info('WebSpeechApp', 'WebSpeechApp初期化開始');
         this.vibeLogger.info('WebSpeechApp', 'WebSpeechApp初期化開始', {
             humanNote: 'WebSpeechAppのメインクラスの初期化を開始しました',
@@ -66,7 +67,13 @@ class WebSpeechApp {
             this.kuromojiManager = new KuromojiManager();
             this.setupKuromojiCallbacks();
             this.logger.debug('WebSpeechApp', 'kuromoji管理初期化完了');
-            
+
+            // Gemini API管理の初期化
+            this.logger.debug('WebSpeechApp', 'Gemini API管理初期化開始');
+            this.geminiManager = new GeminiManager();
+            this.setupGeminiManagerCallbacks();
+            this.logger.debug('WebSpeechApp', 'Gemini API管理初期化完了');
+
             // イベントリスナーの設定
             this.logger.debug('WebSpeechApp', 'イベントリスナー設定開始');
             this.setupEventListeners();
@@ -155,11 +162,26 @@ class WebSpeechApp {
         this.tabManager.setOnHistoryOutputCallback((text, hiragana, index) => {
             this.handleHistoryOutput(text, hiragana, index);
         });
-        
+
         // 履歴削除ボタンのコールバック
         this.tabManager.setOnHistoryDeleteCallback((deletedItem, index) => {
             this.handleHistoryDelete(deletedItem, index);
         });
+    }
+
+    setupGeminiManagerCallbacks() {
+        // Gemini APIステータス更新コールバック
+        this.geminiManager.setOnStatusCallback((message, type) => {
+            this.updateGeminiApiStatus(message, type);
+        });
+
+        // LocalStorageからAPIキーを読み込み
+        this.geminiManager.loadApiKeyFromStorage();
+
+        // APIキーが保存されている場合はステータスに表示
+        if (this.geminiManager.hasApiKey()) {
+            this.updateGeminiApiStatus('APIキーが保存されています', 'success');
+        }
     }
 
     setupEventListeners() {
@@ -212,7 +234,13 @@ class WebSpeechApp {
         if (speakStopButton) {
             speakStopButton.addEventListener('click', () => this.handleSpeakStop());
         }
-        
+
+        // Gemini API関連ボタン
+        const verifyApiKeyButton = this.domElements.get('verifyApiKeyButton');
+        if (verifyApiKeyButton) {
+            verifyApiKeyButton.addEventListener('click', () => this.handleVerifyApiKey());
+        }
+
         // 履歴タブ操作
         const historyClear = this.domElements.get('historyClear');
         const historySearch = this.domElements.get('historySearch');
@@ -432,6 +460,84 @@ class WebSpeechApp {
     handleHistoryDelete(deletedItem, index) {
         console.log('History item deleted:', { deletedItem, index });
         // 必要に応じて追加の処理を実装
+    }
+
+    // Gemini APIキーの確認処理
+    async handleVerifyApiKey() {
+        const apiKeyInput = this.domElements.get('geminiApiKeyInput');
+        if (!apiKeyInput) {
+            console.error('APIキー入力フィールドが見つかりません');
+            return;
+        }
+
+        const apiKey = apiKeyInput.value.trim();
+
+        if (!apiKey) {
+            this.updateGeminiApiStatus('APIキーを入力してください', 'error');
+            return;
+        }
+
+        this.logger.info('WebSpeechApp', 'APIキーの検証を開始', { keyLength: apiKey.length });
+
+        // ボタンを無効化
+        const verifyButton = this.domElements.get('verifyApiKeyButton');
+        if (verifyButton) {
+            verifyButton.disabled = true;
+            verifyButton.textContent = '検証中...';
+        }
+
+        try {
+            // APIキーを検証
+            const result = await this.geminiManager.verifyApiKey(apiKey);
+
+            if (result.success) {
+                this.logger.info('WebSpeechApp', 'APIキーの検証に成功');
+                this.updateGeminiApiStatus('✓ APIキーは有効です', 'success');
+
+                // 入力フィールドを一部マスク表示
+                const maskedKey = apiKey.substring(0, 10) + '...' + apiKey.substring(apiKey.length - 4);
+                apiKeyInput.value = maskedKey;
+            } else {
+                this.logger.error('WebSpeechApp', 'APIキーの検証に失敗', result.message);
+                this.updateGeminiApiStatus('✗ ' + result.message, 'error');
+            }
+        } catch (error) {
+            this.logger.error('WebSpeechApp', 'APIキー検証中にエラー', error);
+            this.updateGeminiApiStatus('✗ 検証中にエラーが発生しました', 'error');
+        } finally {
+            // ボタンを再び有効化
+            if (verifyButton) {
+                verifyButton.disabled = false;
+                verifyButton.textContent = 'APIキー確認';
+            }
+        }
+    }
+
+    // Gemini APIステータスを更新
+    updateGeminiApiStatus(message, type = 'info') {
+        const statusElement = this.domElements.get('apiKeyStatus');
+        if (!statusElement) {
+            console.warn('APIキーステータス要素が見つかりません');
+            return;
+        }
+
+        statusElement.textContent = message;
+
+        // タイプに応じてスタイルを変更
+        switch (type) {
+            case 'success':
+                statusElement.style.color = 'green';
+                break;
+            case 'error':
+                statusElement.style.color = 'red';
+                break;
+            case 'info':
+            default:
+                statusElement.style.color = 'blue';
+                break;
+        }
+
+        this.logger.debug('WebSpeechApp', 'Gemini APIステータス更新', { message, type });
     }
 
     handleSpeechRecognitionResult(result) {

@@ -8,6 +8,13 @@
     <link href="./css/history.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+    <div class="api-key-field">
+        <p style="color:black">gemini-api-key
+            <input type="text" id="gemini-api-key" style="border:1px solid #000000;">
+            <button id="verify-api-key-button" class="green">APIキー確認</button>
+        </p>
+        <p id="api-key-status" style="color:black; font-size:12px; margin-top:4px;"></p>
+    </div>
     <div class="container">
         <div class="header">
             <h1>Speech to Text</h1>
@@ -95,6 +102,7 @@
     <script src="./js/textToSpeech.js"></script>
     <script src="./js/tabManager.js"></script>
     <script src="./js/uiManager.js"></script>
+    <script src="./js/geminiManager.js"></script>
     <script src="./js/main.js"></script>
 </body>
 </html>
