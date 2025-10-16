@@ -19,6 +19,8 @@ class DOMElements {
         this.elements.stopButton = document.getElementById('stopButton');
         this.elements.retryButton = document.getElementById('retryButton');
         this.elements.clearButton = document.getElementById('clearButton');
+        this.elements.saveHistoryButton = document.getElementById('saveHistoryButton');
+        this.elements.saveTxt = document.getElementById('saveTxt');
 
         // 結果表示エリア
         this.elements.resultTextElement = document.getElementById('resultText');
@@ -35,8 +37,10 @@ class DOMElements {
         this.elements.speakButton = document.getElementById('speakButton');
         this.elements.speakAllButton = document.getElementById('speakAllButton');
         this.elements.speakNewButton = document.getElementById('speakNewButton');
+        this.elements.speakStopButton = document.getElementById('speakStopButton');
         this.elements.speakModeOriginal = document.getElementById('speakModeOriginal');
         this.elements.speakModeHiragana = document.getElementById('speakModeHiragana');
+        this.elements.voiceSelect = document.getElementById('voiceSelect');
 
         // タブ・履歴管理
         this.elements.tabMainBtn = document.getElementById('tab-main');
@@ -45,9 +49,15 @@ class DOMElements {
         this.elements.historyTabContent = document.getElementById('history-tab-content');
         this.elements.historyEmpty = document.getElementById('history-empty');
         this.elements.historyList = document.getElementById('history-list');
+        this.elements.historySearch = document.getElementById('history-search');
+        this.elements.historyClear = document.getElementById('history-clear');
+        this.elements.historyExport = document.getElementById('history-export');
+        this.elements.historyStats = document.getElementById('history-stats');
+        this.elements.historyImport = document.getElementById('history-import');
+        this.elements.historyImportLabel = document.querySelector('.history-import-label');
 
         // その他のUI要素
-        this.elements.mainTabContentHeaderText = document.getElementById('mainTabContentHeadertText');
+        this.elements.mainTabContentHeaderText = document.getElementById('mainTabContentHeaderText');
     }
 
     get(elementName) {
@@ -121,14 +131,21 @@ class DOMElements {
             'speakButton': 'speakButton',
             'speakAllButton': 'speakAllButton',
             'speakNewButton': 'speakNewButton',
+            'speakStopButton': 'speakStopButton',
             'speakModeOriginal': 'speakModeOriginal',
             'speakModeHiragana': 'speakModeHiragana',
+            'voiceSelect': 'voiceSelect',
             'tabMainBtn': 'tab-main',
             'tabHistoryBtn': 'tab-history',
             'mainTabContent': 'main-tab-content',
             'historyTabContent': 'history-tab-content',
             'historyEmpty': 'history-empty',
             'historyList': 'history-list',
+            'historySearch': 'history-search',
+            'historyClear': 'history-clear',
+            'historyExport': 'history-export',
+            'historyImport': 'history-import',
+            'historyImportLabel': 'history-import-label',
             'mainTabContentHeaderText': 'mainTabContentHeaderText'
         };
         

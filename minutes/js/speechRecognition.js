@@ -8,13 +8,17 @@ class SpeechRecognitionManager {
         this.onResultCallback = null;
         this.onStatusCallback = null;
         this.onStateChangeCallback = null;
+        this.logger = window.debugLogger;
         
+        this.logger.info('SpeechRecognition', 'SpeechRecognitionManager初期化開始');
         this.initRecognition();
     }
 
     initRecognition() {
+        this.logger.debug('SpeechRecognition', 'initRecognition開始');
+        
         if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
-            console.error('Web Speech API is not supported in this browser');
+            this.logger.error('SpeechRecognition', 'Web Speech API is not supported in this browser');
             if (this.onStatusCallback) {
                 this.onStatusCallback('ステータス: お使いのブラウザは Web Speech API に対応していません。');
             }
@@ -28,6 +32,12 @@ class SpeechRecognitionManager {
         this.recognition.interimResults = true;
         this.recognition.continuous = true;
 
+        this.logger.info('SpeechRecognition', 'Speech Recognition設定完了', {
+            lang: this.recognition.lang,
+            interimResults: this.recognition.interimResults,
+            continuous: this.recognition.continuous
+        });
+
         this.setupEventHandlers();
         return true;
     }
@@ -37,33 +47,48 @@ class SpeechRecognitionManager {
 
         this.recognition.onstart = () => {
             this.recognizing = true;
+            this.logger.info('SpeechRecognition', '音声認識開始', {
+                resumeAfterSpeech: this.resumeAfterSpeech,
+                finalTranscriptLength: this.finalTranscript.length
+            });
+            
             if (this.onStatusCallback) {
                 this.onStatusCallback('ステータス: 音声認識中... マイクに向かって話してください。');
             }
             
-            if (!this.resumeAfterSpeech) {
-                this.finalTranscript = '';
-            }
+            // リセット機能を完全に削除 - finalTranscriptは常に保持
+            this.logger.debug('SpeechRecognition', 'finalTranscriptを保持', {
+                currentLength: this.finalTranscript.length
+            });
+            
             this.resumeAfterSpeech = false;
             
             if (this.onStateChangeCallback) {
                 this.onStateChangeCallback('started');
             }
-            
-            console.log('Speech recognition started.');
         };
 
         this.recognition.onresult = (event) => {
             let interimTranscript = '';
             let newFinalPortion = '';
             
+            this.logger.trace('SpeechRecognition', '音声認識結果受信', {
+                resultIndex: event.resultIndex,
+                resultsLength: event.results.length
+            });
+            
             for (let i = event.resultIndex; i < event.results.length; ++i) {
                 const transcriptPart = event.results[i][0].transcript;
                 if (event.results[i].isFinal) {
                     this.finalTranscript += transcriptPart;
                     newFinalPortion += transcriptPart;
+                    this.logger.debug('SpeechRecognition', '最終結果追加', {
+                        transcriptPart,
+                        confidence: event.results[i][0].confidence
+                    });
                 } else {
                     interimTranscript += transcriptPart;
+                    this.logger.trace('SpeechRecognition', '暫定結果', { transcriptPart });
                 }
             }
 
@@ -78,6 +103,12 @@ class SpeechRecognitionManager {
 
         this.recognition.onerror = (event) => {
             let errorMessage = `ステータス: エラーが発生しました - ${event.error}`;
+            
+            this.logger.error('SpeechRecognition', '音声認識エラー', {
+                error: event.error,
+                message: event.message,
+                recognizing: this.recognizing
+            });
             
             switch (event.error) {
                 case 'no-speech':
@@ -95,8 +126,6 @@ class SpeechRecognitionManager {
             if (this.onStatusCallback) {
                 this.onStatusCallback(errorMessage);
             }
-            
-            console.error('Speech recognition error:', event.error, event.message);
             
             if (this.recognizing) {
                 this.stop();
@@ -140,6 +169,8 @@ class SpeechRecognitionManager {
         }
     }
 
+    // startWithoutResetメソッドを削除 - 通常のstartメソッドを使用
+
     stop() {
         if (!this.recognition) {
             return false;
@@ -161,6 +192,16 @@ class SpeechRecognitionManager {
     // 結果をクリア
     clearResults() {
         this.finalTranscript = '';
+    }
+
+    // finalTranscriptを取得
+    getFinalTranscript() {
+        return this.finalTranscript;
+    }
+
+    // finalTranscriptを設定
+    setFinalTranscript(text) {
+        this.finalTranscript = text;
     }
 
     // 状態確認
