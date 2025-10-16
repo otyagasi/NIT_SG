@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const speakNewButton = document.getElementById('speakNewButton');
     const speakStopButton = document.getElementById('speakStopButton');
     const resultTextElement = document.getElementById('resultText');
-    const hiraganaTextElement = document.getElementById('hiraganaText');
     const speakModeOriginal = document.getElementById('speakModeOriginal');
     const speakModeHiragana = document.getElementById('speakModeHiragana');
 
@@ -49,8 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function getSpeakTargetText() {
         if (speakModeOriginal && speakModeOriginal.checked) {
             return resultTextElement.textContent.trim();
-        } else {
-            return hiraganaTextElement.textContent.trim();
         }
     }
 
@@ -109,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
         speakAllButton.addEventListener('click', () => {
             const text = getSpeakTargetText();
             speakText(text, () => {
-                window.lastSpokenHiragana = hiraganaTextElement.textContent.trim();
                 window.lastSpokenOriginal = resultTextElement.textContent.trim();
             });
         });
@@ -121,9 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (speakModeOriginal && speakModeOriginal.checked) {
                 text = resultTextElement.textContent.trim();
                 lastSpoken = window.lastSpokenOriginal;
-            } else {
-                text = hiraganaTextElement.textContent.trim();
-                lastSpoken = window.lastSpokenHiragana;
             }
             if (text.startsWith(lastSpoken)) {
                 newPart = text.slice(lastSpoken.length);

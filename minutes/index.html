@@ -6,84 +6,151 @@
     <title>リアルタイム Speech to Text (ひらがな変換付き)</title>
     <link href="./css/style.css" rel="stylesheet" type="text/css">
     <link href="./css/history.css" rel="stylesheet" type="text/css">
+    <!-- ここから追加: 左右分割レイアウト -->
+    <style>
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: row;
+            background: #fff;
+            font-family: inherit;
+        }
+        /* 左半分：既存 UI を収める領域 */
+        .app-left {
+            width: 50%;
+            min-width: 320px;
+            background: #f6f8fa; /* 必要なら変更 */
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 0;
+            box-sizing: border-box;
+        }
+        /* 内側で既存 .container の幅制御を維持 */
+        .split-inner {
+            width: 100%;
+            max-width: 1100px;
+            padding: 0 24px;
+            box-sizing: border-box;
+        }
+        /* 右半分：将来の領域（白） */
+        .app-right {
+            width: 50%;
+            background: #ffffff;
+            border-left: 1px solid #eee;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            overflow: auto;
+        }
+        .app-right .placeholder {
+            color: #666;
+            font-size: 18px;
+            text-align: center;
+        }
+        /* レスポンシブ: 狭い画面は縦並び（右は下に） */
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .app-left, .app-right { width: 100%; }
+            .app-right { border-left: none; border-top: 1px solid #eee; padding: 16px; }
+        }
+    </style>
+    <!-- ここまで追加 -->
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Speech to Text</h1>
-            <h2>音声をテキストに変換</h2>
-        </div>
-
-        <!-- タブナビゲーション -->
-        <div class="tab-nav">
-            <button class="tab-btn active" id="tab-main">音声認識</button>
-            <button class="tab-btn" id="tab-history">履歴</button>
-        </div>
-
-        <!-- メインタブ内容 -->
-        <div id="main-tab-content">
-            
-            <!-- 辞書読み込み進捗バー -->
-            <div class="main-tab-content-header">
-                <div id="mainTabContentHeaderText" class="main-tab-content-header-text">
-                    <p>準備完了-開始ボタンを押して音声認識を開始してください。</p>
+    <div class="app-left">
+        <div class="split-inner">
+            <div class="container">
+                <div class="header">
+                    <h1>Speech to Text</h1>
+                    <h2>音声をテキストに変換</h2>
                 </div>
-                <div id="progressContainer" style="display:none;">
-                    <div class="progress-label">辞書ファイル読み込み中...</div>
-                    <div class="progress-bar">
-                        <div id="progressBar" class="progress-fill"></div>
+
+                <!-- タブナビゲーション -->
+                <div class="tab-nav">
+                    <button class="tab-btn active" id="tab-main">音声認識</button>
+                    <button class="tab-btn" id="tab-history">履歴</button>
+                </div>
+
+                <!-- メインタブ内容 -->
+                <div id="main-tab-content">
+                    
+                    <!-- 辞書読み込み進捗バー -->
+                    <div class="main-tab-content-header">
+                        <div id="mainTabContentHeaderText" class="main-tab-content-header-text">
+                            <p>準備完了-開始ボタンを押して音声認識を開始してください。</p>
+                        </div>
+                        <div id="progressContainer" style="display:none;">
+                            <div class="progress-label">辞書ファイル読み込み中...</div>
+                            <div class="progress-bar">
+                                <div id="progressBar" class="progress-fill"></div>
+                            </div>
+                            <div id="progressText" class="progress-text">0%</div>
+                        </div>
                     </div>
-                    <div id="progressText" class="progress-text">0%</div>
-                </div>
-            </div>
-            
+                    
 
-            <div class="controls">
-                <button id="startButton" disabled>音声認識を開始</button>
-                <button id="stopButton" disabled>音声認識を停止</button>
-                <button id="clearButton" disabled>クリア</button>
-                <button id="saveHistoryButton" class="green" disabled>履歴に保存</button>
-                <button id="saveTxt" class="green">TXT保存</button>
-                <button id="retryButton" style="display:none;">形態素解析器を再初期化</button>
-                <br>
-                <br>
-                <button id="speakAllButton" class="green">最初から読み上げる</button>
-                <button id="speakNewButton" class="green">追加部分だけ読み上げる</button>
-                <button id="speakStopButton" class="red">読み上げ停止</button>
-                <!--<button id="multiPeople" disabled>複数人対応</button>-->
-                <br>
-                <label for="voiceSelect">声の種類：</label>
-                <select id="voiceSelect"></select>
-            </div>
+                    <div class="controls">
+                        <button id="startButton" disabled>音声認識を開始</button>
+                        <button id="stopButton" disabled>音声認識を停止</button>
+                        <button id="clearButton" disabled>クリア</button>
+                        <button id="saveHistoryButton" class="green" disabled>履歴に保存</button>
+                        <button id="saveTxt" class="green">TXT保存</button>
+                        <button id="retryButton" style="display:none;">形態素解析器を再初期化</button>
+                        <br>
+                        <br>
 
-            <div class="result-area-container">
-                <div class="result-area-content">
-                    <p class="result-area-header">認識結果 (原文):</p>
-                    <div id="resultText" class="result-area" contenteditable>ここに認識されたテキストが表示されます...</div>
-                </div>
-                <div class="result-area-content">
-                    <p class="result-area-header">認識結果 (ひらがな):</p>
-                    <div id="hiraganaText" class="result-area" contenteditable>ここにひらがなで表示されます...</div>
-                </div>
-            </div>
-            <p id="status">ステータス: アイドル</p>
-            <p id="kuromojiStatus">形態素解析器を準備中...</p>
-        </div>
+                        <!-- 以下の部分を削除 
+                        <button id="speakAllButton" class="green">最初から読み上げる</button>
+                        <button id="speakNewButton" class="green">追加部分だけ読み上げる</button>
+                        <button id="speakStopButton" class="red">読み上げ停止</button>
+                        
+                        <br>
+                        <label for="voiceSelect">声の種類：</label>
+                        <select id="voiceSelect"></select>
+                        -->
+                    </div>
 
-        <!-- 履歴タブ内容 -->
-        <div id="history-tab-content" style="display:none;">
-            <div class="history-controls">
-                <input type="text" id="history-search" placeholder="履歴検索..." style="width:180px; margin-right:8px;">
-                <button id="history-clear" class="history-btn">履歴クリア</button>
-                <button id="history-export" class="history-btn">エクスポート</button>
-                <label class="history-import-label">
-                  インポート<input type="file" id="history-import" accept="application/json" style="display:none;">
-                </label>
-            </div>
-            <div id="history-stats" class="history-stats"></div>
-            <div id="history-empty" class="history-message">履歴がありません</div>
-            <div id="history-list" style="display:none;"></div>
-        </div>
+                    <div class="result-area-container">
+                        <div class="result-area-content">
+                            <p class="result-area-header">認識結果 (原文):</p>
+                            <div id="resultText" class="result-area" contenteditable>ここに認識されたテキストが表示されます...</div>
+                        </div>
+                        <!-- ひらがな表示削除
+                        <div class="result-area-content">
+                            <p class="result-area-header">認識結果 (ひらがな):</p>
+                            <div id="hiraganaText" class="result-area" contenteditable>ここにひらがなで表示されます...</div>
+                        </div>
+                    -->
+                    </div>
+                    <p id="status">ステータス: アイドル</p>
+                    <p id="kuromojiStatus">形態素解析器を準備中...</p>
+                </div>
+
+                <!-- 履歴タブ内容 -->
+                <div id="history-tab-content" style="display:none;">
+                    <div class="history-controls">
+                        <input type="text" id="history-search" placeholder="履歴検索..." style="width:180px; margin-right:8px;">
+                        <button id="history-clear" class="history-btn">履歴クリア</button>
+                        <button id="history-export" class="history-btn">エクスポート</button>
+                        <label class="history-import-label">
+                          インポート<input type="file" id="history-import" accept="application/json" style="display:none;">
+                        </label>
+                    </div>
+                    <div id="history-stats" class="history-stats"></div>
+                    <div id="history-empty" class="history-message">履歴がありません</div>
+                    <div id="history-list" style="display:none;"></div>
+                </div>
+            </div> <!-- /.container (内側) -->
+        </div> <!-- /.split-inner -->
+    </div> <!-- /.app-left -->
+    <div class="app-right">
+        <div class="placeholder">開発中：ここに将来の画面を配置します</div>
     </div>
     <script src="./js/kuromoji.js"></script>
     <script src="./js/debugLogger.js"></script>
