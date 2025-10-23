@@ -65,7 +65,18 @@
 <body>
     <div class="app-left">
         <div class="split-inner">
-            <div class="container">
+            
+    <div class="api-key-field">
+        <p style="color:black">gemini-api-key
+            <input type="text" id="gemini-api-key" style="border:1px solid #000000;">
+            <button id="verify-api-key-button" class="green">APIキー確認</button>
+        </p>
+        <p id="api-key-status" style="color:black; font-size:12px; margin-top:4px;"></p>
+        <p id="token-usage-display" style="color:black; font-size:12px; margin-top:4px; display:none;"></p>
+        <p id="rate-limit-display" style="color:black; font-size:12px; margin-top:4px; display:none;"></p>
+    </div>
+    
+    <div class="container">
                 <div class="header">
                     <h1>Speech to Text</h1>
                     <h2>音声をテキストに変換</h2>
@@ -104,6 +115,8 @@
                         <button id="retryButton" style="display:none;">形態素解析器を再初期化</button>
                         <br>
                         <br>
+                        <button id="summarizeButton" class="green">テキストを要約</button>
+                        <button id="identifySpeakersButton" class="green">話者を識別</button>
 
                         <!-- 以下の部分を削除 
                         <button id="speakAllButton" class="green">最初から読み上げる</button>
@@ -128,6 +141,23 @@
                         </div>
                     -->
                     </div>
+
+            <!-- 要約結果表示エリア -->
+            <div id="summary-container" class="result-area-container" style="display:none; margin-top:20px;">
+                <div class="result-area-content">
+                    <p class="result-area-header">要約結果:</p>
+                    <div id="summary-result" class="result-area" contenteditable style="background-color:#f0f8ff;">要約結果がここに表示されます...</div>
+                </div>
+            </div>
+
+            <!-- 話者識別結果表示エリア -->
+            <div id="speaker-json-container" class="result-area-container" style="display:none; margin-top:20px;">
+                <div class="result-area-content">
+                    <p class="result-area-header">話者識別結果 (JSON):</p>
+                    <div id="speaker-json-result" class="result-area" contenteditable style="background-color:#f0fff0; font-family: monospace; white-space: pre-wrap;">話者識別結果がJSON形式でここに表示されます...</div>
+                </div>
+            </div>
+
                     <p id="status">ステータス: アイドル</p>
                     <p id="kuromojiStatus">形態素解析器を準備中...</p>
                 </div>
@@ -166,6 +196,10 @@
             </button>
         </div>
     </div>
+    <script type="module">
+        import { GoogleGenAI } from "https://esm.run/@google/genai";
+        window.GoogleGenAI = GoogleGenAI;
+    </script>
     <script src="./js/kuromoji.js"></script>
     <script src="./js/debugLogger.js"></script>
     <script src="./js/vibeLogger.js"></script>
@@ -178,6 +212,7 @@
     <!-- タイムライン描画のみ（軽量レンダラ） -->
     <script src="./js/timelineRenderer.js"></script>
     <script src="./js/uiManager.js"></script>
+    <script src="./js/geminiManager.js"></script>
     <script src="./js/main.js"></script>
 </body>
 </html>

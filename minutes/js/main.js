@@ -8,11 +8,12 @@ class WebSpeechApp {
         this.tabManager = null;
         this.timelineManager = null;
         this.uiManager = null;
+        this.geminiManager = null;
         this.logger = window.debugLogger;
         this.vibeLogger = window.vibeLogger;
-        
+
         this.isInitialized = false;
-        
+
         this.logger.info('WebSpeechApp', 'WebSpeechApp初期化開始');
         this.vibeLogger.info('WebSpeechApp', 'WebSpeechApp初期化開始', {
             humanNote: 'WebSpeechAppのメインクラスの初期化を開始しました',
@@ -72,7 +73,13 @@ class WebSpeechApp {
             this.kuromojiManager = new KuromojiManager();
             this.setupKuromojiCallbacks();
             this.logger.debug('WebSpeechApp', 'kuromoji管理初期化完了');
-            
+
+            // Gemini管理の初期化
+            this.logger.debug('WebSpeechApp', 'Gemini管理初期化開始');
+            this.geminiManager = new GeminiManager();
+            this.setupGeminiCallbacks();
+            this.logger.debug('WebSpeechApp', 'Gemini管理初期化完了');
+
             // イベントリスナーの設定
             this.logger.debug('WebSpeechApp', 'イベントリスナー設定開始');
             this.setupEventListeners();
@@ -167,12 +174,39 @@ class WebSpeechApp {
         this.tabManager.setOnHistoryOutputCallback((text, hiragana, index) => {
             this.handleHistoryOutput(text, hiragana, index);
         });
-        
+
         // 履歴削除ボタンのコールバック
         this.tabManager.setOnHistoryDeleteCallback((deletedItem, index) => {
             this.handleHistoryDelete(deletedItem, index);
         });
     }
+
+    setupGeminiCallbacks() {
+        // ステータス更新コールバック
+        this.geminiManager.setOnStatusCallback((message, type) => {
+            this.handleGeminiStatus(message, type);
+        });
+
+        // トークン更新コールバック
+        this.geminiManager.setOnTokenUpdateCallback((usageMetadata) => {
+            this.handleTokenUpdate(usageMetadata);
+        });
+
+        // レート制限更新コールバック
+        this.geminiManager.setOnRateLimitUpdateCallback((rateLimitStats) => {
+            this.handleRateLimitUpdate(rateLimitStats);
+        });
+
+        // LocalStorageからAPIキーを読み込み
+        this.geminiManager.loadApiKeyFromStorage();
+
+        // APIキーが保存されていればUI入力欄に表示
+        const apiKeyInput = this.domElements.get('geminiApiKeyInput');
+        if (apiKeyInput && this.geminiManager.hasApiKey()) {
+            apiKeyInput.value = this.geminiManager.getApiKey();
+        }
+    }
+
 
     setupEventListeners() {
         // 音声認識制御ボタン
@@ -224,7 +258,7 @@ class WebSpeechApp {
         if (speakStopButton) {
             speakStopButton.addEventListener('click', () => this.handleSpeakStop());
         }
-        
+
         // 履歴タブ操作
         const historyClear = this.domElements.get('historyClear');
         const historySearch = this.domElements.get('historySearch');
@@ -284,6 +318,35 @@ class WebSpeechApp {
                 // ファイル選択状態をリセット
                 e.target.value = '';
             });
+        }
+
+        // Gemini API関連のイベントリスナー
+        const verifyApiKeyButton = this.domElements.get('verifyApiKeyButton');
+        const geminiApiKeyInput = this.domElements.get('geminiApiKeyInput');
+
+        if (verifyApiKeyButton) {
+            verifyApiKeyButton.addEventListener('click', () => this.handleVerifyApiKey());
+        }
+
+        // APIキー入力でEnterキー押下時に検証
+        if (geminiApiKeyInput) {
+            geminiApiKeyInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleVerifyApiKey();
+                }
+            });
+        }
+
+        // 要約ボタン
+        const summarizeButton = this.domElements.get('summarizeButton');
+        if (summarizeButton) {
+            summarizeButton.addEventListener('click', () => this.handleSummarizeText());
+        }
+
+        // 話者識別ボタン
+        const identifySpeakersButton = this.domElements.get('identifySpeakersButton');
+        if (identifySpeakersButton) {
+            identifySpeakersButton.addEventListener('click', () => this.handleIdentifySpeakers());
         }
     }
 
@@ -465,6 +528,270 @@ class WebSpeechApp {
         // 必要に応じて追加の処理を実装
     }
 
+    // Gemini API関連ハンドラー
+    async handleVerifyApiKey() {
+        const apiKeyInput = this.domElements.get('geminiApiKeyInput');
+        const apiKeyStatus = this.domElements.get('apiKeyStatus');
+
+        if (!apiKeyInput) {
+            console.error('APIキー入力欄が見つかりません');
+            return;
+        }
+
+        const apiKey = apiKeyInput.value.trim();
+
+        if (!apiKey) {
+            if (apiKeyStatus) {
+                apiKeyStatus.textContent = 'APIキーを入力してください';
+                apiKeyStatus.style.color = 'red';
+            }
+            return;
+        }
+
+        // 検証中の表示
+        if (apiKeyStatus) {
+            apiKeyStatus.textContent = '検証中...';
+            apiKeyStatus.style.color = 'blue';
+        }
+
+        // APIキーを検証
+        const result = await this.geminiManager.verifyApiKey(apiKey);
+
+        if (apiKeyStatus) {
+            if (result.success) {
+                apiKeyStatus.textContent = '✓ APIキーは有効です';
+                apiKeyStatus.style.color = 'green';
+                this.logger.info('WebSpeechApp', 'APIキー検証成功');
+            } else {
+                apiKeyStatus.textContent = '✗ ' + result.message;
+                apiKeyStatus.style.color = 'red';
+                this.logger.error('WebSpeechApp', 'APIキー検証失敗', result.message);
+            }
+        }
+    }
+
+    handleGeminiStatus(message, type) {
+        // Geminiのステータスをログに記録
+        this.logger.info('WebSpeechApp', `Gemini Status [${type}]: ${message}`);
+
+        // 必要に応じてUIに表示
+        const apiKeyStatus = this.domElements.get('apiKeyStatus');
+        if (apiKeyStatus) {
+            apiKeyStatus.textContent = message;
+
+            switch (type) {
+                case 'success':
+                    apiKeyStatus.style.color = 'green';
+                    break;
+                case 'error':
+                    apiKeyStatus.style.color = 'red';
+                    break;
+                case 'info':
+                default:
+                    apiKeyStatus.style.color = 'blue';
+                    break;
+            }
+        }
+    }
+
+    handleTokenUpdate(usageMetadata) {
+        // トークン使用量をログに記録
+        this.logger.info('WebSpeechApp', 'トークン使用量更新', usageMetadata);
+
+        // UIに表示
+        const tokenDisplay = this.domElements.get('tokenUsageDisplay');
+        if (tokenDisplay && usageMetadata) {
+            const promptTokens = usageMetadata.promptTokenCount || 0;
+            const candidatesTokens = usageMetadata.candidatesTokenCount || 0;
+            const totalTokens = usageMetadata.totalTokenCount || 0;
+
+            tokenDisplay.innerHTML = `
+                <strong>トークン使用量:</strong>
+                入力: ${promptTokens.toLocaleString()} |
+                出力: ${candidatesTokens.toLocaleString()} |
+                合計: ${totalTokens.toLocaleString()}
+            `;
+            tokenDisplay.style.display = 'block';
+        }
+    }
+
+    handleRateLimitUpdate(rateLimitStats) {
+        // レート制限使用状況をログに記録
+        this.logger.info('WebSpeechApp', 'レート制限使用状況更新', rateLimitStats);
+
+        // UIに表示
+        const rateLimitDisplay = this.domElements.get('rateLimitDisplay');
+        if (rateLimitDisplay && rateLimitStats) {
+            const { model, requests, tokens } = rateLimitStats;
+
+            // 残り率に応じて色を変更
+            const requestColor = requests.percentage > 80 ? 'red' : requests.percentage > 50 ? 'orange' : 'green';
+            const tokenColor = tokens.percentage > 80 ? 'red' : tokens.percentage > 50 ? 'orange' : 'green';
+
+            rateLimitDisplay.innerHTML = `
+                <strong>レート制限 (${model}):</strong><br>
+                <span style="color: ${requestColor};">RPM: ${requests.used}/${requests.limit} (残り: ${requests.remaining})</span> |
+                <span style="color: ${tokenColor};">TPM: ${tokens.used.toLocaleString()}/${tokens.limit.toLocaleString()} (残り: ${tokens.remaining.toLocaleString()})</span>
+            `;
+            rateLimitDisplay.style.display = 'block';
+        }
+    }
+
+    async handleSummarizeText() {
+        const currentText = this.domElements.get('resultTextElement').textContent.trim();
+
+        // プレースホルダーテキストを除外
+        const cleanText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
+
+        if (!cleanText) {
+            alert('要約するテキストがありません');
+            return;
+        }
+
+        if (!this.geminiManager.hasApiKey()) {
+            alert('先にAPIキーを設定・検証してください');
+            return;
+        }
+
+        // 要約実行
+        const result = await this.geminiManager.summarizeText(cleanText);
+
+        if (result.success) {
+            // 要約結果を表示
+            this.displaySummary(result.summary);
+            this.logger.info('WebSpeechApp', 'テキスト要約成功');
+        } else {
+            // エラーメッセージを整形
+            const errorMsg = this.formatGeminiError(result.error);
+            alert('要約に失敗しました: ' + errorMsg);
+            this.logger.error('WebSpeechApp', '要約失敗', result.error);
+        }
+    }
+
+    displaySummary(summary) {
+        // 要約結果を表示するエリアを取得
+        const summaryElement = this.domElements.get('summaryResult');
+        const summaryContainer = this.domElements.get('summaryContainer');
+
+        if (!summaryElement || !summaryContainer) {
+            // 要約結果表示エリアが存在しない場合は、エラーログを出力
+            console.error('要約結果表示エリアが見つかりません');
+            // 代替として、アラートで表示
+            alert('要約結果:\n\n' + summary);
+            return;
+        }
+
+        // 要約結果を表示
+        summaryElement.textContent = summary;
+        summaryContainer.style.display = 'block';
+
+        this.logger.info('WebSpeechApp', '要約結果を表示', { summaryLength: summary.length });
+    }
+
+    async handleIdentifySpeakers() {
+        const currentText = this.domElements.get('resultTextElement').textContent.trim();
+
+        // プレースホルダーテキストを除外
+        const cleanText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
+
+        if (!cleanText) {
+            alert('識別するテキストがありません');
+            return;
+        }
+
+        if (!this.geminiManager.hasApiKey()) {
+            alert('先にAPIキーを設定・検証してください');
+            return;
+        }
+
+        // 話者識別実行
+        const result = await this.geminiManager.identifySpeakers(cleanText);
+
+        if (result.success) {
+            // 結果を表示
+            this.displaySpeakerJson(result);
+            this.logger.info('WebSpeechApp', '話者識別成功');
+        } else {
+            // エラーメッセージを整形
+            const errorMsg = this.formatGeminiError(result.error);
+            alert('話者識別に失敗しました: ' + errorMsg);
+            this.logger.error('WebSpeechApp', '話者識別失敗', result.error);
+        }
+    }
+
+    displaySpeakerJson(result) {
+        const speakerJsonElement = this.domElements.get('speakerJsonResult');
+        const speakerJsonContainer = this.domElements.get('speakerJsonContainer');
+
+        if (!speakerJsonElement || !speakerJsonContainer) {
+            // JSON表示エリアが存在しない場合
+            console.error('話者識別結果表示エリアが見つかりません');
+
+            // 代替として、コンソールに出力してアラートで通知
+            console.log('Speaker identification result:', result);
+
+            if (result.speakerData) {
+                alert('話者識別結果:\n\n' + JSON.stringify(result.speakerData, null, 2));
+                // タイムラインに描画（アラート表示の場合も）
+                this.renderToTimeline(result.speakerData);
+            } else if (result.rawResponse) {
+                alert('話者識別結果 (パース失敗):\n\n' + result.rawResponse);
+            }
+            return;
+        }
+
+        // JSON形式で表示
+        let displayText = '';
+
+        if (result.speakerData) {
+            // パース成功時
+            displayText = JSON.stringify(result.speakerData, null, 2);
+
+            // タイムラインに描画
+            this.renderToTimeline(result.speakerData);
+        } else if (result.rawResponse) {
+            // パース失敗時は生データを表示
+            displayText = '【JSON解析に失敗しました】\n\n' + result.rawResponse;
+        }
+
+        speakerJsonElement.textContent = displayText;
+        speakerJsonContainer.style.display = 'block';
+
+        this.logger.info('WebSpeechApp', '話者識別結果を表示', {
+            hasValidJson: !!result.speakerData,
+            utteranceCount: result.speakerData?.utterances?.length || 0
+        });
+    }
+
+    // タイムラインに描画
+    renderToTimeline(speakerData) {
+        if (!speakerData || !speakerData.utterances) {
+            this.logger.warn('WebSpeechApp', 'タイムライン描画: 有効なデータがありません');
+            return;
+        }
+
+        try {
+            // window.renderUtterances を使用してタイムラインに描画
+            if (typeof window.renderUtterances === 'function') {
+                const success = window.renderUtterances(speakerData);
+                if (success) {
+                    this.logger.info('WebSpeechApp', 'タイムラインに描画成功', {
+                        utteranceCount: speakerData.utterances.length
+                    });
+                } else {
+                    this.logger.error('WebSpeechApp', 'タイムライン描画に失敗');
+                }
+            } else {
+                this.logger.error('WebSpeechApp', 'renderUtterances関数が見つかりません');
+                console.error('window.renderUtterances is not available');
+            }
+        } catch (error) {
+            this.logger.error('WebSpeechApp', 'タイムライン描画中にエラー', error);
+            console.error('Error rendering to timeline:', error);
+        }
+    }
+
+
     handleSpeechRecognitionResult(result) {
         const { finalTranscript, interimTranscript, newFinalPortion } = result;
         
@@ -501,6 +828,34 @@ class WebSpeechApp {
         }
     }
 
+    // Gemini APIエラーメッセージをフォーマット
+    formatGeminiError(error) {
+        if (typeof error === 'string') {
+            return error;
+        }
+
+        if (error && typeof error === 'object') {
+            const code = error.code;
+            const status = error.status;
+            const message = error.message || '';
+
+            // エラーコードに応じた日本語メッセージ
+            if (code === 503 || status === 'UNAVAILABLE') {
+                return 'APIサーバーが過負荷です。しばらく待ってから再度お試しください。';
+            } else if (code === 429 || status === 'RESOURCE_EXHAUSTED') {
+                return 'APIのレート制限に達しました。しばらく待ってから再度お試しください。';
+            } else if (code === 401 || code === 403) {
+                return 'APIキーが無効です。正しいAPIキーを設定してください。';
+            } else if (code === 400) {
+                return 'リクエストが無効です。入力内容を確認してください。';
+            } else if (message) {
+                return message;
+            }
+        }
+
+        return 'APIエラーが発生しました。';
+    }
+
     handleSpeechRecognitionNotSupported() {
         this.uiManager.showStatus('ステータス: お使いのブラウザは Web Speech API に対応していません。', 'error');
         this.uiManager.showKuromojiStatus('', 'info');
@@ -508,7 +863,7 @@ class WebSpeechApp {
             'startButton': false,
             'stopButton': false
         });
-        
+
         alert('お使いのブラウザは Web Speech API に対応していません。');
     }
 

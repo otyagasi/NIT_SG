@@ -49,6 +49,19 @@ class DOMElements {
 
         // その他のUI要素
         this.elements.mainTabContentHeaderText = document.getElementById('mainTabContentHeaderText');
+
+        // Gemini API関連要素
+        this.elements.geminiApiKeyInput = document.getElementById('gemini-api-key');
+        this.elements.verifyApiKeyButton = document.getElementById('verify-api-key-button');
+        this.elements.apiKeyStatus = document.getElementById('api-key-status');
+        this.elements.summarizeButton = document.getElementById('summarizeButton');
+        this.elements.summaryResult = document.getElementById('summary-result');
+        this.elements.summaryContainer = document.getElementById('summary-container');
+        this.elements.identifySpeakersButton = document.getElementById('identifySpeakersButton');
+        this.elements.speakerJsonResult = document.getElementById('speaker-json-result');
+        this.elements.speakerJsonContainer = document.getElementById('speaker-json-container');
+        this.elements.tokenUsageDisplay = document.getElementById('token-usage-display');
+        this.elements.rateLimitDisplay = document.getElementById('rate-limit-display');
     }
 
     get(elementName) {
@@ -138,7 +151,7 @@ class DOMElements {
             'historyImportLabel': 'history-import-label',
             'mainTabContentHeaderText': 'mainTabContentHeaderText'
         };
-        
+
         return nameToIdMap[elementName] || elementName;
     }
 }
