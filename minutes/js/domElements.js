@@ -63,6 +63,14 @@ class DOMElements {
         this.elements.geminiApiKeyInput = document.getElementById('gemini-api-key');
         this.elements.verifyApiKeyButton = document.getElementById('verify-api-key-button');
         this.elements.apiKeyStatus = document.getElementById('api-key-status');
+        this.elements.summarizeButton = document.getElementById('summarizeButton');
+        this.elements.summaryResult = document.getElementById('summary-result');
+        this.elements.summaryContainer = document.getElementById('summary-container');
+        this.elements.identifySpeakersButton = document.getElementById('identifySpeakersButton');
+        this.elements.speakerJsonResult = document.getElementById('speaker-json-result');
+        this.elements.speakerJsonContainer = document.getElementById('speaker-json-container');
+        this.elements.tokenUsageDisplay = document.getElementById('token-usage-display');
+        this.elements.rateLimitDisplay = document.getElementById('rate-limit-display');
     }
 
     get(elementName) {
@@ -151,10 +159,7 @@ class DOMElements {
             'historyExport': 'history-export',
             'historyImport': 'history-import',
             'historyImportLabel': 'history-import-label',
-            'mainTabContentHeaderText': 'mainTabContentHeaderText',
-            'geminiApiKeyInput': 'gemini-api-key',
-            'verifyApiKeyButton': 'verify-api-key-button',
-            'apiKeyStatus': 'api-key-status'
+            'mainTabContentHeaderText': 'mainTabContentHeaderText'
         };
 
         return nameToIdMap[elementName] || elementName;
