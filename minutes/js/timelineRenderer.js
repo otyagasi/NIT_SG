@@ -52,12 +52,12 @@
                 const hh = String(now.getHours()).padStart(2, '0');
                 const mm = String(now.getMinutes()).padStart(2, '0');
 
-                row.innerHTML = '
-            <div class="timeline-item-content">\
-                <div class="timeline-item-speaker">話者：' + escapeHtml(name) + '</div>\
-                <div class="timeline-item-text">内容：' + escapeHtml(cleaned) + '</div>\
-            </div>\
-            <div class="timeline-item-time">' + hh + ':' + mm + '</div>';
+                row.innerHTML = '' +
+            '<div class="timeline-item-content">' +
+                '<div class="timeline-item-speaker">話者：' + escapeHtml(name) + '</div>' +
+                '<div class="timeline-item-text">内容：' + escapeHtml(cleaned) + '</div>' +
+            '</div>' +
+            '<div class="timeline-item-time">' + hh + ':' + mm + '</div>';
 
                 container.appendChild(row);
             });

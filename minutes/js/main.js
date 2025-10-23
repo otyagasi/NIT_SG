@@ -732,6 +732,8 @@ class WebSpeechApp {
 
             if (result.speakerData) {
                 alert('話者識別結果:\n\n' + JSON.stringify(result.speakerData, null, 2));
+                // タイムラインに描画（アラート表示の場合も）
+                this.renderToTimeline(result.speakerData);
             } else if (result.rawResponse) {
                 alert('話者識別結果 (パース失敗):\n\n' + result.rawResponse);
             }
@@ -744,6 +746,9 @@ class WebSpeechApp {
         if (result.speakerData) {
             // パース成功時
             displayText = JSON.stringify(result.speakerData, null, 2);
+
+            // タイムラインに描画
+            this.renderToTimeline(result.speakerData);
         } else if (result.rawResponse) {
             // パース失敗時は生データを表示
             displayText = '【JSON解析に失敗しました】\n\n' + result.rawResponse;
@@ -756,6 +761,34 @@ class WebSpeechApp {
             hasValidJson: !!result.speakerData,
             utteranceCount: result.speakerData?.utterances?.length || 0
         });
+    }
+
+    // タイムラインに描画
+    renderToTimeline(speakerData) {
+        if (!speakerData || !speakerData.utterances) {
+            this.logger.warn('WebSpeechApp', 'タイムライン描画: 有効なデータがありません');
+            return;
+        }
+
+        try {
+            // window.renderUtterances を使用してタイムラインに描画
+            if (typeof window.renderUtterances === 'function') {
+                const success = window.renderUtterances(speakerData);
+                if (success) {
+                    this.logger.info('WebSpeechApp', 'タイムラインに描画成功', {
+                        utteranceCount: speakerData.utterances.length
+                    });
+                } else {
+                    this.logger.error('WebSpeechApp', 'タイムライン描画に失敗');
+                }
+            } else {
+                this.logger.error('WebSpeechApp', 'renderUtterances関数が見つかりません');
+                console.error('window.renderUtterances is not available');
+            }
+        } catch (error) {
+            this.logger.error('WebSpeechApp', 'タイムライン描画中にエラー', error);
+            console.error('Error rendering to timeline:', error);
+        }
     }
 
 
