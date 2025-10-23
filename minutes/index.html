@@ -36,17 +36,17 @@
             padding: 0 24px;
             box-sizing: border-box;
         }
-        /* 右半分：将来の領域（白） */
+        /* 右半分：タイムライン表示領域 */
         .app-right {
             width: 50%;
             background: #ffffff;
             border-left: 1px solid #eee;
             box-sizing: border-box;
             display: flex;
-            align-items: center;
+            align-items: stretch;
             justify-content: center;
             padding: 32px;
-            overflow: auto;
+            overflow: hidden;
         }
         .app-right .placeholder {
             color: #666;
@@ -150,7 +150,21 @@
         </div> <!-- /.split-inner -->
     </div> <!-- /.app-left -->
     <div class="app-right">
-        <div class="placeholder">開発中：ここに将来の画面を配置します</div>
+        <div class="timeline-container">
+            <div class="timeline-header">
+                <button class="timeline-tab active">話者によって色分け</button>
+                <button class="timeline-tab">話した時間を記録</button>
+                <button class="timeline-export" id="exportJsonButton" title="タイムラインをJSONでエクスポート">JSONエクスポート</button>
+            </div>
+            <div class="timeline-content" id="timelineContent">
+                <!-- タイムラインアイテムがここに追加されます -->
+            </div>
+            <button class="record-button" id="recordButton">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                    <circle cx="12" cy="12" r="8"/>
+                </svg>
+            </button>
+        </div>
     </div>
     <script src="./js/kuromoji.js"></script>
     <script src="./js/debugLogger.js"></script>
@@ -161,6 +175,8 @@
     <script src="./js/kuromojiManager.js"></script>
     <script src="./js/textToSpeech.js"></script>
     <script src="./js/tabManager.js"></script>
+    <!-- タイムライン描画のみ（軽量レンダラ） -->
+    <script src="./js/timelineRenderer.js"></script>
     <script src="./js/uiManager.js"></script>
     <script src="./js/main.js"></script>
 </body>

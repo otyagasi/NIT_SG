@@ -6,6 +6,7 @@ class WebSpeechApp {
         this.kuromojiManager = null;
         this.textToSpeech = null;
         this.tabManager = null;
+        this.timelineManager = null;
         this.uiManager = null;
         this.logger = window.debugLogger;
         this.vibeLogger = window.vibeLogger;
@@ -45,12 +46,17 @@ class WebSpeechApp {
             this.setupTabManagerCallbacks();
             this.logger.debug('WebSpeechApp', 'タブ管理初期化完了');
             
-            /*
-            // 音声合成の初期化
-            this.logger.debug('WebSpeechApp', '音声合成初期化開始');
-            this.textToSpeech = new TextToSpeechManager();
-            this.setupTextToSpeechCallbacks();
-            this.logger.debug('WebSpeechApp', '音声合成初期化完了');
+            // タイムライン機能は無効化（UIのみ残す）
+            
+            // 音声合成の初期化（オプション）
+            if (typeof TextToSpeechManager !== 'undefined') {
+                this.logger.debug('WebSpeechApp', '音声合成初期化開始');
+                this.textToSpeech = new TextToSpeechManager();
+                this.setupTextToSpeechCallbacks();
+                this.logger.debug('WebSpeechApp', '音声合成初期化完了');
+            } else {
+                this.logger.debug('WebSpeechApp', '音声合成機能はスキップされました');
+            }
             
             // 音声認識の初期化
             this.logger.debug('WebSpeechApp', '音声認識初期化開始');
@@ -61,7 +67,6 @@ class WebSpeechApp {
             }
             this.setupSpeechRecognitionCallbacks();
             this.logger.debug('WebSpeechApp', '音声認識初期化完了');
-            */
             // kuromoji管理の初期化
             this.logger.debug('WebSpeechApp', 'kuromoji管理初期化開始');
             this.kuromojiManager = new KuromojiManager();
@@ -123,8 +128,12 @@ class WebSpeechApp {
             this.uiManager.setKuromojiErrorState();
         });
     }
-z
+
     setupTextToSpeechCallbacks() {
+        if (!this.textToSpeech) {
+            return;
+        }
+        
         this.textToSpeech.setOnSpeechStartCallback(() => {
             // 音声認識が動作中の場合は一時停止
             if (this.speechRecognition.isRecognizing()) {
@@ -143,10 +152,12 @@ z
         
         // 音声選択機能の初期化（遅延実行）
         setTimeout(() => {
-            this.textToSpeech.initializeVoices();
-            const voiceSelect = this.domElements.get('voiceSelect');
-            if (voiceSelect) {
-                this.textToSpeech.initializeVoiceSelect(voiceSelect);
+            if (this.textToSpeech) {
+                this.textToSpeech.initializeVoices();
+                const voiceSelect = this.domElements.get('voiceSelect');
+                if (voiceSelect) {
+                    this.textToSpeech.initializeVoiceSelect(voiceSelect);
+                }
             }
         }, 500);
     }
@@ -278,13 +289,22 @@ z
 
     handleStartRecognition() {
         // リセット機能を完全に削除 - 常に継続モードで開始
-        if (!this.speechRecognition.start()) {
+        const ok = this.speechRecognition.start();
+        // タイムラインの録音UIを同期
+        if (this.timelineManager) {
+            this.timelineManager.setRecordingUI(ok);
+        }
+        if (!ok) {
             this.uiManager.showError('音声認識を開始できませんでした。');
         }
     }
 
     handleStopRecognition() {
         this.speechRecognition.stop();
+        // タイムラインの録音UIを同期
+        if (this.timelineManager) {
+            this.timelineManager.setRecordingUI(false);
+        }
     }
 
     async handleRetryKuromoji() {
@@ -301,7 +321,9 @@ z
         // クリア機能は履歴保存なしでテキストのみクリア
         this.speechRecognition.clearResults();
         this.uiManager.clearResults();
-        this.textToSpeech.clearHistory();
+        if (this.textToSpeech) {
+            this.textToSpeech.clearHistory();
+        }
     }
 
     handleSaveToHistory() {
@@ -379,18 +401,30 @@ z
     }
 
     handleSpeakAll() {
+        if (!this.textToSpeech) {
+            this.uiManager.showStatus('ステータス: 音声合成機能は利用できません', 'info');
+            return;
+        }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
         
         this.textToSpeech.speakAll(originalText, hiraganaText, 'original');
     }
 
     handleSpeakNew() {
+        if (!this.textToSpeech) {
+            this.uiManager.showStatus('ステータス: 音声合成機能は利用できません', 'info');
+            return;
+        }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
         
         this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
     }
 
     handleSpeakStop() {
+        if (!this.textToSpeech) {
+            this.uiManager.showStatus('ステータス: 音声合成機能は利用できません', 'info');
+            return;
+        }
         if (this.textToSpeech.stop()) {
             this.uiManager.showStatus('ステータス: 読み上げを停止しました', 'info');
         } else {
@@ -436,6 +470,11 @@ z
         
         // 結果をUI上に表示
         this.uiManager.displayResult(finalTranscript, interimTranscript);
+        
+        // 右側タイムラインにフェーズバッファとして確定分を追記
+        if (newFinalPortion && this.timelineManager) {
+            this.timelineManager.appendFromRecognition(newFinalPortion);
+        }
         /*
         // ひらがな変換の処理
         if (finalTranscript && this.kuromojiManager.isReady()) {
