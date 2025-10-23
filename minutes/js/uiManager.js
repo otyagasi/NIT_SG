@@ -195,7 +195,8 @@ class UIManager {
             retryButton.style.display = show ? 'inline-block' : 'none';
         }
     }
-
+    /*
+    読み上げ削除
     // 読み上げモードの取得
     getSpeakMode() {
         const speakModeOriginal = this.elements.get('speakModeOriginal');
@@ -223,6 +224,7 @@ class UIManager {
             if (speakModeOriginal) speakModeOriginal.checked = false;
         }
     }
+    */
 
     // エラーメッセージの表示
     showError(message, duration = 5000) {

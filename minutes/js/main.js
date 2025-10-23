@@ -6,6 +6,7 @@ class WebSpeechApp {
         this.kuromojiManager = null;
         this.textToSpeech = null;
         this.tabManager = null;
+        this.timelineManager = null;
         this.uiManager = null;
         this.geminiManager = null;
         this.logger = window.debugLogger;
@@ -46,11 +47,17 @@ class WebSpeechApp {
             this.setupTabManagerCallbacks();
             this.logger.debug('WebSpeechApp', 'タブ管理初期化完了');
             
-            // 音声合成の初期化
-            this.logger.debug('WebSpeechApp', '音声合成初期化開始');
-            this.textToSpeech = new TextToSpeechManager();
-            this.setupTextToSpeechCallbacks();
-            this.logger.debug('WebSpeechApp', '音声合成初期化完了');
+            // タイムライン機能は無効化（UIのみ残す）
+            
+            // 音声合成の初期化（オプション）
+            if (typeof TextToSpeechManager !== 'undefined') {
+                this.logger.debug('WebSpeechApp', '音声合成初期化開始');
+                this.textToSpeech = new TextToSpeechManager();
+                this.setupTextToSpeechCallbacks();
+                this.logger.debug('WebSpeechApp', '音声合成初期化完了');
+            } else {
+                this.logger.debug('WebSpeechApp', '音声合成機能はスキップされました');
+            }
             
             // 音声認識の初期化
             this.logger.debug('WebSpeechApp', '音声認識初期化開始');
@@ -61,7 +68,6 @@ class WebSpeechApp {
             }
             this.setupSpeechRecognitionCallbacks();
             this.logger.debug('WebSpeechApp', '音声認識初期化完了');
-            
             // kuromoji管理の初期化
             this.logger.debug('WebSpeechApp', 'kuromoji管理初期化開始');
             this.kuromojiManager = new KuromojiManager();
@@ -131,6 +137,10 @@ class WebSpeechApp {
     }
 
     setupTextToSpeechCallbacks() {
+        if (!this.textToSpeech) {
+            return;
+        }
+        
         this.textToSpeech.setOnSpeechStartCallback(() => {
             // 音声認識が動作中の場合は一時停止
             if (this.speechRecognition.isRecognizing()) {
@@ -149,10 +159,12 @@ class WebSpeechApp {
         
         // 音声選択機能の初期化（遅延実行）
         setTimeout(() => {
-            this.textToSpeech.initializeVoices();
-            const voiceSelect = this.domElements.get('voiceSelect');
-            if (voiceSelect) {
-                this.textToSpeech.initializeVoiceSelect(voiceSelect);
+            if (this.textToSpeech) {
+                this.textToSpeech.initializeVoices();
+                const voiceSelect = this.domElements.get('voiceSelect');
+                if (voiceSelect) {
+                    this.textToSpeech.initializeVoiceSelect(voiceSelect);
+                }
             }
         }, 500);
     }
@@ -340,13 +352,22 @@ class WebSpeechApp {
 
     handleStartRecognition() {
         // リセット機能を完全に削除 - 常に継続モードで開始
-        if (!this.speechRecognition.start()) {
+        const ok = this.speechRecognition.start();
+        // タイムラインの録音UIを同期
+        if (this.timelineManager) {
+            this.timelineManager.setRecordingUI(ok);
+        }
+        if (!ok) {
             this.uiManager.showError('音声認識を開始できませんでした。');
         }
     }
 
     handleStopRecognition() {
         this.speechRecognition.stop();
+        // タイムラインの録音UIを同期
+        if (this.timelineManager) {
+            this.timelineManager.setRecordingUI(false);
+        }
     }
 
     async handleRetryKuromoji() {
@@ -363,13 +384,14 @@ class WebSpeechApp {
         // クリア機能は履歴保存なしでテキストのみクリア
         this.speechRecognition.clearResults();
         this.uiManager.clearResults();
-        this.textToSpeech.clearHistory();
+        if (this.textToSpeech) {
+            this.textToSpeech.clearHistory();
+        }
     }
 
     handleSaveToHistory() {
         // 現在のテキストとひらがなを履歴に保存
         const currentText = this.domElements.get('resultTextElement').textContent.trim();
-        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
         
         // プレースホルダーテキストは保存しない
         const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
@@ -392,7 +414,6 @@ class WebSpeechApp {
     handleSaveTxt() {
         // 現在のテキストとひらがなを取得
         const currentText = this.domElements.get('resultTextElement').textContent.trim();
-        const currentHiragana = this.domElements.get('hiraganaTextElement').textContent.trim();
         
         // プレースホルダーテキストは保存しない
         const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
@@ -443,20 +464,30 @@ class WebSpeechApp {
     }
 
     handleSpeakAll() {
+        if (!this.textToSpeech) {
+            this.uiManager.showStatus('ステータス: 音声合成機能は利用できません', 'info');
+            return;
+        }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
         
         this.textToSpeech.speakAll(originalText, hiraganaText, 'original');
     }
 
     handleSpeakNew() {
+        if (!this.textToSpeech) {
+            this.uiManager.showStatus('ステータス: 音声合成機能は利用できません', 'info');
+            return;
+        }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        const hiraganaText = this.domElements.get('hiraganaTextElement').textContent.trim();
         
         this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
     }
 
     handleSpeakStop() {
+        if (!this.textToSpeech) {
+            this.uiManager.showStatus('ステータス: 音声合成機能は利用できません', 'info');
+            return;
+        }
         if (this.textToSpeech.stop()) {
             this.uiManager.showStatus('ステータス: 読み上げを停止しました', 'info');
         } else {
@@ -734,6 +765,11 @@ class WebSpeechApp {
         // 結果をUI上に表示
         this.uiManager.displayResult(finalTranscript, interimTranscript);
         
+        // 右側タイムラインにフェーズバッファとして確定分を追記
+        if (newFinalPortion && this.timelineManager) {
+            this.timelineManager.appendFromRecognition(newFinalPortion);
+        }
+        /*
         // ひらがな変換の処理
         if (finalTranscript && this.kuromojiManager.isReady()) {
             const hiraganaResult = this.kuromojiManager.convertToHiragana(finalTranscript);
@@ -743,6 +779,7 @@ class WebSpeechApp {
         } else if (!finalTranscript && !interimTranscript) {
             this.uiManager.displayHiragana('');
         }
+        */
         
         // 履歴への追加機能を削除（クリアボタンでのみ履歴に追加）
     }
@@ -815,7 +852,6 @@ class WebSpeechApp {
             appState: this.getAppState(),
             domElementsValid: this.domElements?.validateElements() || false,
             speechRecognitionSupported: SpeechRecognitionManager.isSupported(),
-            textToSpeechSupported: TextToSpeechManager.isSupported(),
             historyStats: this.tabManager?.getHistoryStats() || {}
         };
     }
@@ -825,11 +861,9 @@ class WebSpeechApp {
         // ページがunloadされる前に認識結果のみ保存
         window.addEventListener('beforeunload', () => {
             const resultTextElement = this.domElements.get('resultTextElement');
-            const hiraganaTextElement = this.domElements.get('hiraganaTextElement');
             
-            if (resultTextElement && hiraganaTextElement) {
+            if (resultTextElement) {
                 const originalText = resultTextElement.textContent || resultTextElement.innerText || '';
-                const hiraganaText = hiraganaTextElement.textContent || hiraganaTextElement.innerText || '';
                 
                 // プレースホルダーテキストは保存しない
                 const cleanOriginalText = originalText === 'ここに認識されたテキストが表示されます...' ? '' : originalText;

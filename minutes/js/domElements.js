@@ -8,7 +8,7 @@ class DOMElements {
     initElements() {
         // 必須要素（これらがないとアプリが動作しない）
         this.requiredElements = [
-            'startButton', 'stopButton', 'resultText', 'hiraganaText', 
+            'startButton', 'stopButton', 'resultText', 
             'status', 'kuromojiStatus', 'progressContainer', 'progressBar', 'progressText',
             'tab-main', 'tab-history', 'main-tab-content', 'history-tab-content',
             'history-empty', 'history-list', 'mainTabContentHeaderText'
@@ -24,7 +24,6 @@ class DOMElements {
 
         // 結果表示エリア
         this.elements.resultTextElement = document.getElementById('resultText');
-        this.elements.hiraganaTextElement = document.getElementById('hiraganaText');
         this.elements.statusElement = document.getElementById('status');
         this.elements.kuromojiStatusElement = document.getElementById('kuromojiStatus');
 
@@ -33,15 +32,7 @@ class DOMElements {
         this.elements.progressBar = document.getElementById('progressBar');
         this.elements.progressText = document.getElementById('progressText');
 
-        // 読み上げ制御（オプショナル）
-        this.elements.speakButton = document.getElementById('speakButton');
-        this.elements.speakAllButton = document.getElementById('speakAllButton');
-        this.elements.speakNewButton = document.getElementById('speakNewButton');
-        this.elements.speakStopButton = document.getElementById('speakStopButton');
-        this.elements.speakModeOriginal = document.getElementById('speakModeOriginal');
-        this.elements.speakModeHiragana = document.getElementById('speakModeHiragana');
-        this.elements.voiceSelect = document.getElementById('voiceSelect');
-
+        
         // タブ・履歴管理
         this.elements.tabMainBtn = document.getElementById('tab-main');
         this.elements.tabHistoryBtn = document.getElementById('tab-history');
@@ -135,7 +126,6 @@ class DOMElements {
             'retryButton': 'retryButton',
             'clearButton': 'clearButton',
             'resultTextElement': 'resultText',
-            'hiraganaTextElement': 'hiraganaText',
             'statusElement': 'status',
             'kuromojiStatusElement': 'kuromojiStatus',
             'progressContainer': 'progressContainer',
