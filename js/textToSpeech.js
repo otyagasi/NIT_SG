@@ -1,5 +1,4 @@
 // 音声合成管理クラス
-/*
 class TextToSpeechManager {
     constructor() {
         this.lastSpokenHiragana = '';
@@ -300,4 +299,3 @@ class TextToSpeechManager {
 
 // グローバルに利用できるようにエクスポート
 window.TextToSpeechManager = TextToSpeechManager;
-*/
