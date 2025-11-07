@@ -2,8 +2,6 @@
 class UIManager {
     constructor() {
         this.elements = null;
-        this.isProgressVisible = false;
-        this.currentProgressPercent = 0;
     }
 
     // DOM要素を設定
@@ -11,78 +9,24 @@ class UIManager {
         this.elements = elements;
     }
 
-    // プログレスバーの表示
-    showProgress() {
-        const progressContainer = this.elements.get('progressContainer');
-        const mainTabContentHeaderText = this.elements.get('mainTabContentHeaderText');
-
-        if (progressContainer && mainTabContentHeaderText) {
-            mainTabContentHeaderText.style.display = 'none';
-            progressContainer.style.display = 'block';
-            this.isProgressVisible = true;
-            this.updateProgress(0);
-            console.log('Progress bar shown');
-        }
-    }
-
-    // プログレスバーの非表示
-    hideProgress() {
-        const progressContainer = this.elements.get('progressContainer');
-        const mainTabContentHeaderText = this.elements.get('mainTabContentHeaderText');
-
-        if (progressContainer && mainTabContentHeaderText) {
-            progressContainer.style.display = 'none';
-            mainTabContentHeaderText.style.display = 'block';
-            this.isProgressVisible = false;
-            console.log('Progress bar hidden');
-        }
-    }
-
-    // プログレスバーの更新
-    updateProgress(percent) {
-        const progressBar = this.elements.get('progressBar');
-        const progressText = this.elements.get('progressText');
-
-        if (progressBar && progressText) {
-            const validPercent = Math.max(0, Math.min(100, percent));
-            progressBar.style.width = validPercent + '%';
-            progressText.textContent = Math.round(validPercent) + '%';
-            this.currentProgressPercent = validPercent;
-        }
-    }
-
     // ステータスメッセージの表示
     showStatus(message, type = 'info') {
         const statusElement = this.elements.get('statusElement');
-        
+
         if (statusElement) {
             statusElement.textContent = message;
-            
+
             // タイプに応じてスタイルを変更（オプション）
             statusElement.className = `status-${type}`;
-            
-            console.log(`Status (${type}):`, message);
-        }
-    }
 
-    // kuromoji関連のステータス表示
-    showKuromojiStatus(message, type = 'info') {
-        const kuromojiStatusElement = this.elements.get('kuromojiStatusElement');
-        
-        if (kuromojiStatusElement) {
-            kuromojiStatusElement.textContent = message;
-            
-            // タイプに応じてスタイルを変更（オプション）
-            kuromojiStatusElement.className = `kuromoji-status-${type}`;
-            
-            console.log(`Kuromoji Status (${type}):`, message);
+            console.log(`Status (${type}):`, message);
         }
     }
 
     // 結果テキストの表示
     displayResult(finalText, interimText = '') {
         const resultTextElement = this.elements.get('resultTextElement');
-        
+
         if (resultTextElement) {
             let displayText = finalText;
             if (interimText) {
@@ -92,26 +36,12 @@ class UIManager {
         }
     }
 
-    // ひらがなテキストの表示
-    displayHiragana(hiraganaText) {
-        const hiraganaTextElement = this.elements.get('hiraganaTextElement');
-        
-        if (hiraganaTextElement) {
-            hiraganaTextElement.textContent = hiraganaText;
-        }
-    }
-
     // 結果のクリア
     clearResults() {
         const resultTextElement = this.elements.get('resultTextElement');
-        const hiraganaTextElement = this.elements.get('hiraganaTextElement');
-        
+
         if (resultTextElement) {
             resultTextElement.innerHTML = '';
-        }
-        
-        if (hiraganaTextElement) {
-            hiraganaTextElement.textContent = '';
         }
     }
 
@@ -151,49 +81,15 @@ class UIManager {
     }
 
     // 音声認識停止時のUI状態
-    setRecognitionStopState(kuromojiReady = true) {
+    setRecognitionStopState() {
         this.setMultipleButtonStates({
-            'startButton': kuromojiReady,
+            'startButton': true,
             'stopButton': false,
             'clearButton': true,
             'saveHistoryButton': true
         });
-        
+
         this.showStatus('ステータス: 音声認識終了', 'info');
-    }
-
-    // kuromoji初期化時のUI状態
-    setKuromojiInitializingState() {
-        this.setButtonState('startButton', false);
-        this.setButtonState('clearButton', true);
-        this.showRetryButton(false);
-        this.showProgress();
-    }
-
-    // kuromoji初期化完了時のUI状態
-    setKuromojiReadyState() {
-        this.setButtonState('startButton', true);
-        this.setButtonState('clearButton', true);
-        this.setButtonState('saveHistoryButton', true);
-        this.showRetryButton(false);
-        this.hideProgress();
-    }
-
-    // kuromoji初期化失敗時のUI状態
-    setKuromojiErrorState() {
-        this.setButtonState('startButton', true);
-        this.setButtonState('clearButton', true);
-        this.showRetryButton(true);
-        this.hideProgress();
-    }
-
-    // 再試行ボタンの表示/非表示
-    showRetryButton(show) {
-        const retryButton = this.elements.get('retryButton');
-        
-        if (retryButton) {
-            retryButton.style.display = show ? 'inline-block' : 'none';
-        }
     }
     /*
     読み上げ削除
