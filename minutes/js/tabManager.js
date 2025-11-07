@@ -23,18 +23,12 @@ class TabManager {
     }
 
     // TXTファイルをダウンロード
-    downloadTxt(text, hiragana, index) {
+    downloadTxt(text, index) {
         // 指定された形式でテキストを作成
         let txtContent = '';
-        
+
         if (text) {
-            txtContent += '原文\n';
             txtContent += text + '\n';
-        }
-        
-        if (hiragana) {
-            txtContent += 'ひらがな\n';
-            txtContent += hiragana + '\n';
         }
         
         // ファイル名を生成（日時とインデックスベース）
@@ -148,21 +142,14 @@ class TabManager {
                 return `<div class="history-item" data-index="${originalIndex}">
                     <div class="history-content">
                         <div class="history-text-section">
-                            <div class="history-text-label">原文:</div>
                             <div class="history-text">${this.escapeHtml(item.text)}</div>
                         </div>
-                        ${item.hiragana ? `
-                        <div class="history-text-section">
-                            <div class="history-text-label">ひらがな:</div>
-                            <div class="history-hiragana">${this.escapeHtml(item.hiragana)}</div>
-                        </div>
-                        ` : ''}
                     </div>
                     <div class="history-meta">
                         <div class="history-date">${date}</div>
                         <div class="history-buttons">
-                            <button class="history-output-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" data-hiragana="${this.escapeHtml(item.hiragana || '')}" title="音声認識エリアに出力">📝 エリアに出力</button>
-                            <button class="history-txt-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" data-hiragana="${this.escapeHtml(item.hiragana || '')}" title="TXTファイルとして保存">📄 TXT保存</button>
+                            <button class="history-output-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" title="音声認識エリアに出力">📝 エリアに出力</button>
+                            <button class="history-txt-btn" data-index="${originalIndex}" data-text="${this.escapeHtml(item.text)}" title="TXTファイルとして保存">📄 TXT保存</button>
                             <button class="history-delete-btn" data-index="${originalIndex}">🗑️ 削除</button>
                         </div>
                     </div>
@@ -196,19 +183,12 @@ class TabManager {
         `;
     }
 
-    // 履歴にテキストを追加（後方互換性のため）
+    // 履歴にテキストを追加
     addToHistory(text) {
-        if (!text || !text.trim()) return;
-        this.addToHistoryWithHiragana(text.trim(), '');
-    }
-
-    // 履歴にテキストとひらがなを追加
-    addToHistoryWithHiragana(text, hiragana = '') {
         if (!text || !text.trim()) return;
 
         const historyItem = {
             text: text.trim(),
-            hiragana: hiragana ? hiragana.trim() : '',
             date: new Date().toLocaleString('ja-JP', { hour12: false }),
             timestamp: Date.now()
         };
@@ -427,10 +407,9 @@ class TabManager {
             button.addEventListener('click', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 const text = e.target.dataset.text;
-                const hiragana = e.target.dataset.hiragana;
-                
+
                 if (this.onHistoryOutputCallback) {
-                    this.onHistoryOutputCallback(text, hiragana, index);
+                    this.onHistoryOutputCallback(text, index);
                 }
             });
         });
@@ -441,9 +420,8 @@ class TabManager {
             button.addEventListener('click', (e) => {
                 const index = parseInt(e.target.dataset.index);
                 const text = e.target.dataset.text;
-                const hiragana = e.target.dataset.hiragana;
-                
-                this.downloadTxt(text, hiragana, index);
+
+                this.downloadTxt(text, index);
             });
         });
 

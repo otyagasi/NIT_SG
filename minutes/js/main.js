@@ -3,7 +3,6 @@ class WebSpeechApp {
     constructor() {
         this.domElements = null;
         this.speechRecognition = null;
-        this.kuromojiManager = null;
         this.textToSpeech = null;
         this.tabManager = null;
         this.timelineManager = null;
@@ -68,11 +67,6 @@ class WebSpeechApp {
             }
             this.setupSpeechRecognitionCallbacks();
             this.logger.debug('WebSpeechApp', '音声認識初期化完了');
-            // kuromoji管理の初期化
-            this.logger.debug('WebSpeechApp', 'kuromoji管理初期化開始');
-            this.kuromojiManager = new KuromojiManager();
-            this.setupKuromojiCallbacks();
-            this.logger.debug('WebSpeechApp', 'kuromoji管理初期化完了');
 
             // Gemini管理の初期化
             this.logger.debug('WebSpeechApp', 'Gemini管理初期化開始');
@@ -84,12 +78,12 @@ class WebSpeechApp {
             this.logger.debug('WebSpeechApp', 'イベントリスナー設定開始');
             this.setupEventListeners();
             this.logger.debug('WebSpeechApp', 'イベントリスナー設定完了');
-            
-            // kuromoji初期化の開始
-            this.logger.debug('WebSpeechApp', 'kuromoji初期化開始');
-            await this.kuromojiManager.initialize();
-            this.logger.debug('WebSpeechApp', 'kuromoji初期化完了');
-            
+
+            // 初期状態のボタン設定（音声認識停止状態）
+            this.logger.debug('WebSpeechApp', '初期ボタン状態設定開始');
+            this.uiManager.setRecognitionStopState();
+            this.logger.debug('WebSpeechApp', '初期ボタン状態設定完了');
+
             this.isInitialized = true;
             const duration = this.logger.timeEnd('WebSpeechAppInitialization');
             this.logger.info('WebSpeechApp', 'WebSpeechApp初期化完了', { duration });
@@ -114,25 +108,6 @@ class WebSpeechApp {
         
         this.speechRecognition.setOnStateChangeCallback((state) => {
             this.handleSpeechRecognitionStateChange(state);
-        });
-    }
-
-    setupKuromojiCallbacks() {
-        this.kuromojiManager.setOnStatusCallback((status) => {
-            this.uiManager.showKuromojiStatus(status);
-        });
-        
-        this.kuromojiManager.setOnProgressCallback((progress) => {
-            this.uiManager.updateProgress(progress);
-        });
-        
-        this.kuromojiManager.setOnInitializedCallback(() => {
-            this.uiManager.setKuromojiReadyState();
-        });
-        
-        this.kuromojiManager.setOnErrorCallback((error) => {
-            this.uiManager.showKuromojiStatus(error.message, 'error');
-            this.uiManager.setKuromojiErrorState();
         });
     }
 
@@ -171,8 +146,8 @@ class WebSpeechApp {
 
     setupTabManagerCallbacks() {
         // 履歴出力ボタンのコールバック
-        this.tabManager.setOnHistoryOutputCallback((text, hiragana, index) => {
-            this.handleHistoryOutput(text, hiragana, index);
+        this.tabManager.setOnHistoryOutputCallback((text, index) => {
+            this.handleHistoryOutput(text, index);
         });
 
         // 履歴削除ボタンのコールバック
@@ -212,22 +187,17 @@ class WebSpeechApp {
         // 音声認識制御ボタン
         const startButton = this.domElements.get('startButton');
         const stopButton = this.domElements.get('stopButton');
-        const retryButton = this.domElements.get('retryButton');
         const clearButton = this.domElements.get('clearButton');
         const saveHistoryButton = this.domElements.get('saveHistoryButton');
-        
+
         if (startButton) {
             startButton.addEventListener('click', () => this.handleStartRecognition());
         }
-        
+
         if (stopButton) {
             stopButton.addEventListener('click', () => this.handleStopRecognition());
         }
-        
-        if (retryButton) {
-            retryButton.addEventListener('click', () => this.handleRetryKuromoji());
-        }
-        
+
         if (clearButton) {
             clearButton.addEventListener('click', () => this.handleClearResults());
         }
@@ -370,16 +340,6 @@ class WebSpeechApp {
         }
     }
 
-    async handleRetryKuromoji() {
-        try {
-            this.uiManager.setKuromojiInitializingState();
-            await this.kuromojiManager.reinitialize();
-        } catch (error) {
-            console.error('Kuromoji retry failed:', error);
-            this.uiManager.showError('kuromoji再初期化に失敗しました: ' + error.message);
-        }
-    }
-
     handleClearResults() {
         // クリア機能は履歴保存なしでテキストのみクリア
         this.speechRecognition.clearResults();
@@ -390,20 +350,18 @@ class WebSpeechApp {
     }
 
     handleSaveToHistory() {
-        // 現在のテキストとひらがなを履歴に保存
+        // 現在のテキストを履歴に保存
         const currentText = this.domElements.get('resultTextElement').textContent.trim();
-        
+
         // プレースホルダーテキストは保存しない
         const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
-        const cleanCurrentHiragana = currentHiragana === 'ここにひらがなで表示されます...' ? '' : currentHiragana;
-        
+
         if (cleanCurrentText) {
-            this.tabManager.addToHistoryWithHiragana(cleanCurrentText, cleanCurrentHiragana);
+            this.tabManager.addToHistory(cleanCurrentText);
             console.log('Text saved to history manually:', {
-                original: cleanCurrentText,
-                hiragana: cleanCurrentHiragana
+                original: cleanCurrentText
             });
-            
+
             // 保存完了の通知
             this.uiManager.showStatus('ステータス: 履歴に保存しました', 'success');
         } else {
@@ -412,31 +370,24 @@ class WebSpeechApp {
     }
 
     handleSaveTxt() {
-        // 現在のテキストとひらがなを取得
+        // 現在のテキストを取得
         const currentText = this.domElements.get('resultTextElement').textContent.trim();
-        
+
         // プレースホルダーテキストは保存しない
         const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
-        const cleanCurrentHiragana = currentHiragana === 'ここにひらがなで表示されます...' ? '' : currentHiragana;
-        
+
         if (!cleanCurrentText) {
             this.uiManager.showStatus('ステータス: 保存するテキストがありません', 'info');
             return;
         }
-        
+
         // TXTファイルの内容を作成
         let txtContent = '';
-        
+
         if (cleanCurrentText) {
-            txtContent += '原文\n';
             txtContent += cleanCurrentText + '\n';
         }
-        
-        if (cleanCurrentHiragana) {
-            txtContent += 'ひらがな\n';
-            txtContent += cleanCurrentHiragana + '\n';
-        }
-        
+
         // ファイル名を生成（日時ベース）
         const now = new Date();
         const dateStr = now.toISOString().slice(0, 19).replace(/[T:]/g, '-');
@@ -469,8 +420,8 @@ class WebSpeechApp {
             return;
         }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        
-        this.textToSpeech.speakAll(originalText, hiraganaText, 'original');
+
+        this.textToSpeech.speakAll(originalText, 'original');
     }
 
     handleSpeakNew() {
@@ -479,8 +430,8 @@ class WebSpeechApp {
             return;
         }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        
-        this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
+
+        this.textToSpeech.speakNew(originalText, 'original');
     }
 
     handleSpeakStop() {
@@ -495,32 +446,21 @@ class WebSpeechApp {
         }
     }
 
-    handleHistoryOutput(text, hiragana, index) {
+    handleHistoryOutput(text, index) {
         // 履歴のテキストを既存のテキストに追加（上書きではなく追加）
         const currentFinalText = "";
         const newFinalText = currentFinalText + (currentFinalText ? '\n' : '') + text;
-        
+
         // Speech Recognitionの内部状態を更新
         this.speechRecognition.setFinalTranscript(newFinalText);
-        
+
         // UIに表示
         this.uiManager.displayResult(newFinalText);
-        
-        if (hiragana) {
-            // 現在のUIのひらがなテキストを取得
-            const hiraganaElement = "";
-            const currentHiraganaDisplay = hiraganaElement ? hiraganaElement.textContent || '' : '';
-            
-            // プレースホルダーテキストを除去
-            const cleanCurrentText = currentHiraganaDisplay === 'ここにひらがなで表示されます...' ? '' : currentHiraganaDisplay;
-            const newHiraganaText = cleanCurrentText + (cleanCurrentText ? '\n' : '') + hiragana;
-            this.uiManager.displayHiragana(newHiraganaText);
-        }
-        
+
         // メインタブに切り替え
         this.tabManager.switchTab('main');
-        
-        console.log('History item output (appended):', { text, hiragana, index, newFinalText });
+
+        console.log('History item output (appended):', { text, index, newFinalText });
     }
 
     handleHistoryDelete(deletedItem, index) {
@@ -802,19 +742,6 @@ class WebSpeechApp {
         if (newFinalPortion && this.timelineManager) {
             this.timelineManager.appendFromRecognition(newFinalPortion);
         }
-        /*
-        // ひらがな変換の処理
-        if (finalTranscript && this.kuromojiManager.isReady()) {
-            const hiraganaResult = this.kuromojiManager.convertToHiragana(finalTranscript);
-            this.uiManager.displayHiragana(hiraganaResult);
-        } else if (finalTranscript && !this.kuromojiManager.isReady()) {
-            this.uiManager.displayHiragana(finalTranscript + ' (かな変換待機中...)');
-        } else if (!finalTranscript && !interimTranscript) {
-            this.uiManager.displayHiragana('');
-        }
-        */
-        
-        // 履歴への追加機能を削除（クリアボタンでのみ履歴に追加）
     }
 
     handleSpeechRecognitionStateChange(state) {
@@ -823,7 +750,7 @@ class WebSpeechApp {
                 this.uiManager.setRecognitionStartState();
                 break;
             case 'ended':
-                this.uiManager.setRecognitionStopState(this.kuromojiManager.isReady());
+                this.uiManager.setRecognitionStopState();
                 break;
         }
     }
@@ -872,7 +799,6 @@ class WebSpeechApp {
         return {
             isInitialized: this.isInitialized,
             isRecognizing: this.speechRecognition?.isRecognizing() || false,
-            isKuromojiReady: this.kuromojiManager?.isReady() || false,
             isSpeaking: this.textToSpeech?.isSpeaking() || false,
             currentTab: this.tabManager?.getCurrentTab() || 'main',
             historyCount: this.tabManager?.getHistory().length || 0
@@ -897,23 +823,21 @@ class WebSpeechApp {
             
             if (resultTextElement) {
                 const originalText = resultTextElement.textContent || resultTextElement.innerText || '';
-                
+
                 // プレースホルダーテキストは保存しない
                 const cleanOriginalText = originalText === 'ここに認識されたテキストが表示されます...' ? '' : originalText;
-                const cleanHiraganaText = hiraganaText === 'ここにひらがなで表示されます...' ? '' : hiraganaText;
-                
+
                 // 認識結果をLocalStorageに保存（リロード時復元用のみ、履歴保存なし）
-                this.saveCurrentTextForReload(cleanOriginalText, cleanHiraganaText);
+                this.saveCurrentTextForReload(cleanOriginalText);
             }
         });
     }
 
     // リロード用の現在テキストを保存
-    saveCurrentTextForReload(originalText, hiraganaText) {
+    saveCurrentTextForReload(originalText) {
         try {
             const textData = {
                 original: originalText,
-                hiragana: hiraganaText,
                 timestamp: Date.now()
             };
             localStorage.setItem('webSpeechApp_currentText', JSON.stringify(textData));
@@ -935,18 +859,10 @@ class WebSpeechApp {
                 if (textData.timestamp > oneDayAgo && textData.original.trim()) {
                     // UIに復元
                     this.uiManager.displayResult(textData.original);
-                    if (textData.hiragana) {
-                        this.uiManager.displayHiragana(textData.hiragana);
-                    }
-                    
+
                     // Speech Recognitionの内部状態も復元
                     this.speechRecognition.setFinalTranscript(textData.original);
-                    
-                    // kuromojiManagerの状態も復元
-                    if (textData.hiragana) {
-                        this.kuromojiManager.setLastHiraganaText(textData.hiragana);
-                    }
-                    
+
                     console.log('Text restored on reload:', textData);
                 } else {
                     // 古いデータを削除

@@ -8,16 +8,15 @@ class DOMElements {
     initElements() {
         // 必須要素（これらがないとアプリが動作しない）
         this.requiredElements = [
-            'startButton', 'stopButton', 'resultText', 
-            'status', 'kuromojiStatus', 'progressContainer', 'progressBar', 'progressText',
+            'startButton', 'stopButton', 'resultText',
+            'status',
             'tab-main', 'tab-history', 'main-tab-content', 'history-tab-content',
-            'history-empty', 'history-list', 'mainTabContentHeaderText'
+            'history-empty', 'history-list'
         ];
 
         // 音声認識制御ボタン
         this.elements.startButton = document.getElementById('startButton');
         this.elements.stopButton = document.getElementById('stopButton');
-        this.elements.retryButton = document.getElementById('retryButton');
         this.elements.clearButton = document.getElementById('clearButton');
         this.elements.saveHistoryButton = document.getElementById('saveHistoryButton');
         this.elements.saveTxt = document.getElementById('saveTxt');
@@ -25,14 +24,7 @@ class DOMElements {
         // 結果表示エリア
         this.elements.resultTextElement = document.getElementById('resultText');
         this.elements.statusElement = document.getElementById('status');
-        this.elements.kuromojiStatusElement = document.getElementById('kuromojiStatus');
 
-        // プログレスバー
-        this.elements.progressContainer = document.getElementById('progressContainer');
-        this.elements.progressBar = document.getElementById('progressBar');
-        this.elements.progressText = document.getElementById('progressText');
-
-        
         // タブ・履歴管理
         this.elements.tabMainBtn = document.getElementById('tab-main');
         this.elements.tabHistoryBtn = document.getElementById('tab-history');
@@ -46,9 +38,6 @@ class DOMElements {
         this.elements.historyStats = document.getElementById('history-stats');
         this.elements.historyImport = document.getElementById('history-import');
         this.elements.historyImportLabel = document.querySelector('.history-import-label');
-
-        // その他のUI要素
-        this.elements.mainTabContentHeaderText = document.getElementById('mainTabContentHeaderText');
 
         // Gemini API関連要素
         this.elements.geminiApiKeyInput = document.getElementById('gemini-api-key');
@@ -123,21 +112,9 @@ class DOMElements {
         const nameToIdMap = {
             'startButton': 'startButton',
             'stopButton': 'stopButton',
-            'retryButton': 'retryButton',
             'clearButton': 'clearButton',
             'resultTextElement': 'resultText',
             'statusElement': 'status',
-            'kuromojiStatusElement': 'kuromojiStatus',
-            'progressContainer': 'progressContainer',
-            'progressBar': 'progressBar',
-            'progressText': 'progressText',
-            'speakButton': 'speakButton',
-            'speakAllButton': 'speakAllButton',
-            'speakNewButton': 'speakNewButton',
-            'speakStopButton': 'speakStopButton',
-            'speakModeOriginal': 'speakModeOriginal',
-            'speakModeHiragana': 'speakModeHiragana',
-            'voiceSelect': 'voiceSelect',
             'tabMainBtn': 'tab-main',
             'tabHistoryBtn': 'tab-history',
             'mainTabContent': 'main-tab-content',
@@ -148,8 +125,7 @@ class DOMElements {
             'historyClear': 'history-clear',
             'historyExport': 'history-export',
             'historyImport': 'history-import',
-            'historyImportLabel': 'history-import-label',
-            'mainTabContentHeaderText': 'mainTabContentHeaderText'
+            'historyImportLabel': 'history-import-label'
         };
 
         return nameToIdMap[elementName] || elementName;
