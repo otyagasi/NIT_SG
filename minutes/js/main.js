@@ -79,6 +79,11 @@ class WebSpeechApp {
             this.setupEventListeners();
             this.logger.debug('WebSpeechApp', 'イベントリスナー設定完了');
 
+            // 初期状態のボタン設定（音声認識停止状態）
+            this.logger.debug('WebSpeechApp', '初期ボタン状態設定開始');
+            this.uiManager.setRecognitionStopState();
+            this.logger.debug('WebSpeechApp', '初期ボタン状態設定完了');
+
             this.isInitialized = true;
             const duration = this.logger.timeEnd('WebSpeechAppInitialization');
             this.logger.info('WebSpeechApp', 'WebSpeechApp初期化完了', { duration });
@@ -141,8 +146,8 @@ class WebSpeechApp {
 
     setupTabManagerCallbacks() {
         // 履歴出力ボタンのコールバック
-        this.tabManager.setOnHistoryOutputCallback((text, hiragana, index) => {
-            this.handleHistoryOutput(text, hiragana, index);
+        this.tabManager.setOnHistoryOutputCallback((text, index) => {
+            this.handleHistoryOutput(text, index);
         });
 
         // 履歴削除ボタンのコールバック
@@ -415,8 +420,8 @@ class WebSpeechApp {
             return;
         }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        
-        this.textToSpeech.speakAll(originalText, hiraganaText, 'original');
+
+        this.textToSpeech.speakAll(originalText, 'original');
     }
 
     handleSpeakNew() {
@@ -425,8 +430,8 @@ class WebSpeechApp {
             return;
         }
         const originalText = this.domElements.get('resultTextElement').textContent.trim();
-        
-        this.textToSpeech.speakNew(originalText, hiraganaText, 'original');
+
+        this.textToSpeech.speakNew(originalText, 'original');
     }
 
     handleSpeakStop() {
@@ -441,32 +446,21 @@ class WebSpeechApp {
         }
     }
 
-    handleHistoryOutput(text, hiragana, index) {
+    handleHistoryOutput(text, index) {
         // 履歴のテキストを既存のテキストに追加（上書きではなく追加）
         const currentFinalText = "";
         const newFinalText = currentFinalText + (currentFinalText ? '\n' : '') + text;
-        
+
         // Speech Recognitionの内部状態を更新
         this.speechRecognition.setFinalTranscript(newFinalText);
-        
+
         // UIに表示
         this.uiManager.displayResult(newFinalText);
-        
-        if (hiragana) {
-            // 現在のUIのひらがなテキストを取得
-            const hiraganaElement = "";
-            const currentHiraganaDisplay = hiraganaElement ? hiraganaElement.textContent || '' : '';
-            
-            // プレースホルダーテキストを除去
-            const cleanCurrentText = currentHiraganaDisplay === 'ここにひらがなで表示されます...' ? '' : currentHiraganaDisplay;
-            const newHiraganaText = cleanCurrentText + (cleanCurrentText ? '\n' : '') + hiragana;
-            this.uiManager.displayHiragana(newHiraganaText);
-        }
-        
+
         // メインタブに切り替え
         this.tabManager.switchTab('main');
-        
-        console.log('History item output (appended):', { text, hiragana, index, newFinalText });
+
+        console.log('History item output (appended):', { text, index, newFinalText });
     }
 
     handleHistoryDelete(deletedItem, index) {
@@ -829,23 +823,21 @@ class WebSpeechApp {
             
             if (resultTextElement) {
                 const originalText = resultTextElement.textContent || resultTextElement.innerText || '';
-                
+
                 // プレースホルダーテキストは保存しない
                 const cleanOriginalText = originalText === 'ここに認識されたテキストが表示されます...' ? '' : originalText;
-                const cleanHiraganaText = hiraganaText === 'ここにひらがなで表示されます...' ? '' : hiraganaText;
-                
+
                 // 認識結果をLocalStorageに保存（リロード時復元用のみ、履歴保存なし）
-                this.saveCurrentTextForReload(cleanOriginalText, cleanHiraganaText);
+                this.saveCurrentTextForReload(cleanOriginalText);
             }
         });
     }
 
     // リロード用の現在テキストを保存
-    saveCurrentTextForReload(originalText, hiraganaText) {
+    saveCurrentTextForReload(originalText) {
         try {
             const textData = {
                 original: originalText,
-                hiragana: hiraganaText,
                 timestamp: Date.now()
             };
             localStorage.setItem('webSpeechApp_currentText', JSON.stringify(textData));

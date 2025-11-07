@@ -24,7 +24,8 @@ class DOMElements {
 
         // 結果表示エリア
         this.elements.resultTextElement = document.getElementById('resultText');
-        
+        this.elements.hiraganaTextElement = document.getElementById('hiraganaText');
+
         this.elements.statusElement = document.getElementById('status');
         this.elements.kuromojiStatusElement = document.getElementById('kuromojiStatus');
 
@@ -49,6 +50,12 @@ class DOMElements {
 
         // その他のUI要素
         this.elements.mainTabContentHeaderText = document.getElementById('mainTabContentHeaderText');
+
+        // 音声合成関連
+        this.elements.speakAllButton = document.getElementById('speakAllButton');
+        this.elements.speakNewButton = document.getElementById('speakNewButton');
+        this.elements.speakStopButton = document.getElementById('speakStopButton');
+        this.elements.voiceSelect = document.getElementById('voiceSelect');
     }
 
     get(elementName) {
