@@ -26,7 +26,7 @@ class GeminiManager {
                 'gemini-1.5-flash': { rpm: 1000, tpm: 4000000, rpd: null }, // 制限なし
                 'gemini-1.5-pro': { rpm: 360, tpm: 4000000, rpd: null }
             },
-            currentModel: 'gemini-2.0-flash-exp'
+            currentModel: 'gemini-2.5-flash'
         };
 
         // LocalStorageからRPDデータを読み込み
@@ -303,7 +303,7 @@ class GeminiManager {
 
             // テスト用の簡単なプロンプトでAPI呼び出し
             const response = await tempGenAI.models.generateContent({
-                model: "gemini-2.0-flash-exp",
+                model: "gemini-2.5-flash",
                 contents: "こんにちは"
             });
 
@@ -347,7 +347,7 @@ class GeminiManager {
     }
 
     // Gemini APIを呼び出し（リトライ機能付き）
-    async callGeminiAPI(prompt, modelName = "gemini-2.0-flash-exp", retryCount = 3, retryDelay = 2000) {
+    async callGeminiAPI(prompt, modelName = "gemini-2.5-flash", retryCount = 3, retryDelay = 2000) {
         if (!this.hasApiKey() || !this.genAI) {
             return {
                 success: false,
