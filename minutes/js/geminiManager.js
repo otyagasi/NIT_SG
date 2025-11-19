@@ -4,6 +4,7 @@ class GeminiManager {
         this.apiKey = null;
         this.genAI = null;
         this.model = null;
+        this.selectedModel = 'gemini-2.5-flash'; // デフォルトモデル
         this.logger = window.debugLogger;
         this.vibeLogger = window.vibeLogger;
 
@@ -256,6 +257,17 @@ class GeminiManager {
         return this.apiKey !== null && this.apiKey.trim() !== '';
     }
 
+    // モデルを設定
+    setModel(modelName) {
+        this.selectedModel = modelName;
+        this.logger.info('GeminiManager', 'モデルを設定しました', { model: modelName });
+    }
+
+    // モデルを取得
+    getModel() {
+        return this.selectedModel;
+    }
+
     // APIキーをクリア
     clearApiKey() {
         this.apiKey = null;
@@ -347,7 +359,9 @@ class GeminiManager {
     }
 
     // Gemini APIを呼び出し（リトライ機能付き）
-    async callGeminiAPI(prompt, modelName = "gemini-2.5-flash", retryCount = 3, retryDelay = 2000) {
+    async callGeminiAPI(prompt, modelName = null, retryCount = 3, retryDelay = 2000) {
+        // modelNameが指定されていない場合は選択されたモデルを使用
+        const model = modelName || this.selectedModel;
         if (!this.hasApiKey() || !this.genAI) {
             return {
                 success: false,
@@ -357,12 +371,12 @@ class GeminiManager {
 
         this.logger.info('GeminiManager', 'Gemini APIを呼び出し中', {
             promptLength: prompt.length,
-            model: modelName,
+            model: model,
             retryCount
         });
         this.vibeLogger.info('GeminiManager', 'Gemini API呼び出し開始', {
             humanNote: 'Gemini APIにリクエストを送信しています',
-            context: { promptLength: prompt.length, model: modelName },
+            context: { promptLength: prompt.length, model: model },
             aiTodo: 'APIレスポンスを確認してエラーハンドリングを実装してください'
         });
 
@@ -370,14 +384,14 @@ class GeminiManager {
         for (let attempt = 1; attempt <= retryCount; attempt++) {
             try {
                 console.log('Gemini API Request:', {
-                    model: modelName,
+                    model: model,
                     promptLength: prompt.length,
                     attempt,
                     maxRetries: retryCount
                 });
 
                 const response = await this.genAI.models.generateContent({
-                    model: modelName,
+                    model: model,
                     contents: prompt
                 });
 
@@ -389,7 +403,7 @@ class GeminiManager {
 
                     // レート制限トラッキングを更新
                     const totalTokens = response.usageMetadata.totalTokenCount || 0;
-                    this.trackRateLimitUsage(modelName, totalTokens);
+                    this.trackRateLimitUsage(model, totalTokens);
                 }
 
                 console.log('Gemini API Response:', {
@@ -612,7 +626,8 @@ class GeminiManager {
 - 「○○です」という自己紹介パターンから話者名を抽出
 - 話者名が明示されていない場合は直前の話者を継続、または「話者A」「話者B」と命名
 - 発言は時系列順に並べ、各発言ごとに別のオブジェクトとして記録
-- 自己紹介部分も1つの発言として記録
+- **重要**: 同じ話者の2回目以降の発言では、自己紹介部分（「○○です。」）を削除し、発言内容のみを記録すること
+- 自己紹介のみの発言（例：「河野です。」だけ）は最初の1回のみ記録し、2回目以降は無視すること
 
 ## 音声認識誤認識の修正（重要）:
 **必ず以下の修正を実行してください:**

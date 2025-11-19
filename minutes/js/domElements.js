@@ -20,6 +20,9 @@ class DOMElements {
         this.elements.clearButton = document.getElementById('clearButton');
         this.elements.saveHistoryButton = document.getElementById('saveHistoryButton');
         this.elements.saveTxt = document.getElementById('saveTxt');
+        this.elements.saveMenu = document.getElementById('saveMenu');
+        this.elements.importData = document.getElementById('importData');
+        this.elements.importFileInput = document.getElementById('importFileInput');
 
         // 結果表示エリア
         this.elements.resultTextElement = document.getElementById('resultText');
@@ -41,6 +44,8 @@ class DOMElements {
 
         // Gemini API関連要素
         this.elements.geminiApiKeyInput = document.getElementById('gemini-api-key');
+        this.elements.geminiModelSelect = document.getElementById('gemini-model-select');
+        this.elements.geminiCustomModel = document.getElementById('gemini-custom-model');
         this.elements.verifyApiKeyButton = document.getElementById('verify-api-key-button');
         this.elements.apiKeyStatus = document.getElementById('api-key-status');
         this.elements.summarizeButton = document.getElementById('summarizeButton');
@@ -50,7 +55,6 @@ class DOMElements {
         this.elements.speakerJsonResult = document.getElementById('speaker-json-result');
         this.elements.speakerJsonContainer = document.getElementById('speaker-json-container');
         this.elements.tokenUsageDisplay = document.getElementById('token-usage-display');
-        this.elements.rateLimitDisplay = document.getElementById('rate-limit-display');
     }
 
     get(elementName) {

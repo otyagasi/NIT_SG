@@ -206,10 +206,50 @@ class WebSpeechApp {
             saveHistoryButton.addEventListener('click', () => this.handleSaveToHistory());
         }
         
-        // TXT保存ボタン
+        // 保存ボタン（ドロップダウンメニュー）
         const saveTxtButton = this.domElements.get('saveTxt');
-        if (saveTxtButton) {
-            saveTxtButton.addEventListener('click', () => this.handleSaveTxt());
+        const saveMenu = this.domElements.get('saveMenu');
+
+        if (saveTxtButton && saveMenu) {
+            // 保存ボタンクリックでメニュー表示/非表示
+            saveTxtButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                saveMenu.classList.toggle('show');
+            });
+
+            // メニュー項目のクリックイベント
+            const menuItems = saveMenu.querySelectorAll('.save-menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const format = e.target.dataset.format;
+                    saveMenu.classList.remove('show');
+
+                    if (format === 'txt') {
+                        this.handleSaveTxt();
+                    } else if (format === 'json') {
+                        this.handleSaveJson();
+                    }
+                });
+            });
+
+            // 外側をクリックしたらメニューを閉じる
+            document.addEventListener('click', () => {
+                saveMenu.classList.remove('show');
+            });
+        }
+
+        // インポートボタン
+        const importButton = this.domElements.get('importData');
+        const importFileInput = this.domElements.get('importFileInput');
+
+        if (importButton && importFileInput) {
+            importButton.addEventListener('click', () => {
+                importFileInput.click();
+            });
+
+            importFileInput.addEventListener('change', (e) => {
+                this.handleImportData(e);
+            });
         }
         
         // 読み上げボタン
@@ -293,6 +333,7 @@ class WebSpeechApp {
         // Gemini API関連のイベントリスナー
         const verifyApiKeyButton = this.domElements.get('verifyApiKeyButton');
         const geminiApiKeyInput = this.domElements.get('geminiApiKeyInput');
+        const geminiModelSelect = this.domElements.get('geminiModelSelect');
 
         if (verifyApiKeyButton) {
             verifyApiKeyButton.addEventListener('click', () => this.handleVerifyApiKey());
@@ -307,6 +348,40 @@ class WebSpeechApp {
             });
         }
 
+        // モデル選択
+        const geminiCustomModel = this.domElements.get('geminiCustomModel');
+        if (geminiModelSelect) {
+            geminiModelSelect.addEventListener('change', (e) => {
+                const selectedValue = e.target.value;
+
+                if (selectedValue === 'custom') {
+                    // カスタムモデル入力フィールドを表示
+                    if (geminiCustomModel) {
+                        geminiCustomModel.style.display = 'inline-block';
+                        geminiCustomModel.focus();
+                    }
+                } else {
+                    // カスタムモデル入力フィールドを非表示
+                    if (geminiCustomModel) {
+                        geminiCustomModel.style.display = 'none';
+                    }
+                    this.geminiManager.setModel(selectedValue);
+                    this.logger.info('WebSpeechApp', 'モデルを変更しました', { model: selectedValue });
+                }
+            });
+        }
+
+        // カスタムモデル入力
+        if (geminiCustomModel) {
+            geminiCustomModel.addEventListener('input', (e) => {
+                const customModelName = e.target.value.trim();
+                if (customModelName) {
+                    this.geminiManager.setModel(customModelName);
+                    this.logger.info('WebSpeechApp', 'カスタムモデルを設定しました', { model: customModelName });
+                }
+            });
+        }
+
         // 要約ボタン
         const summarizeButton = this.domElements.get('summarizeButton');
         if (summarizeButton) {
@@ -317,6 +392,22 @@ class WebSpeechApp {
         const identifySpeakersButton = this.domElements.get('identifySpeakersButton');
         if (identifySpeakersButton) {
             identifySpeakersButton.addEventListener('click', () => this.handleIdentifySpeakers());
+        }
+
+        // JSON編集時のリアルタイム更新
+        const speakerJsonResult = this.domElements.get('speakerJsonResult');
+        if (speakerJsonResult) {
+            speakerJsonResult.addEventListener('input', () => this.handleJsonEdit());
+        }
+
+        // 話者名一括変更ボタン
+        const bulkRenameSpeakerButton = document.getElementById('bulkRenameSpeakerButton');
+        if (bulkRenameSpeakerButton) {
+            bulkRenameSpeakerButton.addEventListener('click', () => {
+                if (typeof window.bulkRenameSpeaker === 'function') {
+                    window.bulkRenameSpeaker();
+                }
+            });
         }
     }
 
@@ -347,6 +438,35 @@ class WebSpeechApp {
         if (this.textToSpeech) {
             this.textToSpeech.clearHistory();
         }
+
+        // 話者識別結果をクリアして非表示
+        const speakerJsonElement = this.domElements.get('speakerJsonResult');
+        const speakerJsonContainer = this.domElements.get('speakerJsonContainer');
+
+        if (speakerJsonElement) {
+            speakerJsonElement.textContent = '話者識別結果がJSON形式でここに表示されます...';
+        }
+        if (speakerJsonContainer) {
+            speakerJsonContainer.style.display = 'none';
+        }
+
+        // 要約結果をクリアして非表示
+        const summaryElement = this.domElements.get('summaryResult');
+        const summaryContainer = this.domElements.get('summaryContainer');
+
+        if (summaryElement) {
+            summaryElement.textContent = '要約結果がここに表示されます...';
+        }
+        if (summaryContainer) {
+            summaryContainer.style.display = 'none';
+        }
+
+        // 右側のタイムラインをクリア
+        if (typeof window.clearTimeline === 'function') {
+            window.clearTimeline();
+        }
+
+        this.logger.info('WebSpeechApp', 'すべての結果をクリアしました');
     }
 
     handleSaveToHistory() {
@@ -357,9 +477,28 @@ class WebSpeechApp {
         const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
 
         if (cleanCurrentText) {
-            this.tabManager.addToHistory(cleanCurrentText);
+            // 現在のJSONデータを取得
+            const speakerJsonElement = this.domElements.get('speakerJsonResult');
+            let jsonData = null;
+
+            if (speakerJsonElement) {
+                const jsonText = speakerJsonElement.textContent.trim();
+                try {
+                    // JSONが有効かチェック
+                    if (jsonText && jsonText !== '話者識別結果がJSON形式でここに表示されます...') {
+                        jsonData = JSON.parse(jsonText);
+                    }
+                } catch (e) {
+                    // JSON解析失敗時は無視
+                    console.log('JSON parse failed, saving without JSON data');
+                }
+            }
+
+            // テキストとJSONデータを履歴に保存
+            this.tabManager.addToHistory(cleanCurrentText, jsonData);
             console.log('Text saved to history manually:', {
-                original: cleanCurrentText
+                original: cleanCurrentText,
+                hasJsonData: !!jsonData
             });
 
             // 保存完了の通知
@@ -392,7 +531,7 @@ class WebSpeechApp {
         const now = new Date();
         const dateStr = now.toISOString().slice(0, 19).replace(/[T:]/g, '-');
         const fileName = `speech-text-${dateStr}.txt`;
-        
+
         // ダウンロード処理
         const blob = new Blob([txtContent], { type: 'text/plain; charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -400,18 +539,126 @@ class WebSpeechApp {
         a.href = url;
         a.download = fileName;
         a.style.display = 'none';
-        
+
         document.body.appendChild(a);
         a.click();
-        
+
         // クリーンアップ
         setTimeout(() => {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }, 100);
-        
+
         console.log('Speech text saved as TXT file:', fileName);
         this.uiManager.showStatus('ステータス: TXTファイルを保存しました', 'success');
+    }
+
+    handleSaveJson() {
+        // 現在のテキストを取得
+        const currentText = this.domElements.get('resultTextElement').textContent.trim();
+        const cleanCurrentText = currentText === 'ここに認識されたテキストが表示されます...' ? '' : currentText;
+
+        if (!cleanCurrentText) {
+            this.uiManager.showStatus('ステータス: 保存するテキストがありません', 'info');
+            return;
+        }
+
+        // 現在のJSONデータを取得
+        const speakerJsonElement = this.domElements.get('speakerJsonResult');
+        let jsonData = null;
+
+        if (speakerJsonElement) {
+            const jsonText = speakerJsonElement.textContent.trim();
+            try {
+                if (jsonText && jsonText !== '話者識別結果がJSON形式でここに表示されます...') {
+                    jsonData = JSON.parse(jsonText);
+                }
+            } catch (e) {
+                console.log('JSON parse failed');
+            }
+        }
+
+        // 保存するデータを作成
+        const saveData = {
+            text: cleanCurrentText,
+            date: new Date().toISOString(),
+            timestamp: Date.now()
+        };
+
+        if (jsonData) {
+            saveData.speakerData = jsonData;
+        }
+
+        // ファイル名を生成（日時ベース）
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 19).replace(/[T:]/g, '-');
+        const fileName = `speech-data-${dateStr}.json`;
+
+        // ダウンロード処理
+        const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'application/json; charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.style.display = 'none';
+
+        document.body.appendChild(a);
+        a.click();
+
+        // クリーンアップ
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+
+        console.log('Speech data saved as JSON file:', fileName);
+        this.uiManager.showStatus('ステータス: JSONファイルを保存しました', 'success');
+    }
+
+    handleImportData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                // テキストを復元
+                if (data.text) {
+                    this.speechRecognition.setFinalTranscript(data.text);
+                    this.uiManager.displayResult(data.text);
+                }
+
+                // 話者識別データを復元
+                if (data.speakerData && data.speakerData.utterances) {
+                    // 左側のJSON表示を更新
+                    const speakerJsonElement = this.domElements.get('speakerJsonResult');
+                    const speakerJsonContainer = this.domElements.get('speakerJsonContainer');
+
+                    if (speakerJsonElement && speakerJsonContainer) {
+                        speakerJsonElement.textContent = JSON.stringify(data.speakerData, null, 2);
+                        speakerJsonContainer.style.display = 'block';
+                    }
+
+                    // 右側のタイムラインに描画
+                    this.renderToTimeline(data.speakerData);
+                }
+
+                this.uiManager.showStatus('ステータス: データをインポートしました', 'success');
+                console.log('Data imported successfully:', data);
+
+            } catch (error) {
+                this.uiManager.showStatus('ステータス: インポートに失敗しました', 'error');
+                console.error('Import error:', error);
+                alert('ファイルの読み込みに失敗しました。正しいJSON形式のファイルを選択してください。');
+            }
+        };
+
+        reader.readAsText(file);
+
+        // ファイル選択をリセット
+        event.target.value = '';
     }
 
     handleSpeakAll() {
@@ -446,7 +693,11 @@ class WebSpeechApp {
         }
     }
 
-    handleHistoryOutput(text, index) {
+    handleHistoryOutput(historyItem, index) {
+        // 履歴アイテムからテキストとJSONデータを取得
+        const text = historyItem.text;
+        const jsonData = historyItem.jsonData;
+
         // 履歴のテキストを既存のテキストに追加（上書きではなく追加）
         const currentFinalText = "";
         const newFinalText = currentFinalText + (currentFinalText ? '\n' : '') + text;
@@ -457,10 +708,27 @@ class WebSpeechApp {
         // UIに表示
         this.uiManager.displayResult(newFinalText);
 
+        // JSONデータがある場合は、左側のJSON表示とタイムラインに描画
+        if (jsonData && jsonData.utterances) {
+            // 左側のJSON表示を更新
+            const speakerJsonElement = this.domElements.get('speakerJsonResult');
+            const speakerJsonContainer = this.domElements.get('speakerJsonContainer');
+
+            if (speakerJsonElement && speakerJsonContainer) {
+                speakerJsonElement.textContent = JSON.stringify(jsonData, null, 2);
+                speakerJsonContainer.style.display = 'block';
+            }
+
+            // 右側のタイムラインに描画
+            this.renderToTimeline(jsonData);
+
+            console.log('History item output with JSON:', { text, index, hasJsonData: true });
+        } else {
+            console.log('History item output (text only):', { text, index });
+        }
+
         // メインタブに切り替え
         this.tabManager.switchTab('main');
-
-        console.log('History item output (appended):', { text, index, newFinalText });
     }
 
     handleHistoryDelete(deletedItem, index) {
@@ -558,23 +826,7 @@ class WebSpeechApp {
     handleRateLimitUpdate(rateLimitStats) {
         // レート制限使用状況をログに記録
         this.logger.info('WebSpeechApp', 'レート制限使用状況更新', rateLimitStats);
-
-        // UIに表示
-        const rateLimitDisplay = this.domElements.get('rateLimitDisplay');
-        if (rateLimitDisplay && rateLimitStats) {
-            const { model, requests, tokens } = rateLimitStats;
-
-            // 残り率に応じて色を変更
-            const requestColor = requests.percentage > 80 ? 'red' : requests.percentage > 50 ? 'orange' : 'green';
-            const tokenColor = tokens.percentage > 80 ? 'red' : tokens.percentage > 50 ? 'orange' : 'green';
-
-            rateLimitDisplay.innerHTML = `
-                <strong>レート制限 (${model}):</strong><br>
-                <span style="color: ${requestColor};">RPM: ${requests.used}/${requests.limit} (残り: ${requests.remaining})</span> |
-                <span style="color: ${tokenColor};">TPM: ${tokens.used.toLocaleString()}/${tokens.limit.toLocaleString()} (残り: ${tokens.remaining.toLocaleString()})</span>
-            `;
-            rateLimitDisplay.style.display = 'block';
-        }
+        // UI表示は削除
     }
 
     async handleSummarizeText() {
@@ -728,6 +980,35 @@ class WebSpeechApp {
         } catch (error) {
             this.logger.error('WebSpeechApp', 'タイムライン描画中にエラー', error);
             console.error('Error rendering to timeline:', error);
+        }
+    }
+
+    // JSON編集時のリアルタイム更新
+    handleJsonEdit() {
+        const speakerJsonElement = this.domElements.get('speakerJsonResult');
+        if (!speakerJsonElement) return;
+
+        try {
+            const jsonText = speakerJsonElement.textContent.trim();
+
+            // 空の場合はスキップ
+            if (!jsonText) return;
+
+            // JSONをパース
+            const speakerData = JSON.parse(jsonText);
+
+            // 有効なデータか確認
+            if (speakerData && speakerData.utterances && Array.isArray(speakerData.utterances)) {
+                // タイムラインを更新
+                this.renderToTimeline(speakerData);
+
+                this.logger.info('WebSpeechApp', 'JSON編集からタイムライン更新成功', {
+                    utteranceCount: speakerData.utterances.length
+                });
+            }
+        } catch (error) {
+            // パースエラーは無視（編集中のため）
+            this.logger.debug('WebSpeechApp', 'JSON編集中（パース失敗）', error.message);
         }
     }
 
