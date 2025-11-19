@@ -183,8 +183,8 @@ class TabManager {
         `;
     }
 
-    // 履歴にテキストを追加
-    addToHistory(text) {
+    // 履歴にテキストを追加（JSONデータも保存可能）
+    addToHistory(text, jsonData = null) {
         if (!text || !text.trim()) return;
 
         const historyItem = {
@@ -192,6 +192,11 @@ class TabManager {
             date: new Date().toLocaleString('ja-JP', { hour12: false }),
             timestamp: Date.now()
         };
+
+        // JSONデータがある場合は追加
+        if (jsonData) {
+            historyItem.jsonData = jsonData;
+        }
 
         this.recognitionHistory.push(historyItem);
 
@@ -406,10 +411,10 @@ class TabManager {
         outputButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const index = parseInt(e.target.dataset.index);
-                const text = e.target.dataset.text;
+                const historyItem = this.recognitionHistory[index];
 
-                if (this.onHistoryOutputCallback) {
-                    this.onHistoryOutputCallback(text, index);
+                if (this.onHistoryOutputCallback && historyItem) {
+                    this.onHistoryOutputCallback(historyItem, index);
                 }
             });
         });

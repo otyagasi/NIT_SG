@@ -6,74 +6,28 @@
     <title>リアルタイム Speech to Text (ひらがな変換付き)</title>
     <link href="./css/style.css" rel="stylesheet" type="text/css">
     <link href="./css/history.css" rel="stylesheet" type="text/css">
-    <!-- ここから追加: 左右分割レイアウト -->
-    <style>
-        html, body { height: 100%; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: row;
-            background: #fff;
-            font-family: inherit;
-        }
-        /* 左半分：既存 UI を収める領域 */
-        .app-left {
-            width: 50%;
-            min-width: 320px;
-            background: #f6f8fa; /* 必要なら変更 */
-            overflow: auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 24px 0;
-            box-sizing: border-box;
-        }
-        /* 内側で既存 .container の幅制御を維持 */
-        .split-inner {
-            width: 100%;
-            max-width: 1100px;
-            padding: 0 24px;
-            box-sizing: border-box;
-        }
-        /* 右半分：タイムライン表示領域 */
-        .app-right {
-            width: 50%;
-            background: #ffffff;
-            border-left: 1px solid #eee;
-            box-sizing: border-box;
-            display: flex;
-            align-items: stretch;
-            justify-content: center;
-            padding: 32px;
-            overflow: hidden;
-        }
-        .app-right .placeholder {
-            color: #666;
-            font-size: 18px;
-            text-align: center;
-        }
-        /* レスポンシブ: 狭い画面は縦並び（右は下に） */
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            .app-left, .app-right { width: 100%; }
-            .app-right { border-left: none; border-top: 1px solid #eee; padding: 16px; }
-        }
-    </style>
-    <!-- ここまで追加 -->
 </head>
 <body>
     <div class="app-left">
         <div class="split-inner">
             
     <div class="api-key-field">
-        <p style="color:black">gemini-api-key
-            <input type="text" id="gemini-api-key" style="border:1px solid #000000;">
+        <p>gemini-api-key
+            <input type="text" id="gemini-api-key">
             <button id="verify-api-key-button" class="green">APIキー確認</button>
         </p>
-        <p id="api-key-status" style="color:black; font-size:12px; margin-top:4px;"></p>
-        <p id="token-usage-display" style="color:black; font-size:12px; margin-top:4px; display:none;"></p>
-        <p id="rate-limit-display" style="color:black; font-size:12px; margin-top:4px; display:none;"></p>
+        <p>
+            <label for="gemini-model-select">モデル選択：</label>
+            <select id="gemini-model-select" class="gemini-model-select">
+                <option value="gemini-2.5-flash" selected>gemini-2.5-flash</option>
+                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                <option value="custom">その他</option>
+            </select>
+            <input type="text" id="gemini-custom-model" class="gemini-custom-model" placeholder="モデル名を入力">
+        </p>
+        <p id="api-key-status"></p>
+        <p id="token-usage-display"></p>
     </div>
     
     <div class="container">
@@ -92,25 +46,27 @@
                 <div id="main-tab-content">
 
                     <div class="controls">
-                        <button id="startButton" disabled>音声認識を開始</button>
-                        <button id="stopButton" disabled>音声認識を停止</button>
-                        <button id="clearButton" disabled>クリア</button>
-                        <button id="saveHistoryButton" class="green" disabled>履歴に保存</button>
-                        <button id="saveTxt" class="green">TXT保存</button>
-                        <br>
-                        <br>
-                        <button id="summarizeButton" class="green">テキストを要約</button>
-                        <button id="identifySpeakersButton" class="green">話者を識別</button>
-
-                        <!-- 以下の部分を削除 
-                        <button id="speakAllButton" class="green">最初から読み上げる</button>
-                        <button id="speakNewButton" class="green">追加部分だけ読み上げる</button>
-                        <button id="speakStopButton" class="red">読み上げ停止</button>
-                        
-                        <br>
-                        <label for="voiceSelect">声の種類：</label>
-                        <select id="voiceSelect"></select>
-                        -->
+                        <div class="control-group">
+                            <button id="startButton" disabled>音声認識を開始</button>
+                            <button id="stopButton" disabled>音声認識を停止</button>
+                            <button id="clearButton" disabled>クリア</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="summarizeButton" class="green">テキストを要約</button>
+                            <button id="identifySpeakersButton" class="green">話者を識別</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="saveHistoryButton" class="green" disabled>履歴に保存</button>
+                            <div class="save-menu-wrapper">
+                                <button id="saveTxt" class="green">PCに保存 ▼</button>
+                                <div id="saveMenu" class="save-dropdown-menu">
+                                    <button class="save-menu-item" data-format="txt">TXT形式で保存</button>
+                                    <button class="save-menu-item" data-format="json">JSON形式で保存（原文+話者識別）</button>
+                                </div>
+                            </div>
+                            <button id="importData" class="green">読み込み</button>
+                            <input type="file" id="importFileInput" accept=".json">
+                        </div>
                     </div>
 
                     <div class="result-area-container">
@@ -127,18 +83,18 @@
                     </div>
 
             <!-- 要約結果表示エリア -->
-            <div id="summary-container" class="result-area-container" style="display:none; margin-top:20px;">
+            <div id="summary-container" class="result-area-container">
                 <div class="result-area-content">
                     <p class="result-area-header">要約結果:</p>
-                    <div id="summary-result" class="result-area" contenteditable style="background-color:#f0f8ff;">要約結果がここに表示されます...</div>
+                    <div id="summary-result" class="result-area" contenteditable>要約結果がここに表示されます...</div>
                 </div>
             </div>
 
             <!-- 話者識別結果表示エリア -->
-            <div id="speaker-json-container" class="result-area-container" style="display:none; margin-top:20px;">
+            <div id="speaker-json-container" class="result-area-container">
                 <div class="result-area-content">
                     <p class="result-area-header">話者識別結果 (JSON):</p>
-                    <div id="speaker-json-result" class="result-area" contenteditable style="background-color:#f0fff0; font-family: monospace; white-space: pre-wrap;">話者識別結果がJSON形式でここに表示されます...</div>
+                    <div id="speaker-json-result" class="result-area" contenteditable>話者識別結果がJSON形式でここに表示されます...</div>
                 </div>
             </div>
 
@@ -146,18 +102,18 @@
                 </div>
 
                 <!-- 履歴タブ内容 -->
-                <div id="history-tab-content" style="display:none;">
+                <div id="history-tab-content">
                     <div class="history-controls">
-                        <input type="text" id="history-search" placeholder="履歴検索..." style="width:180px; margin-right:8px;">
+                        <input type="text" id="history-search" placeholder="履歴検索...">
                         <button id="history-clear" class="history-btn">履歴クリア</button>
                         <button id="history-export" class="history-btn">エクスポート</button>
                         <label class="history-import-label">
-                          インポート<input type="file" id="history-import" accept="application/json" style="display:none;">
+                          インポート<input type="file" id="history-import" accept="application/json">
                         </label>
                     </div>
                     <div id="history-stats" class="history-stats"></div>
                     <div id="history-empty" class="history-message">履歴がありません</div>
-                    <div id="history-list" style="display:none;"></div>
+                    <div id="history-list"></div>
                 </div>
             </div> <!-- /.container (内側) -->
         </div> <!-- /.split-inner -->
@@ -165,18 +121,11 @@
     <div class="app-right">
         <div class="timeline-container">
             <div class="timeline-header">
-                <button class="timeline-tab active">話者によって色分け</button>
-                <button class="timeline-tab">話した時間を記録</button>
-                <button class="timeline-export" id="exportJsonButton" title="タイムラインをJSONでエクスポート">JSONエクスポート</button>
+                <button class="timeline-export" id="bulkRenameSpeakerButton" title="話者名を一括変更">話者名一括変更</button>
             </div>
             <div class="timeline-content" id="timelineContent">
                 <!-- タイムラインアイテムがここに追加されます -->
             </div>
-            <button class="record-button" id="recordButton">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                    <circle cx="12" cy="12" r="8"/>
-                </svg>
-            </button>
         </div>
     </div>
     <script type="module">

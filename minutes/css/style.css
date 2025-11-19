@@ -195,6 +195,12 @@ h2 {
     margin: 32px 0 24px 0;
     text-align: center;
 }
+
+.control-group {
+    display: block;
+    margin-bottom: 4px;
+}
+
 .controls button {
     background: #52A7E1;
     color: #fff;
@@ -209,25 +215,15 @@ h2 {
     transition: background 0.2s;
     letter-spacing: 0.01em;
 }
+
 .controls button:disabled {
     background: #b6c3e6;
     color: #fff;
     cursor: not-allowed;
 }
+
 .controls button:hover:not(:disabled) {
     background: #1746a2;
-}
-.controls label {
-    font-size: 15px;
-    margin-right: 12px;
-    vertical-align: middle;
-    color: #333;
-}
-.controls input[type="radio"] {
-    accent-color: #2563eb;
-    width: 18px;
-    height: 18px;
-    margin-right: 4px;
 }
 
 .controls button.green {
@@ -244,13 +240,65 @@ h2 {
     transition: background 0.2s;
     letter-spacing: 0.01em;
 }
+
 .controls button.green:disabled {
     background: #b6c3e6;
     color: #fff;
     cursor: not-allowed;
 }
+
 .controls button.green:hover:not(:disabled) {
     background: #0E9F6E;
+}
+
+/* 保存メニューのスタイル */
+.save-menu-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.save-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
+    z-index: 1000;
+    margin-top: 4px;
+}
+
+.save-dropdown-menu.show {
+    display: block;
+}
+
+.save-menu-item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    background: white;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 0;
+}
+
+.save-menu-item:first-child {
+    border-radius: 8px 8px 0 0;
+}
+
+.save-menu-item:last-child {
+    border-radius: 0 0 8px 8px;
+}
+
+.save-menu-item:hover {
+    background: #f3f4f6;
 }
 .result-area-content {
     min-height: 80px;
@@ -437,7 +485,195 @@ h2 {
     padding: 3px 5px;
 }
 
+/* Geminiモデル選択のスタイル */
+.gemini-model-select {
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #333;
+    min-width: 180px;
+    cursor: pointer;
+    height: 28px;
+}
+
+.gemini-model-select:hover {
+    border-color: #52A7E1;
+}
+
+.gemini-model-select:focus {
+    border-color: #52A7E1;
+    box-shadow: 0 0 0 2px rgba(82, 167, 225, 0.2);
+    outline: none;
+}
+
+.gemini-model-select option {
+    color: #333;
+    background-color: #ffffff;
+    padding: 4px 6px;
+    font-size: 13px;
+    height: 24px;
+    line-height: 24px;
+}
+
+/* カスタムモデル入力フィールド */
+.gemini-custom-model {
+    background-color: #ffffff;
+    border: 1px solid #000000;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 13px;
+    color: #333;
+    min-width: 180px;
+    margin-left: 8px;
+    height: 28px;
+    box-sizing: border-box;
+}
+
+.gemini-custom-model:hover {
+    border-color: #52A7E1;
+}
+
+.gemini-custom-model:focus {
+    border-color: #52A7E1;
+    box-shadow: 0 0 0 2px rgba(82, 167, 225, 0.2);
+    outline: none;
+}
+
+/* APIキー関連のスタイル */
+.api-key-field p {
+    color: black;
+}
+
+.api-key-field p:nth-child(2) {
+    margin-top: 8px;
+}
+
+#gemini-api-key {
+    border: 1px solid #000000;
+}
+
+#gemini-custom-model {
+    display: none;
+}
+
+#api-key-status {
+    color: black;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+#token-usage-display {
+    color: black;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+}
+
+/* ファイル入力の非表示 */
+#importFileInput,
+#history-import {
+    display: none;
+}
+
+/* コンテナの初期状態（非表示） */
+#summary-container,
+#speaker-json-container {
+    display: none;
+    margin-top: 20px;
+}
+
+#summary-result {
+    background-color: #f0f8ff;
+}
+
+#speaker-json-result {
+    background-color: #f0fff0;
+    font-family: monospace;
+    white-space: pre-wrap;
+}
+
+/* 履歴タブとリスト */
+#history-tab-content {
+    display: none;
+}
+
+#history-list {
+    display: none;
+}
+
+#history-search {
+    width: 180px;
+    margin-right: 8px;
+}
+
 /* 履歴のCSSは css/history.css に移動 */
+
+/* 左右分割レイアウト */
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: row;
+    background: #fff;
+    font-family: inherit;
+}
+
+.app-left {
+    width: 50%;
+    min-width: 320px;
+    background: #f6f8fa;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 0;
+    box-sizing: border-box;
+}
+
+.split-inner {
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 24px;
+    box-sizing: border-box;
+}
+
+.app-right {
+    width: 50%;
+    background: #ffffff;
+    border-left: 1px solid #eee;
+    box-sizing: border-box;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding: 32px;
+    overflow: hidden;
+}
+
+.app-right .placeholder {
+    color: #666;
+    font-size: 18px;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    body {
+        flex-direction: column;
+    }
+    .app-left, .app-right {
+        width: 100%;
+    }
+    .app-right {
+        border-left: none;
+        border-top: 1px solid #eee;
+        padding: 16px;
+    }
+}
 
 /* タイムライン表示のスタイル */
 .timeline-container {
@@ -511,6 +747,66 @@ h2 {
 .timeline-item:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.timeline-item-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+.timeline-edit-btn, .timeline-delete-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.timeline-edit-btn:hover {
+    background: #f3f4f6;
+    transform: scale(1.1);
+}
+
+.timeline-delete-btn:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
+    transform: scale(1.1);
+}
+
+/* インライン編集用のスタイル */
+.inline-edit-name {
+    width: 200px;
+    padding: 4px 8px;
+    border: 2px solid #52A7E1;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    background: white;
+    color: #333;
+}
+
+.inline-edit-text {
+    width: 100%;
+    min-height: 60px;
+    padding: 8px;
+    border: 2px solid #52A7E1;
+    border-radius: 4px;
+    font-size: 15px;
+    line-height: 1.4;
+    background: white;
+    color: #555;
+    resize: vertical;
+    font-family: inherit;
+}
+
+.inline-edit-name:focus,
+.inline-edit-text:focus {
+    outline: none;
+    border-color: #1746a2;
+    box-shadow: 0 0 0 3px rgba(82, 167, 225, 0.2);
 }
 
 /* 名前に応じた色（0..n） */
