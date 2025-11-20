@@ -594,15 +594,7 @@ h2 {
     white-space: pre-wrap;
 }
 
-/* 履歴タブとリスト */
-#history-tab-content {
-    display: none;
-}
-
-#history-list {
-    display: none;
-}
-
+/* 履歴検索 */
 #history-search {
     width: 180px;
     margin-right: 8px;
