@@ -915,7 +915,7 @@ class WebSpeechApp {
         const speakerJsonElement = this.domElements.get('speakerJsonResult');
         const speakerJsonContainer = this.domElements.get('speakerJsonContainer');
 
-        if (!speakerJsonElement || !speakerJsonContainer) {
+        /*if (!speakerJsonElement || !speakerJsonContainer) {
             // JSON表示エリアが存在しない場合
             console.error('話者識別結果表示エリアが見つかりません');
 
@@ -930,7 +930,7 @@ class WebSpeechApp {
                 alert('話者識別結果 (パース失敗):\n\n' + result.rawResponse);
             }
             return;
-        }
+        }*/
 
         // JSON形式で表示
         let displayText = '';
