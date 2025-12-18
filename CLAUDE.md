@@ -5,7 +5,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 🚨 最重要事項（必読）
 
 ### 言語設定
-- **推論・思考**: 英語で実施
 - **ユーザー出力**: 日本語で応答
 - この設定は全てのClaude Codeセッションで継続すること
 
