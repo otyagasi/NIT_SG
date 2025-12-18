@@ -389,8 +389,13 @@ git push -u origin <ブランチ名>
 - デバッグログ: レベル調整でオーバーヘッド制御
 
 ### 既知の問題・技術的負債
-- レガシー機能が残存（削除予定）
+- ~~レガシー機能が残存（削除予定）~~ ✅ **削除済み**（2025-12-18）
 - Gemini APIトークン使用量の可視化改善余地あり
+- **話者識別JSON表示エリアが意図的に無効化中**
+  - `minutes/index.html:94-99`で`speaker-json-container`と`speaker-json-result`がコメントアウト済み
+  - そのため、DOMElementsから「オプショナル要素が見つかりません」のWARNINGが出るが、**これは正常動作**
+  - 必要に応じて`minutes/index.html:94-99`のコメントを解除すれば、JSON表示エリアが復活
+  - 話者識別機能自体は動作中（タイムライン表示は有効）
 
 ---
 
@@ -418,6 +423,12 @@ git push -u origin <ブランチ名>
 2. GitHub Actionsのログ確認
 3. Git pushが成功しているか確認
 4. ネットワークエラーは指数バックオフで再試行
+
+### WARNINGログ: 「オプショナル要素が見つかりません (speakerJsonResult, speakerJsonContainer)」
+**これは正常動作です。** 話者識別のJSON表示エリアを意図的に無効化しています。
+- 話者識別機能自体は正常に動作（タイムライン表示は有効）
+- JSON表示を有効にする場合: `minutes/index.html:94-99`のコメントを解除
+- このWARNINGは無視して問題なし
 
 ---
 
