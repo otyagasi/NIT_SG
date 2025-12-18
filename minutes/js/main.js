@@ -1066,7 +1066,6 @@ class WebSpeechApp {
 
     handleSpeechRecognitionNotSupported() {
         this.uiManager.showStatus('ステータス: お使いのブラウザは Web Speech API に対応していません。', 'error');
-        this.uiManager.showKuromojiStatus('', 'info');
         this.uiManager.setMultipleButtonStates({
             'startButton': false,
             'stopButton': false

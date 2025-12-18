@@ -399,7 +399,7 @@ h2 {
         min-height: 100px;
     }
 }
-#status, #kuromojiStatus {
+#status {
     margin-top: 10px;
     font-size: 14px;
     color: #888;

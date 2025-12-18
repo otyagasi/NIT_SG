@@ -271,9 +271,8 @@ class DebugUI {
         if (window.webSpeechApp) {
             const appState = window.webSpeechApp.getAppState();
             appStatusEl.innerHTML = `
-                アプリ状態: ${appState.isInitialized ? '初期化済み' : '初期化中'} | 
-                認識中: ${appState.isRecognizing ? 'YES' : 'NO'} | 
-                Kuromoji: ${appState.isKuromojiReady ? 'Ready' : 'Not Ready'}
+                アプリ状態: ${appState.isInitialized ? '初期化済み' : '初期化中'} |
+                認識中: ${appState.isRecognizing ? 'YES' : 'NO'}
             `;
         }
         
