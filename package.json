@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "@google/genai": "^1.25.0",
-    "kuromoji": "^0.1.2",
     "vibelogger": "^0.1.0"
   },
   "scripts": {
