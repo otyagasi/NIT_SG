@@ -9,14 +9,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **ユーザー出力**: 日本語で応答
 - この設定は全てのClaude Codeセッションで継続すること
 
+### 利用対象者
+このアプリは**特別支援学校の教員・職員**が会議の議事録作成に利用することを想定しています。
+ITに詳しくないユーザーでも使えること、プライバシーへの配慮が重要です。
+
 ### メイン機能の場所
 - **メイン版**: `/minutes/` - AI搭載リアルタイム議事録作成アプリケーション（★開発はここで行う）
-- **レガシー版**: `/`, `/AddSlider/` - ひらがな変換付き音声認識アプリ（🗑️ 削除予定）
-
-### レガシー機能削除方針
-- **kuromoji.js**を含むレガシー機能は**削除予定**
-- メイン機能は`/minutes/`に完全移行済み
-- 今後の開発は`/minutes/`のみで実施
+- ~~レガシー版~~ ✅ **削除済み**（2025-12-18）
 
 ### デプロイメント制約
 - **✅ 正**: Git → GitHub Actions → さくらサーバー（自動デプロイ）
@@ -25,41 +24,54 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 🗑️ 削除対象ファイル・フォルダ
+## 🔄 引き継ぎ者向け（今後の開発課題）
 
-### レガシー機能として削除予定
+**詳細は `README.md` の「引き継ぎ者向け」セクションを参照してください。**
 
-以下のファイル・フォルダは**kuromoji.js**を含むレガシー機能として削除予定です：
+### 🚨 優先度：高
 
-#### ディレクトリ
+| 課題 | 現状の問題 | 担当モジュール |
+|------|-----------|---------------|
+| **Gemini API無料枠のデータ利用** | 無料枠では入力データがAI学習に使用される可能性あり。会議内容にはセンシティブ情報が含まれる | `geminiManager.js` |
+| **話者識別のリアルタイム化** | 「〇〇です」と名前を都度言う必要がある | `speechRecognition.js`, `geminiManager.js` |
+| **UIの改善** | 機能が多く初見ではわかりにくい | `uiManager.js`, `index.html` |
+
+### 📋 優先度：中
+
+| 課題 | 概要 | 担当モジュール |
+|------|------|---------------|
+| **アクセシビリティ向上** | フォントサイズ調整、ハイコントラスト、キーボード操作 | `style.css`, `uiManager.js` |
+| **オフライン対応** | PWA化、ローカル音声認識 | 新規モジュール |
+| **ブラウザ互換性** | Safari、Firefox、iPad対応 | `speechRecognition.js` |
+| **音声認識精度** | 専門用語、ノイズ対策、子どもの発言 | `speechRecognition.js` |
+
+### 💡 改善案の技術的アプローチ
+
+**データプライバシー対策:**
+- 有料プラン（Gemini API Paid Tier）への移行
+- Google Cloud Vertex AI経由
+- ローカルLLM（Ollama等）
+
+**話者識別リアルタイム化:**
+- 声紋認識（Web Audio API + ML）
+- 事前登録方式
+- Google Cloud Speaker Diarization API
+
+---
+
+## ✅ 削除済みレガシー機能（参考情報）
+
+以下は2025-12-18に削除済みです。履歴として記載：
+
 ```
-/AddSlider/          # 実験版ディレクトリ全体
-/css/                # レガシー版スタイル
-/js/                 # レガシー版スクリプト（kuromoji含む）
-/img/                # スクリーンショット類（必要なら移行）
+削除済み:
+- /AddSlider/        # 実験版
+- /css/, /js/        # レガシー版
+- /index.html        # レガシー版HTML
+- kuromoji依存       # package.jsonから削除
 ```
 
-#### ファイル
-```
-/index.html          # ルートのレガシー版HTML
-/speak.js            # ルートのspeak.js（minutes/speak.jsが正）
-/UI希望.png          # レガシー画像ファイル
-```
-
-#### package.json依存関係
-```
-kuromoji ^0.1.2      # kuromoji本体（削除対象）
-```
-
-#### node_modules（kuromoji関連）
-```
-node_modules/kuromoji/
-node_modules/async/          # kuromoji依存
-node_modules/doublearray/    # kuromoji依存
-node_modules/zlibjs/         # kuromoji依存
-```
-
-### 削除後に残るもの
+### 現在の構造
 
 ```
 /minutes/            # メイン版（AI議事録アプリ）
@@ -67,14 +79,11 @@ node_modules/zlibjs/         # kuromoji依存
 README.md            # プロジェクトREADME
 CLAUDE.md            # このファイル
 DEBUG.md             # デバッグドキュメント
-package.json         # 依存関係管理（kuromoji除外後）
+package.json         # 依存関係管理
 package-lock.json    # 依存関係ロック
 .vscode/             # VSCode設定
 .claude/             # Claude設定
 .github/             # GitHub Actions設定
-node_modules/
-├── vibelogger/      # 必要なパッケージ
-└── lodash/          # 必要なパッケージ（geminiManager依存の場合）
 ```
 
 ---
@@ -135,50 +144,6 @@ Web Speech APIとGoogle Gemini APIを活用し、リアルタイム音声認識�
 
 ## ディレクトリ構造
 
-### 現在の構造（削除前）
-
-```
-/
-├── minutes/                        # ★メイン版（AI議事録アプリ）
-│   ├── index.html
-│   ├── speak.js
-│   ├── css/
-│   │   ├── style.css
-│   │   └── history.css
-│   └── js/
-│       ├── main.js
-│       ├── geminiManager.js
-│       ├── speechRecognition.js
-│       ├── textToSpeech.js
-│       ├── timelineRenderer.js
-│       ├── uiManager.js
-│       ├── tabManager.js
-│       ├── domElements.js
-│       ├── debugLogger.js
-│       ├── vibeLogger.js
-│       └── debugUI.js
-│
-├── AddSlider/                      # 🗑️ 削除予定（実験版）
-├── css/                            # 🗑️ 削除予定（レガシー版スタイル）
-├── js/                             # 🗑️ 削除予定（レガシー版スクリプト）
-│   ├── kuromojiManager.js          # 🗑️ kuromoji関連
-│   └── ...
-├── img/                            # 🗑️ 削除予定（スクリーンショット）
-├── index.html                      # 🗑️ 削除予定（レガシー版HTML）
-├── speak.js                        # 🗑️ 削除予定（重複ファイル）
-├── UI希望.png                      # 🗑️ 削除予定
-│
-├── docs/                           # ✅ 保持（機能拡張計画）
-│   └── feature_flows.md
-├── README.md                       # ✅ 保持
-├── CLAUDE.md                       # ✅ 保持
-├── DEBUG.md                        # ✅ 保持
-├── package.json                    # ✅ 保持（kuromoji削除後）
-└── package-lock.json               # ✅ 保持
-```
-
-### 削除後の理想構造
-
 ```
 /
 ├── minutes/                        # メイン版（AI議事録アプリ）
@@ -188,26 +153,28 @@ Web Speech APIとGoogle Gemini APIを活用し、リアルタイム音声認識�
 │   │   ├── style.css
 │   │   └── history.css
 │   └── js/
-│       ├── main.js
-│       ├── geminiManager.js
-│       ├── speechRecognition.js
-│       ├── textToSpeech.js
-│       ├── timelineRenderer.js
-│       ├── uiManager.js
-│       ├── tabManager.js
-│       ├── domElements.js
-│       ├── debugLogger.js
-│       ├── vibeLogger.js
-│       └── debugUI.js
+│       ├── main.js                 # アプリケーション統括
+│       ├── geminiManager.js        # Gemini API（★プライバシー課題あり）
+│       ├── speechRecognition.js    # 音声認識（★話者識別改善対象）
+│       ├── textToSpeech.js         # 音声合成
+│       ├── timelineRenderer.js     # タイムライン描画
+│       ├── uiManager.js            # UI状態管理（★UI改善対象）
+│       ├── tabManager.js           # タブ・履歴管理
+│       ├── domElements.js          # DOM要素管理
+│       ├── debugLogger.js          # デバッグログ
+│       ├── vibeLogger.js           # AI可読ログ
+│       └── debugUI.js              # デバッグパネル
 │
 ├── docs/                           # ドキュメント
 │   └── feature_flows.md
-├── README.md
-├── CLAUDE.md
-├── DEBUG.md
+├── README.md                       # プロジェクトREADME（引き継ぎ情報あり）
+├── CLAUDE.md                       # このファイル
+├── DEBUG.md                        # デバッグガイド
 ├── package.json
 └── package-lock.json
 ```
+
+**★マークは引き継ぎ課題に関連するファイルです。**
 
 ---
 
@@ -277,23 +244,6 @@ git push -u origin <ブランチ名>
 # ブラウザDevToolsコンソール + Ctrl+Dでデバッグパネル
 
 # 3. 修正実装・確認・コミット
-```
-
-#### 🗑️ レガシー機能削除
-```bash
-# レガシーファイル・フォルダを削除する場合
-git rm -r AddSlider/ css/ js/ img/
-git rm index.html speak.js UI希望.png
-
-# package.jsonからkuromojiを削除
-# → package.jsonを編集してkuromoji依存を削除
-
-# node_modulesを再インストール
-npm install
-
-# コミット
-git commit -m "削除: レガシー機能（kuromoji含む）を削除"
-git push -u origin <ブランチ名>
 ```
 
 ### Gemini API設定（重要）
@@ -436,16 +386,14 @@ git push -u origin <ブランチ名>
 
 ### 関連ドキュメント
 
-- `/docs/feature_flows.md` - 議事録機能拡張フロー（UI改善、要約、話者識別の段階的導入計画）
-- `README.md` - プロジェクト概要・セットアップ手順
-- `DEBUG.md` - デバッグ詳細情報
+| ドキュメント | 内容 |
+|-------------|------|
+| `README.md` | プロジェクト概要・セットアップ・**引き継ぎ情報** |
+| `/docs/feature_flows.md` | 機能拡張フロー（UI改善、要約、話者識別の計画） |
+| `DEBUG.md` | デバッグ詳細情報 |
 
-### レガシー機能について
+### 開発方針
 
-**kuromoji.js**を含むレガシー機能は削除予定です。これらのファイル・フォルダは参照しないでください：
-
-- `/AddSlider/` - 実験版
-- `/css/`, `/js/` - レガシー版スクリプト・スタイル
-- `/index.html` - レガシー版HTML
-
-**開発方針**: 全ての新機能はメイン版（`/minutes/`）で開発してください。
+- 全ての新機能は `/minutes/` で開発
+- レガシー機能（kuromoji等）は削除済み（2025-12-18）
+- 引き継ぎ課題は `README.md` の「引き継ぎ者向け」セクションを参照
