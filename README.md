@@ -38,8 +38,7 @@ Web Speech APIとGoogle Gemini APIを活用した、リアルタイム音声認�
 npm run serve
 
 # アクセス
-# メイン版（AI議事録）: http://localhost:8000/minutes/
-# レガシー版（ひらがな変換）: http://localhost:8000/
+# AI議事録アプリ: http://localhost:3000/minutes/
 ```
 
 ### Gemini API設定
@@ -72,32 +71,31 @@ npm run serve
 ### ディレクトリ構成
 
 ```
-/minutes/                           # メイン版（AI議事録）
-├── index.html                      # メインHTML
-├── css/
-│   ├── style.css                   # 統一スタイルシート
-│   └── history.css                 # 履歴・タイムラインスタイル
-├── js/
-│   ├── main.js                     # メインアプリケーションクラス
-│   ├── geminiManager.js            # Gemini API管理
-│   ├── speechRecognition.js        # 音声認識管理
-│   ├── textToSpeech.js            # 音声合成管理
-│   ├── timelineRenderer.js         # タイムライン描画
-│   ├── uiManager.js               # UI状態管理
-│   ├── tabManager.js              # タブ・履歴管理
-│   ├── domElements.js             # DOM要素管理
-│   ├── debugLogger.js             # デバッグログ機能
-│   ├── vibeLogger.js              # AI用構造化ログ
-│   └── debugUI.js                 # リアルタイムデバッグUI
-└── speak.js                        # 音声合成ユーティリティ
-
-/                                   # レガシー版（ひらがな変換）
-├── index.html
-├── js/
-│   ├── main.js
-│   ├── kuromojiManager.js          # 形態素解析管理
-│   └── kuromoji.js                 # kurmojiライブラリ
-└── dict/                          # kuromoji辞書ファイル
+/
+├── minutes/                        # AI議事録アプリケーション
+│   ├── index.html                  # メインHTML
+│   ├── css/
+│   │   ├── style.css               # 統一スタイルシート
+│   │   └── history.css             # 履歴・タイムラインスタイル
+│   ├── js/
+│   │   ├── main.js                 # メインアプリケーションクラス
+│   │   ├── geminiManager.js        # Gemini API管理
+│   │   ├── speechRecognition.js    # 音声認識管理
+│   │   ├── textToSpeech.js         # 音声合成管理
+│   │   ├── timelineRenderer.js     # タイムライン描画
+│   │   ├── uiManager.js            # UI状態管理
+│   │   ├── tabManager.js           # タブ・履歴管理
+│   │   ├── domElements.js          # DOM要素管理
+│   │   ├── debugLogger.js          # デバッグログ機能
+│   │   ├── vibeLogger.js           # AI用構造化ログ
+│   │   └── debugUI.js              # リアルタイムデバッグUI
+│   └── speak.js                    # 音声合成ユーティリティ
+│
+├── docs/                           # ドキュメント
+├── README.md                       # プロジェクトREADME
+├── CLAUDE.md                       # 開発ガイド
+├── DEBUG.md                        # デバッグガイド
+└── package.json                    # 依存関係管理
 ```
 
 ### 主要コンポーネント
@@ -147,10 +145,10 @@ npm run serve
 ## 技術仕様
 
 ### 依存関係
-- **Google Generative AI SDK**: Gemini API統合
-- **Web Speech API**: 音声認識
-- **Speech Synthesis API**: 音声合成
-- **vibelogger** ^0.1.0: 構造化ログ
+- **@google/genai** ^1.25.0: Gemini API統合（ESM CDN経由）
+- **vibelogger** ^0.1.0: AI可読構造化ログ
+- **Web Speech API**: 音声認識（ブラウザ標準）
+- **Speech Synthesis API**: 音声合成（ブラウザ標準）
 
 ### Geminiモデル対応
 - `gemini-2.5-flash` (デフォルト): RPM 10, TPM 250K, RPD 1000
@@ -211,17 +209,17 @@ Ctrl+D: デバッグパネル切り替え
 
 ## バージョン情報
 
-### メイン版: AI議事録アプリ (`/minutes/`)
-- Gemini API統合
-- 話者識別・要約機能
-- タイムライン可視化
-- 構造化データエクスポート
+### 現在のバージョン
+**AI議事録アプリケーション** (`/minutes/`)
+- Gemini API統合（AI要約・話者識別）
+- リアルタイム音声認識（日本語対応）
+- タイムライン可視化・インライン編集
+- 構造化データエクスポート（JSON/TXT）
+- 履歴管理・検索機能
+- デバッグシステム統合（vibelogger）
 
-### レガシー版: ひらがな変換アプリ (`/`)
-- kuromoji.js形態素解析
-- ひらがな自動変換
-- 基本的な音声認識
-- テキスト保存機能
+### 更新履歴
+- **2025-12-18**: レガシー機能（kuromoji.js含む）を削除、メイン機能に統合完了
 
 ## ライセンス・クレジット
 
