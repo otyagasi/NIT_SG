@@ -43,6 +43,7 @@ ITに詳しくないユーザーでも使えること、プライバシーへの
 | **オフライン対応** | PWA化、ローカル音声認識 | 新規モジュール |
 | **ブラウザ互換性** | Safari、Firefox、iPad対応 | `speechRecognition.js` |
 | **音声認識精度** | 専門用語、ノイズ対策、子どもの発言 | `speechRecognition.js` |
+| **タイムスタンプの実装** | 実際の発言時刻を記録（現在は識別ボタンを押した時刻のみ） | `speechRecognition.js`, `timelineRenderer.js` |
 
 ### 💡 改善案の技術的アプローチ
 
@@ -55,6 +56,12 @@ ITに詳しくないユーザーでも使えること、プライバシーへの
 - 声紋認識（Web Audio API + ML）
 - 事前登録方式
 - Google Cloud Speaker Diarization API
+
+**タイムスタンプの実装:**
+- 音声認識時にテキストへタイムスタンプ埋め込み（推奨）: `[14:32] 河野です。...`
+- 発言ごとのタイムスタンプ記録とマッピング（複雑だが正確）
+- データ構造に`timestamp`フィールド追加: `{ utterances: [{ name, text, timestamp }, ...] }`
+- 現在の実装箇所: `timelineRenderer.js:145-148`
 
 ---
 
