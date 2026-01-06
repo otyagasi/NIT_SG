@@ -198,7 +198,41 @@ Ctrl+D: デバッグパネル切り替え
 - モジュール単位での機能分割を維持
 
 ## 処理フロー
-![6656565-1](https://github.com/user-attachments/assets/49fac104-e658-44c6-a52c-0db5e0cc4c47)
+
+```mermaid
+flowchart TD
+    Start([アプリ起動]) --> API[Gemini APIキー設定]
+    API --> Verify{APIキー検証}
+    Verify -->|成功| Model[モデル選択]
+    Verify -->|失敗| API
+
+    Model --> Speech[音声認識開始]
+    Speech --> Recognition[Web Speech API<br/>リアルタイム音声認識]
+    Recognition --> Display[文字起こし結果を表示]
+
+    Display --> Choice{ユーザー操作}
+
+    Choice -->|テキストを要約| Summary[Gemini API呼び出し]
+    Summary --> ShowSummary[要約結果を表示]
+    ShowSummary --> Choice
+
+    Choice -->|話者を識別| Speaker[Gemini API呼び出し<br/>話者識別処理]
+    Speaker --> ParseJSON[JSON解析]
+    ParseJSON --> Timeline[タイムライン表示<br/>話者ごとに色分け]
+    Timeline --> Choice
+
+    Choice -->|履歴に保存| LocalStorage[(LocalStorage)]
+    Choice -->|PCに保存| Export[JSON/TXT<br/>ダウンロード]
+
+    Choice -->|音声認識停止| End([終了])
+
+    style API fill:#e1f5ff
+    style Summary fill:#fff4e1
+    style Speaker fill:#fff4e1
+    style Timeline fill:#e8f5e9
+    style LocalStorage fill:#f3e5f5
+    style Export fill:#f3e5f5
+```
 
 ## デプロイメント
 
