@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>README - AI搭載リアルタイム議事録作成アプリケーション</title>
+
+  <!-- GitHub Markdown CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.1.0/github-markdown.min.css">
+
+  <!-- Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- Mermaid.js for diagram rendering -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+
+  <style>
+    body {
+      box-sizing: border-box;
+      min-width: 200px;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 45px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+      background-color: #ffffff;
+    }
+
+    .markdown-body {
+      box-sizing: border-box;
+      min-width: 200px;
+    }
+
+    /* Print styles for PDF export */
+    @media print {
+      body {
+        padding: 20mm;
+      }
+
+      .no-print {
+        display: none;
+      }
+
+      /* Prevent page breaks inside code blocks */
+      pre, code {
+        page-break-inside: avoid;
+      }
+
+      /* Prevent page breaks after headers */
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+      }
+    }
+
+    /* Mermaid diagram styling */
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    /* Print button styling */
+    .print-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: #0969da;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      z-index: 1000;
+    }
+
+    .print-button:hover {
+      background-color: #0860ca;
+    }
+
+    .print-button:active {
+      background-color: #0757ba;
+    }
+  </style>
+</head>
+<body>
+  <!-- Print/PDF export button -->
+  <button class="print-button no-print" onclick="window.print()">📄 PDFとして保存</button>
+
+  <!-- Main content -->
+  <article class="markdown-body">
+<h1>AI搭載リアルタイム議事録作成アプリケーション</h1>
+<p>Web Speech APIとGoogle Gemini APIを活用した、リアルタイム音声認識・AI要約・話者識別機能を搭載した包括的な議事録作成Webアプリケーションです。</p>
+<h2>主要機能</h2>
+<h3>🤖 AI機能（Gemini API統合）</h3>
+<ul>
+<li><strong>AI要約</strong>: 会議内容の自動要約生成</li>
+<li><strong>話者識別</strong>: 複数話者の自動識別と分類</li>
+<li><strong>トークン管理</strong>: 使用量トラッキングとレート制限管理</li>
+</ul>
+<h3>🎤 音声認識・変換</h3>
+<ul>
+<li><strong>リアルタイム音声認識</strong>: Web Speech APIによる連続音声認識（日本語対応）</li>
+<li><strong>音声合成</strong>: 認識テキストからの音声読み上げ機能</li>
+<li><strong>ライブ文字起こし</strong>: リアルタイム表示対応</li>
+</ul>
+<h3>📊 可視化・管理</h3>
+<ul>
+<li><strong>タイムライン表示</strong>: 話者別発言の時系列可視化</li>
+<li><strong>履歴管理</strong>: セッション保存・検索機能</li>
+<li><strong>インライン編集</strong>: タイムライン上での直接編集</li>
+</ul>
+<h3>💾 データ管理</h3>
+<ul>
+<li><strong>エクスポート</strong>: JSON形式（話者情報付き）・TXT形式</li>
+<li><strong>インポート</strong>: 過去セッションの読み込み</li>
+<li><strong>構造化データ</strong>: 話者・発言・タイムスタンプの完全な記録</li>
+</ul>
+<h2>セットアップ</h2>
+<h3>必要要件</h3>
+<ul>
+<li><strong>Gemini APIキー</strong>: <a href="https://aistudio.google.com/app/apikey">Google AI Studio</a>から取得</li>
+<li><strong>推奨ブラウザ</strong>: Chrome/Chromiumベース（Web Speech API最適化）</li>
+<li><strong>マイクアクセス</strong>: 音声認識機能に必須</li>
+<li><strong>HTTPS</strong>: 本番環境でのマイクアクセスに必要</li>
+</ul>
+<h3>ローカル開発</h3>
+<pre><code class="language-bash"># ローカル開発サーバーを開始
+npm run serve
+
+# アクセス
+# AI議事録アプリ: http://localhost:3000/minutes/
+</code></pre>
+<h3>Gemini API設定</h3>
+<ol>
+<li>アプリケーションを開く</li>
+<li>画面上部の「gemini-api-key」フィールドにAPIキーを入力</li>
+<li>「APIキー確認」ボタンをクリックして検証</li>
+<li>使用するモデルを選択（デフォルト: gemini-2.5-flash）</li>
+</ol>
+<h2>使用方法</h2>
+<h3>基本フロー</h3>
+<ol>
+<li><strong>APIキー設定</strong>: Gemini APIキーを入力・検証</li>
+<li><strong>音声認識開始</strong>: 「音声認識を開始」ボタンをクリック</li>
+<li><strong>リアルタイム文字起こし</strong>: 発言が自動的にテキスト化</li>
+<li><strong>AI分析</strong>:<ul>
+<li>「テキストを要約」: 会議内容の要約を生成</li>
+<li>「話者を識別」: 話者を自動識別してタイムライン表示</li>
+</ul>
+</li>
+<li><strong>保存・エクスポート</strong>:<ul>
+<li>「履歴に保存」: ローカルストレージに保存</li>
+<li>「PCに保存」: JSON/TXT形式でダウンロード</li>
+</ul>
+</li>
+</ol>
+<h3>タイムライン機能</h3>
+<ul>
+<li>話者識別後、右側にタイムライン表示</li>
+<li>各発言は話者ごとに色分け</li>
+<li>発言をクリックして直接編集可能</li>
+<li>ゴミ箱アイコンで発言を削除</li>
+</ul>
+<h2>アーキテクチャ</h2>
+<h3>ディレクトリ構成</h3>
+<pre><code>/
+├── minutes/                        # AI議事録アプリケーション
+│   ├── index.html                  # メインHTML
+│   ├── css/
+│   │   ├── style.css               # 統一スタイルシート
+│   │   └── history.css             # 履歴・タイムラインスタイル
+│   ├── js/
+│   │   ├── main.js                 # メインアプリケーションクラス
+│   │   ├── geminiManager.js        # Gemini API管理
+│   │   ├── speechRecognition.js    # 音声認識管理
+│   │   ├── textToSpeech.js         # 音声合成管理
+│   │   ├── timelineRenderer.js     # タイムライン描画
+│   │   ├── uiManager.js            # UI状態管理
+│   │   ├── tabManager.js           # タブ・履歴管理
+│   │   ├── domElements.js          # DOM要素管理
+│   │   ├── debugLogger.js          # デバッグログ機能
+│   │   ├── vibeLogger.js           # AI用構造化ログ
+│   │   └── debugUI.js              # リアルタイムデバッグUI
+│   └── speak.js                    # 音声合成ユーティリティ
+│
+├── docs/                           # ドキュメント
+├── README.md                       # プロジェクトREADME
+├── CLAUDE.md                       # 開発ガイド
+├── DEBUG.md                        # デバッグガイド
+└── package.json                    # 依存関係管理
+</code></pre>
+<h3>主要コンポーネント</h3>
+<p><strong>AI・音声認識:</strong></p>
+<ul>
+<li><code>geminiManager.js</code>: Gemini API管理（要約・話者識別・トークン管理）</li>
+<li><code>speechRecognition.js</code>: Web Speech API音声認識</li>
+<li><code>textToSpeech.js</code>: 音声合成管理</li>
+</ul>
+<p><strong>UI・可視化:</strong></p>
+<ul>
+<li><code>timelineRenderer.js</code>: タイムライン描画・編集</li>
+<li><code>uiManager.js</code>: UI状態管理</li>
+<li><code>tabManager.js</code>: タブ・履歴管理</li>
+<li><code>domElements.js</code>: DOM要素アクセス管理</li>
+</ul>
+<p><strong>デバッグ・ログ:</strong></p>
+<ul>
+<li><code>debugLogger.js</code>: メインデバッグログ機能</li>
+<li><code>vibeLogger.js</code>: AIコードエージェント用構造化ログ</li>
+<li><code>debugUI.js</code>: リアルタイムデバッグUI</li>
+</ul>
+<h2>データフォーマット</h2>
+<h3>JSON形式（エクスポート）</h3>
+<pre><code class="language-json">{
+  &quot;timestamp&quot;: &quot;2024-12-04T12:30:00.000Z&quot;,
+  &quot;originalText&quot;: &quot;会議の全文テキスト&quot;,
+  &quot;summary&quot;: &quot;AI生成の要約文&quot;,
+  &quot;utterances&quot;: [
+    {
+      &quot;name&quot;: &quot;話者A&quot;,
+      &quot;text&quot;: &quot;発言内容&quot;
+    },
+    {
+      &quot;name&quot;: &quot;話者B&quot;,
+      &quot;text&quot;: &quot;発言内容&quot;
+    }
+  ]
+}
+</code></pre>
+<h3>TXT形式（エクスポート）</h3>
+<pre><code>会議の全文テキスト（プレーンテキスト）
+</code></pre>
+<h2>技術仕様</h2>
+<h3>依存関係</h3>
+<ul>
+<li><strong>@google/genai</strong> ^1.25.0: Gemini API統合（ESM CDN経由）</li>
+<li><strong>vibelogger</strong> ^0.1.0: AI可読構造化ログ</li>
+<li><strong>Web Speech API</strong>: 音声認識（ブラウザ標準）</li>
+<li><strong>Speech Synthesis API</strong>: 音声合成（ブラウザ標準）</li>
+</ul>
+<h3>Geminiモデル対応</h3>
+<ul>
+<li><code>gemini-2.5-flash</code> (デフォルト): RPM 10, TPM 250K, RPD 1000</li>
+<li><code>gemini-2.0-flash</code>: RPM 15, TPM 1M, RPD 1500</li>
+<li><code>gemini-2.5-pro</code>: 高精度モデル</li>
+<li>カスタムモデル対応</li>
+</ul>
+<h3>パフォーマンス</h3>
+<ul>
+<li>リアルタイム音声認識: 低遅延処理</li>
+<li>AI要約: 数秒～十数秒（テキスト量による）</li>
+<li>話者識別: 数秒～十数秒（発言数による）</li>
+<li>デバッグログ: 最小限のパフォーマンス影響</li>
+</ul>
+<h2>開発・デバッグ</h2>
+<h3>デバッグシステム</h3>
+<h4>vibelogger統合</h4>
+<ul>
+<li><strong>構造化ログ</strong>: AIコードエージェント用の高度なログ機能</li>
+<li><strong>出力形式</strong>: JSON/CSV/TXT形式で <code>./logs/</code> ディレクトリに出力</li>
+<li><strong>リアルタイム監視</strong>: デバッグUIでのライブモニタリング</li>
+</ul>
+<h4>ログレベル</h4>
+<ul>
+<li><strong>ERROR/WARN/INFO/DEBUG/TRACE</strong>: 5段階のログレベル</li>
+<li><strong>開発時</strong>: DEBUGレベル推奨</li>
+<li><strong>本番前</strong>: INFOレベルに設定</li>
+</ul>
+<h4>デバッグ機能有効化</h4>
+<pre><code># URLパラメータでデバッグモードを有効化
+?debug=DEBUG&amp;debugUI=true
+
+# デバッグキーボードショートカット
+Ctrl+D: デバッグパネル切り替え
+</code></pre>
+<h3>開発ワークフロー</h3>
+<ol>
+<li><strong>機能設計</strong>: モジュール単位での機能設計</li>
+<li><strong>実装</strong>: 対応するクラス・モジュールでの実装</li>
+<li><strong>デバッグ</strong>: vibeloggerとデバッグUIでの動作確認</li>
+<li><strong>統合テスト</strong>: 全体フローでの動作検証</li>
+</ol>
+<h3>推奨事項</h3>
+<ul>
+<li>デバッグ時は必ずvibeloggerを使用</li>
+<li>パフォーマンス監視（特にGemini API呼び出し時）</li>
+<li>開発中はデバッグUIを有効化</li>
+<li>モジュール単位での機能分割を維持</li>
+</ul>
+<h2>処理フロー</h2>
+<pre><code class="language-mermaid">flowchart TD
+    Start([アプリ起動]) --&gt; API[Gemini APIキー設定]
+    API --&gt; Verify{APIキー検証}
+    Verify --&gt;|成功| Model[モデル選択]
+    Verify --&gt;|失敗| API
+
+    Model --&gt; Speech[音声認識開始]
+    Speech --&gt; Recognition[Web Speech API&lt;br/&gt;リアルタイム音声認識]
+    Recognition --&gt; Display[文字起こし結果を表示]
+
+    Display --&gt; Choice{ユーザー操作}
+
+    Choice --&gt;|テキストを要約| Summary[Gemini API呼び出し]
+    Summary --&gt; ShowSummary[要約結果を表示]
+    ShowSummary --&gt; Choice
+
+    Choice --&gt;|話者を識別| Speaker[Gemini API呼び出し&lt;br/&gt;話者識別処理]
+    Speaker --&gt; ParseJSON[JSON解析]
+    ParseJSON --&gt; Timeline[タイムライン表示&lt;br/&gt;話者ごとに色分け]
+    Timeline --&gt; Choice
+
+    Choice --&gt;|履歴に保存| LocalStorage[(LocalStorage)]
+    Choice --&gt;|PCに保存| Export[JSON/TXT&lt;br/&gt;ダウンロード]
+
+    Choice --&gt;|音声認識停止| End([終了])
+
+    style API fill:#e1f5ff
+    style Summary fill:#fff4e1
+    style Speaker fill:#fff4e1
+    style Timeline fill:#e8f5e9
+    style LocalStorage fill:#f3e5f5
+    style Export fill:#f3e5f5
+</code></pre>
+<h2>デプロイメント</h2>
+<p><strong>本番デプロイ:</strong></p>
+<ul>
+<li>Git → GitHub Actions → さくらサーバー（自動デプロイ）</li>
+<li><strong>重要</strong>: WinSCPでの直接アップロードは禁止</li>
+<li>GitHubリポジトリ経由での自動デプロイを必須とする</li>
+</ul>
+<h2>バージョン情報</h2>
+<h3>現在のバージョン</h3>
+<p><strong>AI議事録アプリケーション</strong> (<code>/minutes/</code>)</p>
+<ul>
+<li>Gemini API統合（AI要約・話者識別）</li>
+<li>リアルタイム音声認識（日本語対応）</li>
+<li>タイムライン可視化・インライン編集</li>
+<li>構造化データエクスポート（JSON/TXT）</li>
+<li>履歴管理・検索機能</li>
+<li>デバッグシステム統合（vibelogger）</li>
+</ul>
+<h3>更新履歴</h3>
+<ul>
+<li><strong>2025-12-18</strong>: レガシー機能（kuromoji.js含む）を削除、メイン機能に統合完了</li>
+</ul>
+<h2>🔄 引き継ぎ者向け（今後の開発課題）</h2>
+<p>このセクションは、来年度以降にこのプロジェクトを引き継ぐ方向けの情報です。</p>
+<h3>📌 利用対象者</h3>
+<p>このアプリは<strong>特別支援学校の教員・職員</strong>が会議の議事録作成に利用することを想定しています。
+そのため、ITに詳しくないユーザーでも直感的に使えること、プライバシーへの配慮が重要です。</p>
+<hr>
+<h3>🚨 優先度：高 - 早期に対応してほしい課題</h3>
+<h4>1. Gemini API無料枠のデータ利用問題</h4>
+<p><strong>現状の問題:</strong></p>
+<ul>
+<li>現在、Gemini APIの<strong>無料枠</strong>を使用しています</li>
+<li>無料枠ではGoogleが<strong>入力データをAIの学習に利用する可能性</strong>があります</li>
+<li>会議内容には生徒の個人情報やセンシティブな情報が含まれる可能性があるため、プライバシー上のリスクがあります</li>
+</ul>
+<p><strong>改善案:</strong></p>
+<ul>
+<li><strong>有料プラン（Gemini API Paid Tier）への移行</strong>: データが学習に使用されない</li>
+<li><strong>Google Cloud Vertex AI経由での利用</strong>: エンタープライズ向けのデータ保護が適用される</li>
+<li><strong>ローカルLLM（Ollama等）への対応</strong>: 完全にオフラインで処理可能（ただし精度・速度のトレードオフあり）</li>
+<li>利用規約の確認: <a href="https://ai.google.dev/gemini-api/terms">https://ai.google.dev/gemini-api/terms</a></li>
+</ul>
+<h4>2. 話者識別のリアルタイム化</h4>
+<p><strong>現状の問題:</strong></p>
+<ul>
+<li>現在は「〇〇です。」と<strong>発言者が名前を都度言う</strong>ことで話者を識別しています</li>
+<li>会議中に毎回名前を言うのは不自然で、忘れることも多い</li>
+</ul>
+<p><strong>改善案:</strong></p>
+<ul>
+<li><strong>声紋認識の導入</strong>: Web Audio APIで音声特徴量を抽出し、話者を自動識別</li>
+<li><strong>事前登録方式</strong>: 会議前に参加者の声を数秒録音して登録</li>
+<li><strong>座席・マイク位置による識別</strong>: 複数マイク環境での位置ベース識別</li>
+<li><strong>顔認識との連携</strong>: カメラを使った話者識別（プライバシー要検討）</li>
+</ul>
+<p>参考ライブラリ:</p>
+<ul>
+<li><a href="https://github.com/pyannote/pyannote-audio">pyannote.audio</a>（Python、サーバーサイド）</li>
+<li><a href="https://cloud.google.com/speech-to-text/docs/multiple-voices">Speaker Diarization API</a>（Google Cloud）</li>
+</ul>
+<h4>3. UIの改善</h4>
+<p><strong>現状の問題:</strong></p>
+<ul>
+<li>機能が多く、初見では操作がわかりにくい</li>
+<li>ボタンの配置や用語がIT向けで、一般ユーザーには難しい部分がある</li>
+</ul>
+<p><strong>改善案:</strong></p>
+<ul>
+<li><strong>チュートリアル/ガイド表示</strong>: 初回起動時に使い方を案内</li>
+<li><strong>シンプルモード</strong>: 基本機能のみ表示するモード追加</li>
+<li><strong>ボタン配置の整理</strong>: 「開始」「停止」「保存」を大きく目立つ配置に</li>
+<li><strong>用語の見直し</strong>: 「APIキー」→「接続キー」など、わかりやすい表現に</li>
+<li><strong>ステップバイステップUI</strong>: ウィザード形式での操作案内</li>
+</ul>
+<hr>
+<h3>📋 優先度：中 - 余裕があれば対応してほしい課題</h3>
+<h4>4. アクセシビリティの向上</h4>
+<p>特別支援学校での利用を考慮すると、アクセシビリティは重要です：</p>
+<ul>
+<li><strong>フォントサイズ調整</strong>: 文字サイズを大きくできるオプション</li>
+<li><strong>ハイコントラストモード</strong>: 視認性の向上</li>
+<li><strong>キーボード操作</strong>: マウスなしでも全機能が使えるように</li>
+<li><strong>スクリーンリーダー対応</strong>: ARIA属性の適切な設定</li>
+<li><strong>音声フィードバック</strong>: 操作完了時の音声通知</li>
+</ul>
+<h4>5. オフライン対応</h4>
+<p>学校のネットワーク環境が不安定な場合への対策：</p>
+<ul>
+<li><strong>PWA化</strong>: Service Workerによるオフラインキャッシュ</li>
+<li><strong>ローカル音声認識</strong>: <a href="https://alphacephei.com/vosk/">Vosk</a>等のオフライン音声認識エンジン</li>
+<li><strong>ローカルLLM</strong>: Ollama + Llama等でのオフライン要約</li>
+</ul>
+<h4>6. ブラウザ互換性の拡大</h4>
+<ul>
+<li>現在はChrome/Chromiumベースのブラウザのみ対応</li>
+<li>Safari、Firefox等への対応検討（Web Speech APIの制限あり）</li>
+<li>モバイル対応（iPad等での利用を想定）</li>
+</ul>
+<h4>7. 音声認識精度の向上</h4>
+<ul>
+<li><strong>専門用語辞書</strong>: 教育用語、学校固有の用語を登録</li>
+<li><strong>ノイズキャンセル</strong>: 教室環境でのノイズ対策</li>
+<li><strong>子どもの発言対応</strong>: 児童生徒の発言も認識できるよう調整</li>
+<li><strong>カスタム言語モデル</strong>: Google Cloud Speech-to-Text等のカスタムモデル</li>
+</ul>
+<h4>8. タイムスタンプの実装（実際の発言時刻の記録）</h4>
+<p><strong>現状の問題:</strong></p>
+<ul>
+<li>現在、タイムライン表示では<strong>話者識別ボタンを押した時刻</strong>が全ての発言に表示されます</li>
+<li>実際に発言した時刻は記録されておらず、後から見返した時に「どの発言がいつ行われたか」が分かりません</li>
+</ul>
+<p><strong>改善案:</strong></p>
+<ul>
+<li><p><strong>音声認識時にタイムスタンプを埋め込む（推奨）</strong>: 音声認識の最終結果が確定した時に、テキストにタイムスタンプを埋め込む（例：<code>[14:32] 河野です。...</code>）</p>
+<ul>
+<li>Gemini APIに渡しても時刻情報が保持される</li>
+<li>実装が比較的シンプル</li>
+<li>関連ファイル: <code>minutes/js/speechRecognition.js</code>（音声認識時）、<code>minutes/js/timelineRenderer.js</code>（表示時）</li>
+</ul>
+</li>
+<li><p><strong>発言ごとのタイムスタンプを記録</strong>: 音声認識時に発言と時刻のペアを記録し、話者識別後にマッピング</p>
+<ul>
+<li>より正確だが、Gemini APIが発言を分割・統合する可能性があるため対応付けが困難</li>
+<li>実装が複雑</li>
+</ul>
+</li>
+<li><p><strong>推定タイムスタンプ</strong>: 音声認識の開始・終了時刻から発言数で等分して推定</p>
+<ul>
+<li>実装は簡単だが不正確</li>
+</ul>
+</li>
+</ul>
+<p><strong>技術的な詳細:</strong></p>
+<ul>
+<li>現在の実装: <code>minutes/js/timelineRenderer.js:145-148</code> でレンダリング時の<code>new Date()</code>を使用</li>
+<li>データ構造: <code>{ utterances: [{ name, text, timestamp }, ...] }</code> にtimestampフィールドを追加する必要がある</li>
+</ul>
+<hr>
+<h3>💡 その他の提案</h3>
+<h4>セキュリティ・プライバシー関連</h4>
+<ul>
+<li><strong>データの自動削除</strong>: 一定期間後に保存データを自動削除するオプション</li>
+<li><strong>暗号化</strong>: ローカルストレージのデータ暗号化</li>
+<li><strong>アクセス制限</strong>: パスワードや認証機能の追加</li>
+<li><strong>ログ出力の制御</strong>: デバッグログにセンシティブ情報が含まれないよう注意</li>
+</ul>
+<h4>機能拡張</h4>
+<ul>
+<li><strong>議事録テンプレート</strong>: 学校で使う定型フォーマットへの対応</li>
+<li><strong>複数会議の管理</strong>: 会議種別（職員会議、ケース会議等）での分類</li>
+<li><strong>共有機能</strong>: 議事録を他の職員と共有する仕組み</li>
+<li><strong>印刷最適化</strong>: 印刷用のレイアウト</li>
+</ul>
+<hr>
+<h3>📚 開発を始める前に</h3>
+<ol>
+<li><code>CLAUDE.md</code> を熟読してください（開発ルールが記載されています）</li>
+<li><code>npm run serve</code> でローカル環境を起動</li>
+<li><code>http://localhost:8000/minutes/?debug=DEBUG&amp;debugUI=true</code> でデバッグモードで動作確認</li>
+<li>Gemini APIキーを取得して動作を体験してください</li>
+</ol>
+<p>質問があれば、前任者（このプロジェクトを作成したメンバー）に連絡してください。</p>
+<hr>
+<h2>ライセンス・クレジット</h2>
+<ul>
+<li><strong>Web Speech API</strong>: ブラウザ標準API</li>
+<li><strong>Google Gemini API</strong>: Google AI</li>
+<li><strong>vibelogger</strong>: <a href="https://github.com/fladdict/vibe-logger">https://github.com/fladdict/vibe-logger</a></li>
+</ul>
+<hr>
+<h2>開発者向け情報</h2>
+<p>詳細な開発ガイドラインについては <code>CLAUDE.md</code> を参照してください。</p>
+
+  </article>
+
+  <!-- Initialize syntax highlighting -->
+  <script>
+    // Highlight all code blocks
+    hljs.highlightAll();
+  </script>
+</body>
+</html>
